@@ -1,24 +1,24 @@
 <template>
   <div class="flex h-full flex-col">
     <!-- Sidebar header -->
-    <div class="flex items-center justify-between border-b border-base-200 px-4 py-3">
-      <NuxtLink to="/" class="flex items-center gap-2" @click="$emit('close')">
+    <div class="flex min-h-20 items-center justify-between border-b border-neutral-content/10 px-4 py-3">
+      <NuxtLink to="/dashboard" class="flex min-w-0 items-center gap-3" @click="$emit('close')">
         <img
           v-if="showLogoImage"
           :src="imgUrl"
-          alt="EGP logo"
-          class="h-10 w-10 rounded-lg border border-success object-cover"
+          alt="Coat of Arms of Zimbabwe"
+          class="h-10 w-10 shrink-0 rounded-md bg-white object-contain p-0.5"
           @error="onLogoError"
         />
-        <div :class="['flex flex-col leading-tight', collapsed ? 'lg:hidden' : '']">
-          <span class="text-xs font-bold text-base-content/90">PRAZ</span>
-          <span class="text-[10px] font-medium text-base-content/60">e-Procurement</span>
+        <div :class="['min-w-0 leading-tight', collapsed ? 'lg:hidden' : '']">
+          <span class="block truncate text-sm font-bold">ZimEpps</span>
+          <span class="mt-0.5 block text-[11px] text-neutral-content/55">Supplier portal</span>
         </div>
       </NuxtLink>
 
       <!-- Close button — mobile only -->
       <button
-        class="btn btn-ghost btn-sm lg:hidden"
+        class="btn btn-ghost btn-sm text-neutral-content lg:hidden"
         aria-label="Close sidebar"
         @click="$emit('close')"
       >
@@ -27,12 +27,13 @@
     </div>
 
     <!-- Nav links -->
-    <nav :class="['flex-1 overflow-y-auto px-3 py-4', collapsed ? 'lg:hidden' : '']">
-      <ul class="menu w-full gap-1 p-0">
+    <nav :class="['flex-1 overflow-y-auto px-3 py-5', collapsed ? 'lg:hidden' : '']">
+      <p class="mb-2 px-3 text-[11px] font-semibold text-neutral-content/45">Your workspace</p>
+      <ul class="menu menu-sm w-full gap-1 p-0">
         <li>
           <NuxtLink
             to="/dashboard"
-            :class="['gap-2 rounded-lg', route.path === '/dashboard' ? 'bg-success text-white' : '']"
+            :class="['gap-3 rounded-md py-2.5', route.path === '/dashboard' ? 'bg-primary text-primary-content' : 'text-neutral-content/75 hover:bg-neutral-content/8 hover:text-neutral-content']"
             @click="$emit('close')"
           >
             <Icon name="lucide:home" class="h-4 w-4 shrink-0" />
@@ -42,7 +43,7 @@
 
         <li v-for="module in visibleModules" :key="module.uuid" class="mt-1">
           <details :open="module.submodules.some(submodule => route.path.startsWith(submodule.url))">
-            <summary class="gap-2 rounded-lg font-medium">
+            <summary class="gap-3 rounded-md py-2.5 font-medium text-neutral-content/75 hover:bg-neutral-content/8 hover:text-neutral-content">
               <Icon :name="module.icon" class="h-4 w-4 shrink-0" />
               {{ module.name }}
             </summary>
@@ -50,7 +51,7 @@
               <li v-for="submodule in module.submodules" :key="submodule.uuid">
                 <NuxtLink
                   :to="submodule.url"
-                  :class="['gap-2 rounded-lg text-sm', route.path.startsWith(submodule.url) ? 'bg-success text-white' : '']"
+                  :class="['gap-3 rounded-md py-2 text-sm', route.path.startsWith(submodule.url) ? 'bg-primary text-primary-content' : 'text-neutral-content/65 hover:bg-neutral-content/8 hover:text-neutral-content']"
                   @click="$emit('close')"
                 >
                   <Icon :name="submodule.icon" class="h-4 w-4 shrink-0" />
@@ -70,19 +71,19 @@
           <NuxtLink
             to="/dashboard"
             title="Home"
-            :class="['flex justify-center rounded-lg px-0', route.path === '/dashboard' ? 'bg-success text-white' : '']"
+            :class="['flex justify-center rounded-md px-0', route.path === '/dashboard' ? 'bg-primary text-primary-content' : 'text-neutral-content/70']"
           >
             <Icon name="lucide:home" class="h-5 w-5 shrink-0" />
           </NuxtLink>
         </li>
         <template v-for="module in visibleModules" :key="module.uuid">
-          <li class="my-1 border-t border-base-200" />
+          <li class="my-1 border-t border-neutral-content/10" />
           <li v-for="submodule in module.submodules" :key="submodule.uuid">
             <NuxtLink
               :to="submodule.url"
               :title="`${module.name}: ${submodule.name}`"
               :aria-label="submodule.name"
-              :class="['flex justify-center rounded-lg px-0', route.path.startsWith(submodule.url) ? 'bg-success text-white' : '']"
+              :class="['flex justify-center rounded-md px-0', route.path.startsWith(submodule.url) ? 'bg-primary text-primary-content' : 'text-neutral-content/70']"
             >
               <Icon :name="submodule.icon" class="h-5 w-5 shrink-0" />
             </NuxtLink>
@@ -92,14 +93,14 @@
     </nav>
 
     <!-- Sidebar footer -->
-    <div :class="['border-t border-base-200 py-3', collapsed ? 'px-4 lg:px-2' : 'px-4']">
+    <div :class="['border-t border-neutral-content/10 py-3', collapsed ? 'px-4 lg:px-2' : 'px-4']">
       <button
-        :class="['btn btn-ghost btn-sm w-full gap-2 text-error', collapsed ? 'justify-start lg:justify-center lg:px-0' : 'justify-start']"
+        :class="['btn btn-ghost btn-sm w-full gap-2 text-neutral-content/65 hover:bg-error/15 hover:text-error-content', collapsed ? 'justify-start lg:justify-center lg:px-0' : 'justify-start']"
         title="Logout"
         @click="logout"
       >
         <Icon name="lucide:log-out" class="h-4 w-4" />
-        <span :class="collapsed ? 'lg:hidden' : ''">Logout</span>
+        <span :class="collapsed ? 'lg:hidden' : ''">Sign out</span>
       </button>
     </div>
   </div>
@@ -131,7 +132,7 @@ const visibleModules = computed(() => modules.value
   }))
   .filter(module => module.submodules.length > 0))
 
-const imgUrl = ref('/img/prazlogo.jpg')
+const imgUrl = ref('/img/nationalemblem.png')
 const showLogoImage = ref(true)
 
 const onLogoError = () => {

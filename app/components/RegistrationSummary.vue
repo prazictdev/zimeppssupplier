@@ -1,48 +1,35 @@
 <template>
-  <div class="card border border-base-200 bg-base-100 shadow-sm">
+  <div class="card card-border bg-base-100">
 
     <!-- Card header -->
-    <div class="flex items-center justify-between gap-4 px-5 py-4 border-b border-base-200">
+    <div class="flex flex-col items-stretch justify-between gap-4 border-b border-base-200 px-5 py-4 sm:flex-row sm:items-center">
       <div class="flex items-center gap-3">
         <div class="rounded-lg bg-primary/10 p-2">
           <Icon name="lucide:clipboard-list" class="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h2 class="text-sm font-semibold text-base-content">Supplier Registrations</h2>
+          <h2 class="text-sm font-semibold text-base-content">Supplier registrations</h2>
           <p class="text-xs text-base-content/50">{{ currentYear }} financial year</p>
         </div>
       </div>
-      <button v-if="!pendingUpgrade" class="btn btn-sm btn-primary gap-1.5" @click="navigateTo('/suppliernewapplication')">
-        <Icon name="lucide:plus" class="h-4 w-4" />
-        <span class="hidden sm:inline">New Registration</span>
-      </button>
+      <NuxtLink to="/suppliernewapplication" class="btn btn-primary btn-sm w-full gap-2 sm:w-auto">
+        <Icon name="lucide:file-plus-2" class="h-4 w-4" />
+        New registration
+      </NuxtLink>
     </div>
 
     <div class="card-body p-4">
 
-      <!-- Counters -->
-      <div class="flex flex-wrap gap-2 pb-3 border-b border-base-200">
-        <div
-          v-for="counter in counters"
-          :key="counter.label"
-          class="flex items-center gap-1.5 rounded-lg border border-base-200 bg-base-50 px-3 py-1.5"
-        >
-          <span class="inline-block h-2 w-2 rounded-full shrink-0" :class="counter.dot" />
-          <span class="text-xs font-medium text-base-content">{{ counter.count }}</span>
-          <span class="text-xs text-base-content/50">{{ counter.label }}</span>
-        </div>
-      </div>
-
       <!-- Loading skeleton -->
       <div v-if="store.pending" class="space-y-2">
-        <div v-for="n in 4" :key="n" class="h-10 rounded bg-base-200 animate-pulse" />
+        <div v-for="n in 4" :key="n" class="skeleton h-10" />
       </div>
 
       <!-- Table -->
       <div v-else-if="allRegistrations.length" class="overflow-x-auto">
         <table class="table table-sm w-full">
           <thead>
-            <tr class="text-xs text-base-content/50 uppercase">
+            <tr class="text-xs text-base-content/50">
               <th>Category</th>
               <th class="hidden md:table-cell">Reg. Date</th>
               <th class="hidden md:table-cell">Expiry</th>
@@ -81,22 +68,22 @@
                 </span>
               </td>
               <td class="text-right">
-                <div class="flex items-center justify-end gap-1">
+                <div class="flex flex-col items-stretch justify-end gap-2 sm:flex-row sm:items-center">
                   <button
                     v-if="canDownload(reg)"
-                    class="btn btn-xs btn-ghost gap-1"
+                    class="btn btn-info btn-sm gap-1.5 whitespace-nowrap"
                     :disabled="downloadingId === reg.id"
                     :title="downloadTitle(reg)"
                     @click="onDownload(reg)"
                   >
                     <span v-if="downloadingId === reg.id" class="loading loading-spinner loading-xs" />
                     <Icon v-else name="lucide:download" class="h-3.5 w-3.5" />
-                    <span class="hidden sm:inline">Download</span>
+                    <span>Download certificate</span>
                   </button>
                   <button
                     v-if="allowAutorenewal && canEnrolAutorenewal(reg)"
                     class="btn btn-xs gap-1"
-                    :class="isEnrolled(reg) ? 'btn-disabled bg-green-50 text-green-700 border-green-200' : 'btn-outline btn-primary'"
+                    :class="isEnrolled(reg) ? 'btn-disabled' : 'btn-outline btn-primary'"
                     :disabled="isEnrolled(reg) || enrollingId === reg.id"
                     :title="autorenewalTitle(reg)"
                     @click="onEnrolAutorenewal(reg)"
@@ -123,7 +110,7 @@
         </div>
         <button class="btn btn-sm btn-primary gap-1.5 mt-1" @click="navigateTo('/suppliernewapplication')">
           <Icon name="lucide:rocket" class="h-4 w-4" />
-          Get Started
+          Start registration
         </button>
       </div>
     </div>
@@ -143,9 +130,6 @@ defineProps({
 const store = useRegistrationStore()
 const autorenewalStore = useAutorenewalStore()
 const toast = useToast()
-const { user } = useSanctumAuth()
-const pendingUpgrade = computed(() => user.value?.data?.pending_upgrade_invoice ?? null)
-
 const downloadingId = ref(null)
 const enrollingId = ref(null)
 
@@ -202,44 +186,6 @@ const allRegistrations = computed(() =>
   )
 )
 
-const counters = computed(() => [
-  {
-    label: 'Pending',
-    dot: 'bg-yellow-400',
-    count: allRegistrations.value.filter(r => r.payment_status === 'PENDING').length,
-  },
-  {
-    label: 'Awaiting Payment',
-    dot: 'bg-orange-400',
-    count: allRegistrations.value.filter(r => r.payment_status === 'AWAITING').length,
-  },
-  {
-    label: 'Paid',
-    dot: 'bg-teal-400',
-    count: allRegistrations.value.filter(r => r.payment_status === 'PAID').length,
-  },
-  {
-    label: 'Awaiting Approval',
-    dot: 'bg-blue-400',
-    count: allRegistrations.value.filter(r => r.payment_status !== 'PENDING' && r.payment_status !== 'AWAITING' && ['PENDING', 'AWAITING'].includes(r.approval_status)).length,
-  },
-  {
-    label: 'Approved',
-    dot: 'bg-green-400',
-    count: store.registrations.approved?.length ?? 0,
-  },
-  {
-    label: 'Rejected',
-    dot: 'bg-red-400',
-    count: store.registrations.rejected?.length ?? 0,
-  },
-  {
-    label: 'Expired',
-    dot: 'bg-gray-400',
-    count: store.registrations.expired?.length ?? 0,
-  },
-])
-
 function formatDate(date) {
   if (!date) return '—'
   return new Date(date).toLocaleDateString('en-ZW', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -252,9 +198,9 @@ function paymentLabel(status) {
 
 function paymentBadge(status) {
   const classes = {
-    PENDING:  'bg-yellow-100 text-yellow-700 border-yellow-300',
-    AWAITING: 'bg-blue-100 text-blue-700 border-blue-300',
-    PAID:     'bg-green-100 text-green-700 border-green-300',
+    PENDING: 'badge-warning badge-soft',
+    AWAITING: 'badge-info badge-soft',
+    PAID: 'badge-success badge-soft',
   }
   return classes[status] ?? 'bg-base-200 text-base-content/50'
 }
@@ -266,10 +212,10 @@ function approvalLabel(status) {
 
 function approvalBadge(status) {
   const classes = {
-    PENDING:  'bg-yellow-100 text-yellow-700 border-yellow-300',
-    AWAITING: 'bg-blue-100 text-blue-700 border-blue-300',
-    APPROVED: 'bg-green-100 text-green-700 border-green-300',
-    REJECTED: 'bg-red-100 text-red-700 border-red-300',
+    PENDING: 'badge-warning badge-soft',
+    AWAITING: 'badge-info badge-soft',
+    APPROVED: 'badge-success badge-soft',
+    REJECTED: 'badge-error badge-soft',
   }
   return classes[status] ?? 'bg-base-200 text-base-content/50'
 }

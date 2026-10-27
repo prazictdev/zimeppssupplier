@@ -1,6 +1,6 @@
 <template>
   <header
-    class="sticky top-0 z-50 border-b border-base-200/70 bg-base-100/95 shadow-sm backdrop-blur-md"
+    class="sticky top-0 z-50 border-b border-base-300 bg-base-100/95 backdrop-blur-md"
   >
     <div class="navbar mx-auto max-w-7xl px-4 py-1">
       <!-- Brand -->
@@ -9,16 +9,16 @@
           <img
             v-if="showLogoImage"
             :src="imgUrl"
-            alt="PRAZ logo"
-            class="h-12 w-12 rounded-lg border border-base-200 object-contain"
+            alt="Coat of Arms of Zimbabwe"
+            class="h-11 w-11 rounded-md border border-base-300 object-contain"
             @error="showLogoImage = false"
           />
           <div class="hidden flex-col sm:flex">
             <span class="text-sm font-bold leading-tight text-base-content">
-              Procurement Regulatory Authority
+              ZimEpps
             </span>
             <span class="text-xs text-base-content/60">
-              Electronic Procurement Platform &middot; Zimbabwe
+              Zimbabwe Electronic Public Procurement System
             </span>
           </div>
         </NuxtLink>
@@ -67,11 +67,11 @@
 
       <!-- Auth buttons -->
       <div class="flex flex-none items-center gap-2 pl-4">
-        <NuxtLink to="/login" class="btn btn-sm btn-outline btn-success hidden sm:flex">
+        <NuxtLink to="/login" class="btn btn-sm hidden sm:flex">
           <Icon name="lucide:lock" class="h-3.5 w-3.5" />
           Login
         </NuxtLink>
-        <NuxtLink to="/register" class="btn btn-sm btn-success hidden sm:flex">
+        <NuxtLink to="/register" class="btn btn-primary btn-sm hidden sm:flex">
           <Icon name="lucide:user-plus" class="h-3.5 w-3.5" />
           Register
         </NuxtLink>
@@ -90,7 +90,7 @@
             <li><a>Procuring Entities</a></li>
             <li><a>Resources</a></li>
             <li class="mt-2 border-t border-base-200 pt-2">
-              <NuxtLink to="/login" class="text-success font-medium">Login</NuxtLink>
+              <NuxtLink to="/login" class="font-medium text-primary">Login</NuxtLink>
             </li>
             <li>
               <NuxtLink to="/register" class="font-medium">Register</NuxtLink>
@@ -103,6 +103,6 @@
 </template>
 
 <script setup>
-const imgUrl = ref('/img/prazlogo.jpg')
+const imgUrl = ref('/img/nationalemblem.png')
 const showLogoImage = ref(true)
 </script>

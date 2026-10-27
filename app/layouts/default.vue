@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen flex">
+  <div class="flex min-h-screen bg-base-200">
     <!-- Mobile overlay -->
     <Transition name="fade">
       <div
         v-if="isSidebarOpen"
-        class="fixed inset-0 z-40 bg-black/40 lg:hidden"
+        class="fixed inset-0 z-40 bg-neutral/45 backdrop-blur-[2px] lg:hidden"
         @click="closeSidebar"
       />
     </Transition>
@@ -12,9 +12,9 @@
     <!-- Sidebar -->
     <aside
       :class="[
-        'fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-base-200 bg-base-100 shadow-lg transition-all duration-300 ease-in-out',
-        'lg:static lg:translate-x-0 lg:shadow-none',
-        isSidebarCollapsed ? 'lg:w-20' : 'lg:w-72',
+        'fixed inset-y-0 left-0 z-50 flex w-[18rem] flex-col border-r border-neutral/20 bg-neutral text-neutral-content shadow-2xl transition-all duration-300 ease-in-out',
+        'lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shadow-none',
+        isSidebarCollapsed ? 'lg:w-[4.75rem]' : 'lg:w-[18rem]',
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
       ]"
     >
@@ -28,15 +28,18 @@
         @toggle-sidebar="toggleSidebar"
         @toggle-collapse="toggleCollapse"
       />
-      <main class="flex-1 overflow-auto p-4">
+      <main class="flex-1 overflow-auto px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
         <PermissionDenied
           v-if="denial"
           :message="denial.message"
           @back="goBack"
           @clear="clearPermissionDenied"
         />
-        <slot v-else />
+        <div v-else class="w-full">
+          <slot />
+        </div>
       </main>
+      <SystemFooter />
     </div>
 
     <PendingAddendumDialog />
