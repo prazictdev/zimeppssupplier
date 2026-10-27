@@ -1,8 +1,10 @@
 <template>
   <Html data-theme="procurement">
+  <NuxtPwaManifest />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
+  <PwaInstallPrompt />
   </Html>
 </template>
 

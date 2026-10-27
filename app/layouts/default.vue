@@ -12,7 +12,7 @@
     <!-- Sidebar -->
     <aside
       :class="[
-        'fixed inset-y-0 left-0 z-50 flex w-[18rem] flex-col border-r border-neutral/20 bg-neutral text-neutral-content shadow-2xl transition-all duration-300 ease-in-out',
+        'fixed inset-y-0 left-0 z-50 flex w-[18rem] flex-col border-r border-[#cfe1d9] bg-[#f5faf7] text-[#263b70] shadow-2xl transition-all duration-300 ease-in-out',
         'lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shadow-none',
         isSidebarCollapsed ? 'lg:w-[4.75rem]' : 'lg:w-[18rem]',
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full',

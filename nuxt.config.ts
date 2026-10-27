@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
     '@nuxt/icon',
+    '@vite-pwa/nuxt',
     'nuxt-auth-sanctum',
     'nuxt-toast',
     '@pinia/nuxt'
@@ -14,6 +15,55 @@ export default defineNuxtConfig({
     plugins: [tailwindcss() as any],
   },
   css: ['~/assets/css/main.css'],
+  pwa: {
+    registerType: 'autoUpdate',
+    client: {
+      installPrompt: true,
+      periodicSyncForUpdates: 3600,
+    },
+    manifest: {
+      name: 'ZimEpps — Zimbabwe Electronic Public Procurement System',
+      short_name: 'ZimEpps',
+      description: 'Find public procurement opportunities and manage supplier registrations, bids, awards and contracts.',
+      theme_color: '#146c43',
+      background_color: '#f7faf8',
+      display: 'standalone',
+      orientation: 'any',
+      scope: '/',
+      start_url: '/',
+      categories: ['business', 'government', 'productivity'],
+      icons: [
+        {
+          src: '/pwa-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'any',
+        },
+        {
+          src: '/pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any',
+        },
+        {
+          src: '/pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable',
+        },
+      ],
+    },
+    workbox: {
+      navigateFallback: '/',
+      globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2}'],
+      cleanupOutdatedCaches: true,
+    },
+    devOptions: {
+      enabled: true,
+      type: 'module',
+      suppressWarnings: true,
+    },
+  },
   pinia:{
     storesDirs: ['./stores'],
    },
