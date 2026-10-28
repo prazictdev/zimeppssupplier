@@ -14,12 +14,15 @@
             class="h-11 w-11 rounded-md border border-base-300 object-contain"
             @error="showLogoImage = false"
           />
-          <div class="hidden flex-col sm:flex">
+          <div class="flex min-w-0 flex-col">
             <span class="text-sm font-bold leading-tight text-base-content">
               ZimEpps
             </span>
-            <span class="text-xs text-base-content/60">
+            <span class="hidden text-xs text-base-content/60 sm:block">
               Zimbabwe Electronic Public Procurement System
+            </span>
+            <span class="text-[0.6875rem] text-base-content/60 sm:hidden">
+              Supplier portal
             </span>
           </div>
         </NuxtLink>

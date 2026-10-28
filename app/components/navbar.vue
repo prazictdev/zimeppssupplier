@@ -8,6 +8,10 @@
       <button class="btn btn-ghost btn-sm hidden lg:inline-flex" :aria-label="sidebarCollapsed ? 'Expand navigation' : 'Collapse navigation'" :title="sidebarCollapsed ? 'Expand navigation' : 'Collapse navigation'" @click="$emit('toggleCollapse')">
         <Icon :name="sidebarCollapsed ? 'lucide:panel-left-open' : 'lucide:panel-left-close'" class="h-5 w-5" />
       </button>
+      <NuxtLink to="/dashboard" class="flex min-w-0 flex-col sm:hidden" aria-label="ZimEpps supplier portal home">
+        <span class="truncate text-sm font-bold leading-tight text-base-content">ZimEpps</span>
+        <span class="truncate text-[0.6875rem] leading-tight text-base-content/50">Supplier portal</span>
+      </NuxtLink>
       <div class="hidden min-w-0 flex-col sm:flex">
         <p class="truncate text-sm font-bold leading-tight text-base-content">{{ companyDisplayName }}</p>
         <p class="mt-0.5 truncate text-xs text-base-content/50">Registration number: {{ companyRegistrationNumber }}</p>
