@@ -1,0 +1,17 @@
+<template>
+  <fieldset class="card card-border bg-base-100" :disabled="disabled"><div class="card-body gap-4"><legend class="flex items-start gap-3"><span class="badge badge-ghost mt-0.5">{{ number }}</span><span><span class="font-semibold">{{ question.prompt }}</span><span v-if="question.required" class="ml-1 text-error">*</span><span v-if="question.help_text" class="mt-1 block text-xs font-normal text-base-content/50">{{ question.help_text }}</span></span></legend>
+    <input v-if="question.type === 'SHORT_TEXT'" :value="modelValue" class="input w-full" :required="question.required" @input="update($event.target.value)" />
+    <textarea v-else-if="question.type === 'LONG_TEXT'" :value="modelValue" class="textarea min-h-28 w-full" :required="question.required" @input="update($event.target.value)" />
+    <div v-else-if="question.type === 'YES_NO'" class="flex flex-wrap gap-3"><label v-for="option in ['Yes', 'No']" :key="option" class="label cursor-pointer justify-start gap-2 rounded-box border border-base-300 px-4 py-3"><input type="radio" :name="question.uuid" class="radio radio-sm" :checked="modelValue === option" :required="question.required" @change="update(option)" />{{ option }}</label></div>
+    <div v-else-if="question.type === 'SINGLE_CHOICE'" class="grid gap-2 sm:grid-cols-2"><label v-for="option in question.options" :key="option" class="label cursor-pointer justify-start gap-2 rounded-box border border-base-300 px-4 py-3"><input type="radio" :name="question.uuid" class="radio radio-sm" :checked="modelValue === option" :required="question.required" @change="update(option)" />{{ option }}</label></div>
+    <div v-else-if="question.type === 'MULTIPLE_CHOICE'" class="grid gap-2 sm:grid-cols-2"><label v-for="option in question.options" :key="option" class="label cursor-pointer justify-start gap-2 rounded-box border border-base-300 px-4 py-3"><input type="checkbox" class="checkbox checkbox-sm" :checked="Array.isArray(modelValue) && modelValue.includes(option)" @change="toggle(option, $event.target.checked)" />{{ option }}</label></div>
+    <div v-else-if="question.type === 'RATING'"><div class="flex flex-wrap gap-2"><label v-for="rating in ratings" :key="rating" class="cursor-pointer"><input type="radio" :name="question.uuid" class="peer sr-only" :checked="Number(modelValue) === rating" :required="question.required" @change="update(rating)" /><span class="btn btn-square peer-checked:btn-primary">{{ rating }}</span></label></div><div class="mt-2 flex max-w-lg justify-between text-xs text-base-content/45"><span>{{ question.low_label }}</span><span>{{ question.high_label }}</span></div></div>
+  </div></fieldset>
+</template>
+<script setup>
+const props = defineProps({ modelValue: { default: null }, question: { type: Object, required: true }, number: { type: Number, required: true }, disabled: { type: Boolean, default: false } })
+const emit = defineEmits(['update:modelValue'])
+const ratings = computed(() => Array.from({ length: (props.question.rating_max || 5) - (props.question.rating_min || 1) + 1 }, (_, index) => (props.question.rating_min || 1) + index))
+const update = value => emit('update:modelValue', value)
+function toggle(option, checked) { const next = Array.isArray(props.modelValue) ? [...props.modelValue] : []; if (checked && !next.includes(option)) next.push(option); if (!checked) next.splice(next.indexOf(option), 1); update(next) }
+</script>

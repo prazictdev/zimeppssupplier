@@ -40,6 +40,16 @@
             <span>Home</span>
           </NuxtLink>
         </li>
+        <li>
+          <NuxtLink
+            to="/feedback"
+            :class="['gap-3 rounded-md py-2.5', route.path.startsWith('/feedback') ? 'bg-[#008f55] text-white shadow-sm' : 'text-[#263b70]/80 hover:bg-[#e3f2eb] hover:text-[#263b70]']"
+            @click="$emit('close')"
+          >
+            <Icon name="lucide:messages-square" class="h-4 w-4 shrink-0" />
+            <span>Testing feedback</span>
+          </NuxtLink>
+        </li>
 
         <li v-for="module in visibleModules" :key="module.uuid" class="mt-1">
           <details :open="module.submodules.some(submodule => route.path.startsWith(submodule.url))">
@@ -74,6 +84,15 @@
             :class="['flex justify-center rounded-md px-0', route.path === '/dashboard' ? 'bg-[#008f55] text-white' : 'text-[#263b70]/70 hover:bg-[#e3f2eb]']"
           >
             <Icon name="lucide:home" class="h-5 w-5 shrink-0" />
+          </NuxtLink>
+        </li>
+        <li>
+          <NuxtLink
+            to="/feedback"
+            title="Testing feedback"
+            :class="['flex justify-center rounded-md px-0', route.path.startsWith('/feedback') ? 'bg-[#008f55] text-white' : 'text-[#263b70]/70 hover:bg-[#e3f2eb]']"
+          >
+            <Icon name="lucide:messages-square" class="h-5 w-5 shrink-0" />
           </NuxtLink>
         </li>
         <template v-for="module in visibleModules" :key="module.uuid">
