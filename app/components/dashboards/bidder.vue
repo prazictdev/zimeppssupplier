@@ -154,7 +154,7 @@
         </div>
       </div>
 
-      <div class="space-y-4 md:hidden">
+      <div class="space-y-3 md:hidden">
         <RegistrationSummary
           v-if="hasRegistrationTab"
           :allow-autorenewal="showAutorenewals"
@@ -163,26 +163,29 @@
         <article
           v-for="tab in mobileActivityTabs"
           :key="`mobile-${tab.key}`"
-          class="card card-border overflow-hidden bg-base-100"
+          class="card card-sm overflow-hidden border border-base-200 bg-base-100 shadow-sm"
         >
-          <div class="flex items-center justify-between gap-3 border-b border-base-200 px-4 py-3">
+          <div class="flex items-start justify-between gap-3 px-4 pb-3 pt-4">
             <div class="flex min-w-0 items-center gap-3">
-              <div class="grid h-9 w-9 shrink-0 place-items-center rounded-lg" :class="tab.iconClasses">
-                <Icon :name="tab.icon" class="h-5 w-5" />
+              <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl" :class="tab.iconClasses">
+                <Icon :name="tab.icon" class="h-5 w-5" aria-hidden="true" />
               </div>
               <div class="min-w-0">
-                <h3 class="truncate font-semibold">{{ tab.panelTitle }}</h3>
-                <p class="truncate text-xs text-base-content/50">{{ tab.description }}</p>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="text-sm font-bold leading-5">{{ tab.panelTitle }}</h3>
+                  <span v-if="tabCount(tab.key) !== null" class="badge badge-ghost badge-sm">{{ tabCount(tab.key) }}</span>
+                </div>
+                <p class="mt-0.5 line-clamp-2 text-[11px] leading-4 text-base-content/55">{{ tab.description }}</p>
               </div>
             </div>
-            <NuxtLink :to="tab.to" class="btn btn-ghost btn-square btn-sm" :aria-label="`Open ${tab.label}`">
-              <Icon name="lucide:arrow-up-right" class="h-4 w-4" />
+            <NuxtLink :to="tab.to" class="btn btn-ghost btn-circle btn-sm shrink-0" :aria-label="`Open ${tab.label}`">
+              <Icon name="lucide:arrow-up-right" class="h-4 w-4" aria-hidden="true" />
             </NuxtLink>
           </div>
 
-          <div class="card-body p-0">
-            <div v-if="tabStates[tab.key].loading" class="space-y-2 p-4" :aria-label="`Loading ${tab.label}`">
-              <div v-for="item in 3" :key="item" class="skeleton h-14 w-full" />
+          <div class="card-body gap-0 border-t border-base-200 p-0">
+            <div v-if="tabStates[tab.key].loading" class="space-y-2 p-3" :aria-label="`Loading ${tab.label}`">
+              <div v-for="item in 2" :key="item" class="skeleton h-20 w-full rounded-xl" />
             </div>
 
             <div v-else-if="tabStates[tab.key].error" role="alert" class="alert alert-error alert-soft m-4 w-auto">
@@ -191,54 +194,72 @@
               <button type="button" class="btn btn-error btn-xs" @click="loadTab(tab.key, true)">Retry</button>
             </div>
 
-            <div v-else-if="tab.key === 'contracts'" class="px-5 py-8 text-center">
-              <Icon name="lucide:file-signature" class="mx-auto h-8 w-8 text-success" />
-              <h4 class="mt-3 font-semibold">Contract management is being prepared</h4>
-              <p class="mt-1 text-sm text-base-content/55">Awarded contracts and delivery milestones will appear here when the service is enabled.</p>
+            <div v-else-if="tab.key === 'contracts'" class="flex items-start gap-3 p-4">
+              <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-success/10 text-success">
+                <Icon name="lucide:file-signature" class="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div class="min-w-0">
+                <h4 class="text-sm font-semibold">Contract management is being prepared</h4>
+                <p class="mt-1 text-xs leading-5 text-base-content/55">Awarded contracts and delivery milestones will appear here when the service is enabled.</p>
+              </div>
             </div>
 
-            <div v-else-if="!tabStates[tab.key].items.length" class="px-5 py-8 text-center">
-              <Icon :name="tab.emptyIcon" class="mx-auto h-8 w-8 text-base-content/25" />
-              <h4 class="mt-3 font-semibold">{{ tab.emptyTitle }}</h4>
-              <p class="mt-1 text-sm text-base-content/50">{{ tab.emptyDescription }}</p>
+            <div v-else-if="!tabStates[tab.key].items.length" class="flex items-start gap-3 p-4">
+              <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-base-200 text-base-content/35">
+                <Icon :name="tab.emptyIcon" class="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div class="min-w-0">
+                <h4 class="text-sm font-semibold">{{ tab.emptyTitle }}</h4>
+                <p class="mt-1 text-xs leading-5 text-base-content/55">{{ tab.emptyDescription }}</p>
+              </div>
             </div>
 
-            <ul v-else-if="tab.key === 'tenders'" class="list">
-              <li v-for="bid in tabStates.tenders.items.slice(0, 3)" :key="bid.uuid" class="list-row items-center border-b border-base-200 last:border-b-0">
-                <div class="list-col-grow min-w-0">
-                  <p class="truncate text-sm font-semibold">{{ bid.title }}</p>
-                  <p class="truncate text-xs text-base-content/50">{{ bid.reference || '—' }} · Closes {{ formatDate(bid.closing_at) }}</p>
+            <div v-else-if="tab.key === 'tenders'" class="space-y-2 p-3">
+              <NuxtLink
+                v-for="bid in tabStates.tenders.items.slice(0, 3)"
+                :key="bid.uuid"
+                :to="bidLink(bid)"
+                class="block rounded-xl border border-base-200 bg-base-200/35 p-3 transition-colors active:bg-base-200"
+              >
+                <div class="flex items-start justify-between gap-2">
+                  <p class="min-w-0 flex-1 text-sm font-semibold leading-5">{{ bid.title }}</p>
+                  <span class="badge badge-sm shrink-0" :class="bid.status === 'DRAFT' ? 'badge-warning badge-soft' : 'badge-success badge-soft'">{{ pretty(bid.status) }}</span>
                 </div>
-                <span class="badge badge-sm" :class="bid.status === 'DRAFT' ? 'badge-warning badge-soft' : 'badge-success badge-soft'">{{ pretty(bid.status) }}</span>
-                <NuxtLink :to="bidLink(bid)" class="btn btn-ghost btn-square btn-sm" :aria-label="`View ${bid.title}`"><Icon name="lucide:chevron-right" /></NuxtLink>
-              </li>
-            </ul>
+                <div class="mt-2 flex items-end justify-between gap-3">
+                  <div class="min-w-0 space-y-0.5 text-xs text-base-content/55">
+                    <p class="truncate font-mono">{{ bid.reference || '—' }}</p>
+                    <p>Closes {{ formatDate(bid.closing_at) }}</p>
+                  </div>
+                  <Icon name="lucide:chevron-right" class="h-4 w-4 shrink-0 text-base-content/35" aria-hidden="true" />
+                </div>
+              </NuxtLink>
+            </div>
 
-            <ul v-else-if="tab.key === 'awards'" class="list">
-              <li v-for="award in tabStates.awards.items.slice(0, 3)" :key="award.uuid" class="list-row items-center border-b border-base-200 last:border-b-0">
-                <div class="list-col-grow min-w-0">
-                  <p class="truncate text-sm font-semibold">{{ award.tender?.title || 'Award notice' }}</p>
-                  <p class="truncate text-xs text-base-content/50">{{ award.supplier?.name || '—' }}</p>
+            <div v-else-if="tab.key === 'awards'" class="space-y-2 p-3">
+              <NuxtLink v-for="award in tabStates.awards.items.slice(0, 3)" :key="award.uuid" to="/mysupplierawards" class="block rounded-xl border border-base-200 bg-base-200/35 p-3 active:bg-base-200">
+                <div class="flex items-start justify-between gap-2">
+                  <p class="min-w-0 flex-1 text-sm font-semibold leading-5">{{ award.tender?.title || 'Award notice' }}</p>
+                  <span class="badge badge-xs shrink-0" :class="award.status === 'FINALIZED' ? 'badge-success badge-soft' : 'badge-warning badge-soft'">{{ pretty(award.status) }}</span>
                 </div>
-                <div class="text-right">
-                  <p class="text-sm font-semibold">{{ formatMoney(award.amount, award.currency_code) }}</p>
-                  <span class="badge badge-xs" :class="award.status === 'FINALIZED' ? 'badge-success badge-soft' : 'badge-warning badge-soft'">{{ pretty(award.status) }}</span>
+                <div class="mt-2 flex items-end justify-between gap-3 text-xs">
+                  <p class="min-w-0 truncate text-base-content/55">{{ award.supplier?.name || 'Supplier not specified' }}</p>
+                  <p class="shrink-0 font-semibold">{{ formatMoney(award.amount, award.currency_code) }}</p>
                 </div>
-              </li>
-            </ul>
+              </NuxtLink>
+            </div>
 
-            <ul v-else-if="tab.key === 'bonds'" class="list">
-              <li v-for="bond in tabStates.bonds.items.slice(0, 3)" :key="bond.uuid" class="list-row items-center border-b border-base-200 last:border-b-0">
-                <div class="list-col-grow min-w-0">
-                  <p class="truncate text-sm font-semibold">{{ bond.tender?.reference || bond.tender?.title || 'Bid bond' }}</p>
-                  <p class="truncate text-xs text-base-content/50">Paid {{ formatDate(bond.paid_at) }}</p>
+            <div v-else-if="tab.key === 'bonds'" class="space-y-2 p-3">
+              <NuxtLink v-for="bond in tabStates.bonds.items.slice(0, 3)" :key="bond.uuid" to="/bid-bonds" class="block rounded-xl border border-base-200 bg-base-200/35 p-3 active:bg-base-200">
+                <div class="flex items-start justify-between gap-2">
+                  <p class="min-w-0 flex-1 text-sm font-semibold leading-5">{{ bond.tender?.reference || bond.tender?.title || 'Bid bond' }}</p>
+                  <span class="badge badge-xs shrink-0" :class="maturityClass(bond.maturity_status)">{{ pretty(bond.maturity_status) }}</span>
                 </div>
-                <div class="text-right">
-                  <p class="text-sm font-semibold">{{ bond.currency || '' }} {{ formatAmount(bond.amount) }}</p>
-                  <span class="badge badge-xs" :class="maturityClass(bond.maturity_status)">{{ pretty(bond.maturity_status) }}</span>
+                <div class="mt-2 flex items-end justify-between gap-3 text-xs">
+                  <p class="text-base-content/55">Paid {{ formatDate(bond.paid_at) }}</p>
+                  <p class="shrink-0 font-semibold">{{ bond.currency || '' }} {{ formatAmount(bond.amount) }}</p>
                 </div>
-              </li>
-            </ul>
+              </NuxtLink>
+            </div>
 
             <div v-if="tabStates[tab.key].items.length > 3" class="border-t border-base-200 px-4 py-3 text-center">
               <NuxtLink :to="tab.to" class="btn btn-ghost btn-sm">View all {{ tab.label.toLowerCase() }}</NuxtLink>

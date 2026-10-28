@@ -103,6 +103,16 @@
               <p class="mt-3 flex items-center gap-2 text-sm text-green-100"><Icon name="lucide:building-2" class="h-4 w-4" />{{ tender.entity ?? 'Procuring entity' }}</p>
             </div>
             <div class="flex shrink-0 flex-wrap gap-2">
+              <button
+                v-if="!user"
+                class="btn btn-sm border-white/30 bg-white/10 text-white hover:bg-white/20"
+                :disabled="watchLoading || !guestWatchSupported"
+                @click="toggleGuestWatch"
+              >
+                <span v-if="watchLoading" class="loading loading-spinner loading-xs" />
+                <Icon v-else :name="watching ? 'lucide:bell-ring' : 'lucide:bell-plus'" class="h-4 w-4" />
+                {{ watching ? 'Alerts enabled' : 'Watch tender' }}
+              </button>
               <button v-if="tender.sbd_available" class="btn btn-sm border-white/30 bg-white/10 text-white hover:bg-white/20" :disabled="downloadingSbd" @click="downloadSbd"><span v-if="downloadingSbd" class="loading loading-spinner loading-xs" /><Icon v-else name="lucide:file-down" class="h-4 w-4" /> Download document</button>
               <NuxtLink :to="`/login?redirect=${encodeURIComponent(`/supplieropportunities/${uuid}`)}`" class="btn btn-sm bg-white text-green-800 hover:bg-green-50"><Icon name="lucide:log-in" class="h-4 w-4" /> Sign in to bid</NuxtLink>
             </div>
@@ -352,6 +362,8 @@ definePageMeta({
 const route = useRoute()
 const toast = useToast()
 const { user } = useSanctumAuth()
+const guestWatch = useGuestTenderWatch()
+const guestWatchSupported = guestWatch.supported
 const {
   getTenderDetail,
   getSbdDownloadUrl,
@@ -368,6 +380,8 @@ const loading = ref(true)
 const error = ref(null)
 const downloadingSbd = ref(false)
 const downloadingAddendum = ref(null)
+const watching = ref(false)
+const watchLoading = ref(false)
 const isConsultancyEoi = computed(() => tender.value?.opportunity_type === 'EXPRESSION_OF_INTEREST')
 
 async function loadTender() {
@@ -379,11 +393,37 @@ async function loadTender() {
   if (!res.ok && user.value && res.notFound) res = await getTenderDetail(uuid.value)
   if (res.ok) {
     tender.value = res.data?.data ?? null
+    if (!user.value && !isConsultancyEoi.value) {
+      const watchStatus = await guestWatch.status(uuid.value)
+      watching.value = watchStatus.watching
+    }
   } else {
     tender.value = null
     error.value = res.error
   }
   loading.value = false
+}
+
+async function toggleGuestWatch() {
+  if (watchLoading.value) return
+  watchLoading.value = true
+  const result = watching.value
+    ? await guestWatch.unwatch(uuid.value)
+    : await guestWatch.watch(uuid.value)
+  watchLoading.value = false
+
+  if (!result.ok) {
+    toast.error({ title: 'Tender alerts unavailable', message: result.error, position: 'topRight', layout: 2 })
+    return
+  }
+
+  watching.value = !watching.value
+  toast.success({
+    title: watching.value ? 'Tender alerts enabled' : 'Tender alerts disabled',
+    message: watching.value ? 'This device will receive addendum, deadline, opening and award updates.' : 'This device will no longer receive updates for this tender.',
+    position: 'topRight',
+    layout: 2,
+  })
 }
 
 async function downloadSbd() {
