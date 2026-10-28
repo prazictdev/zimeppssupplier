@@ -1,5 +1,5 @@
 <template>
-  <div v-if="walletBalances.length" class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+  <div v-if="walletBalances.length" class="grid grid-cols-2 gap-3 xl:grid-cols-4">
     <NuxtLink
       v-for="wallet in walletBalances"
       :key="`${wallet.bankaccounttype_id}-${wallet.currency_id}`"

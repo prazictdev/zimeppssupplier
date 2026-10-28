@@ -9,7 +9,7 @@
         <NuxtLink to="/supplierstatement" class="btn btn-ghost btn-sm">View statement</NuxtLink>
       </div>
       <!-- Loading skeleton -->
-      <div v-if="walletStore.pending" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div v-if="walletStore.pending" class="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <div v-for="n in 4" :key="n" class="skeleton h-28" />
       </div>
 
