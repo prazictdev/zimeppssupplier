@@ -57,6 +57,7 @@ export default defineNuxtConfig({
       navigateFallback: '/',
       globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2}'],
       cleanupOutdatedCaches: true,
+      importScripts: ['/push-sw.js'],
     },
     devOptions: {
       enabled: true,
@@ -69,8 +70,6 @@ export default defineNuxtConfig({
    },
   runtimeConfig: {
     public: {
-      docmanBaseUrl: process.env.NUXT_PUBLIC_DOCMAN_BASE_URL || 'http://localhost:8001',
-      docmanApiKey: process.env.NUXT_PUBLIC_DOCMAN_KEY || '',
     },
   },
   sanctum: {

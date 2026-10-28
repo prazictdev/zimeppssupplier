@@ -12,7 +12,7 @@
       </div></section>
       <section class="card border border-base-200 bg-base-100 shadow-sm"><div class="card-body">
         <h2 class="card-title">Documents</h2>
-        <a v-for="document in tender.documents" :key="document.id" :href="document.docman_url" target="_blank" class="link link-primary">{{ document.name }}</a>
+        <a v-for="document in tender.documents" :key="document.id" :href="document.url" target="_blank" rel="noopener" class="link link-primary">{{ document.name }}</a>
         <p v-if="!tender.documents?.length" class="text-sm text-base-content/50">No archived documents are available.</p>
       </div></section>
       <section class="card border border-base-200 bg-base-100 shadow-sm"><div class="card-body">

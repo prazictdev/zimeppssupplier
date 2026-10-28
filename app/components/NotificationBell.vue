@@ -22,14 +22,17 @@
     >
       <div class="flex items-center justify-between border-b border-base-200 px-4 py-2.5">
         <p class="text-sm font-semibold">Notifications</p>
-        <button
-          v-if="hasUnread"
-          class="btn btn-ghost btn-xs gap-1"
-          @click="markAllRead"
-        >
-          <Icon name="lucide:check-check" class="h-3.5 w-3.5" />
-          Mark all read
-        </button>
+        <div class="flex items-center gap-1">
+          <PushNotificationToggle />
+          <button
+            v-if="hasUnread"
+            class="btn btn-ghost btn-xs gap-1"
+            @click="markAllRead"
+          >
+            <Icon name="lucide:check-check" class="h-3.5 w-3.5" />
+            Mark all read
+          </button>
+        </div>
       </div>
 
       <div v-if="loading" class="space-y-2 p-3">

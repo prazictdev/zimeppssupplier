@@ -5,7 +5,7 @@
         <div class="pointer-events-none absolute -right-24 top-10 h-80 w-80 rounded-full border-[64px] border-white/55" />
         <div class="pointer-events-none absolute -left-20 bottom-24 h-56 w-56 rounded-full border-[44px] border-sky-200/35" />
 
-        <div class="relative mx-auto max-w-7xl px-5 pb-8 pt-14 sm:px-8 sm:pt-20 lg:pb-10 lg:pt-24">
+        <div class="app-shell relative px-5 pb-8 pt-14 sm:px-8 sm:pt-20 lg:pb-10 lg:pt-24">
           <div class="grid gap-12 lg:grid-cols-[0.68fr_1.32fr] lg:items-center">
             <div>
               <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-900/10 bg-white/75 px-3 py-1.5 text-xs font-bold text-[#163369] shadow-sm">
@@ -79,7 +79,7 @@
       </section>
 
       <section id="current-tenders" class="scroll-mt-24 py-16 sm:py-20">
-        <div class="mx-auto max-w-7xl px-5 sm:px-8">
+        <div class="app-shell px-5 sm:px-8">
           <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
               <h2 class="text-3xl font-black tracking-tight sm:text-4xl">Live Opportunities</h2>
@@ -175,7 +175,7 @@
       </section>
 
       <section id="system-modules" class="border-t border-slate-200 bg-[#f4f8f7] py-16 sm:py-24">
-        <div class="mx-auto max-w-7xl px-5 sm:px-8">
+        <div class="app-shell px-5 sm:px-8">
           <div class="max-w-3xl">
             <p class="text-sm font-semibold text-emerald-700">Everything suppliers need in one place</p>
             <h2 class="mt-2 text-3xl font-black tracking-tight text-[#101d3f] sm:text-4xl">Your supplier portal</h2>
@@ -202,13 +202,13 @@
     </main>
 
     <footer class="border-t border-slate-200 bg-white">
-      <div class="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:grid-cols-2 sm:px-8 lg:grid-cols-[1.4fr_0.8fr_0.8fr_1fr]">
+      <div class="app-shell grid gap-10 px-5 py-12 sm:grid-cols-2 sm:px-8 lg:grid-cols-[1.4fr_0.8fr_0.8fr_1fr]">
         <div><div class="flex items-center gap-3"><img src="/img/prazlogo.jpg" alt="Procurement Regulatory Authority of Zimbabwe logo" class="h-16 w-16 rounded-xl border border-slate-200 object-contain"><div><p class="text-sm font-black">ZimEpps</p><p class="text-xs text-slate-400">Zimbabwe Electronic Public Procurement System</p></div></div><p class="mt-4 max-w-sm text-sm leading-6 text-slate-500">Developed and maintained by the Procurement Regulatory Authority of Zimbabwe, which promotes transparent, fair, competitive and accountable public procurement.</p></div>
         <div><h3 class="text-sm font-bold">Suppliers</h3><ul class="mt-4 space-y-2 text-sm text-slate-500"><li><NuxtLink to="/register" class="hover:text-emerald-700">Register</NuxtLink></li><li><NuxtLink to="/login" class="hover:text-emerald-700">Sign in</NuxtLink></li><li><button class="hover:text-emerald-700" @click="scrollToTenders">Browse tenders</button></li></ul></div>
         <div><h3 class="text-sm font-bold">Platform</h3><ul class="mt-4 space-y-2 text-sm text-slate-500"><li><button class="hover:text-emerald-700" @click="scrollToSystemModules">Supplier modules</button></li><li><button class="hover:text-emerald-700" @click="scrollToHowItWorks">How it works</button></li><li><a href="https://www.praz.org.zw" class="hover:text-emerald-700">About PRAZ</a></li></ul></div>
         <div><h3 class="text-sm font-bold">Contact</h3><ul class="mt-4 space-y-3 text-sm text-slate-500"><li class="flex gap-2"><Icon name="lucide:map-pin" class="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />160 Rhodesville Avenue, Harare</li><li class="flex gap-2"><Icon name="lucide:phone" class="h-4 w-4 text-emerald-700" />+263 242 795 991</li><li class="flex gap-2"><Icon name="lucide:mail" class="h-4 w-4 text-emerald-700" />info@praz.org.zw</li></ul></div>
       </div>
-      <div class="border-t border-slate-100"><div class="mx-auto flex max-w-7xl flex-col gap-2 px-5 py-5 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-8"><p>&copy; {{ new Date().getFullYear() }} Procurement Regulatory Authority of Zimbabwe.</p><p>ZimEpps is developed and maintained by PRAZ.</p></div></div>
+      <div class="border-t border-slate-100"><div class="app-shell flex flex-col gap-2 px-5 py-5 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-8"><p>&copy; {{ new Date().getFullYear() }} Procurement Regulatory Authority of Zimbabwe.</p><p>ZimEpps is developed and maintained by PRAZ.</p></div></div>
     </footer>
   </div>
 </template>

@@ -28,7 +28,7 @@
         @toggle-sidebar="toggleSidebar"
         @toggle-collapse="toggleCollapse"
       />
-      <main class="flex-1 overflow-auto px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
+      <main class="app-shell flex-1 overflow-auto px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
         <PermissionDenied
           v-if="denial"
           :message="denial.message"

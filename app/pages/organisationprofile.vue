@@ -164,7 +164,7 @@
                     <p v-if="d.reject_reason" class="text-xs text-error mt-0.5">{{ d.reject_reason }}</p>
                   </td>
                   <td class="hidden md:table-cell text-sm">
-                    <a v-if="d.file_path" :href="d.file_path" target="_blank" rel="noopener"
+                    <a v-if="d.file_url" :href="d.file_url" target="_blank" rel="noopener"
                        class="link link-primary text-xs gap-1 inline-flex items-center">
                       <Icon name="lucide:file-text" class="h-3.5 w-3.5" />
                       {{ d.file_name ?? 'View' }}
@@ -263,7 +263,7 @@
                     <p v-if="doc.rejection_reason" class="text-xs text-error mt-0.5">{{ doc.rejection_reason }}</p>
                   </td>
                   <td class="text-right">
-                    <a v-if="doc.file_path" :href="doc.file_path" target="_blank" rel="noopener" class="btn btn-xs btn-ghost gap-1">
+                    <a v-if="doc.file_url" :href="doc.file_url" target="_blank" rel="noopener" class="btn btn-xs btn-ghost gap-1">
                       <Icon name="lucide:external-link" class="h-3.5 w-3.5" />
                       <span class="hidden sm:inline">View</span>
                     </a>

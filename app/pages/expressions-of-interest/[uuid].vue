@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto max-w-6xl space-y-5">
+  <div class="app-shell space-y-5">
     <NuxtLink :to="user ? '/supplieropportunities' : '/tenders'" class="btn btn-ghost btn-sm"><Icon name="lucide:arrow-left" /> All opportunities</NuxtLink>
     <div v-if="loading" class="flex justify-center py-20"><span class="loading loading-spinner loading-lg" /></div>
     <div v-else-if="error" class="alert alert-error text-black"><Icon name="lucide:circle-alert" /><span>{{ error }}</span></div>

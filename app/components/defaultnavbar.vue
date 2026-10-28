@@ -3,7 +3,7 @@
     ref="navbarRoot"
     class="sticky top-0 z-50 border-b border-base-300 bg-base-100/95 backdrop-blur-md"
   >
-    <div class="navbar mx-auto max-w-7xl px-4 py-1">
+    <div class="navbar app-shell px-5 py-1 sm:px-8">
       <!-- Brand -->
       <div class="flex flex-1 items-center gap-3">
         <NuxtLink to="/" class="flex shrink-0 items-center gap-2" @click="closeMenus">

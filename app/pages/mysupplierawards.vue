@@ -1,5 +1,5 @@
 <template>
-  <main class="mx-auto w-full max-w-6xl space-y-6 p-4 sm:p-6">
+  <main class="app-shell space-y-6 p-4 sm:p-6">
     <header class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <p class="text-sm font-medium uppercase tracking-wider text-primary">Procurement outcomes</p>

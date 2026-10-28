@@ -10,6 +10,21 @@ export const useNotificationStore = defineStore('notifications', () => {
   let inFlight = null
   let inFlightKey = null
 
+  function syncAppBadge() {
+    if (!import.meta.client || !('setAppBadge' in navigator)) return
+
+    if (unreadCount.value > 0) {
+      navigator.setAppBadge(unreadCount.value).catch(() => {})
+    } else if ('clearAppBadge' in navigator) {
+      navigator.clearAppBadge().catch(() => {})
+    }
+  }
+
+  function setUnreadCount(count) {
+    unreadCount.value = Math.max(0, Number(count) || 0)
+    syncAppBadge()
+  }
+
   async function fetchNotifications({ page = 1, perPage = 15, unreadOnly = false } = {}) {
     // The bell and the notifications page can mount together — share the request
     // only when it is genuinely the same one, otherwise paging to page 2 while
@@ -29,7 +44,7 @@ export const useNotificationStore = defineStore('notifications', () => {
 
         const response = await client(`/api/supplier/v1/notifications?${query}`, { method: 'GET' })
         items.value = response?.data?.notifications ?? []
-        unreadCount.value = response?.data?.unread_count ?? 0
+        setUnreadCount(response?.data?.unread_count ?? 0)
         meta.value = response?.data?.meta ?? null
       } catch (err) {
         error.value = err?.data?.message ?? 'Failed to load notifications.'
@@ -49,7 +64,7 @@ export const useNotificationStore = defineStore('notifications', () => {
     const client = useSupplierClient()
     try {
       const response = await client('/api/supplier/v1/notifications/unread-count', { method: 'GET' })
-      unreadCount.value = response?.data?.unread_count ?? 0
+      setUnreadCount(response?.data?.unread_count ?? 0)
     } catch {
       // A failed poll must never break the page chrome — keep the last count.
     }
@@ -64,7 +79,7 @@ export const useNotificationStore = defineStore('notifications', () => {
     try {
       const response = await client(`/api/supplier/v1/notifications/${id}/read`, { method: 'POST' })
       if (target) target.read_at = response?.data?.notification?.read_at ?? new Date().toISOString()
-      unreadCount.value = response?.data?.unread_count ?? Math.max(0, unreadCount.value - 1)
+      setUnreadCount(response?.data?.unread_count ?? Math.max(0, unreadCount.value - 1))
       return true
     } catch {
       return false
@@ -77,7 +92,7 @@ export const useNotificationStore = defineStore('notifications', () => {
       await client('/api/supplier/v1/notifications/read-all', { method: 'POST' })
       const stamp = new Date().toISOString()
       items.value.forEach((item) => { item.read_at = item.read_at ?? stamp })
-      unreadCount.value = 0
+      setUnreadCount(0)
       return true
     } catch {
       return false
@@ -89,7 +104,7 @@ export const useNotificationStore = defineStore('notifications', () => {
     try {
       const response = await client(`/api/supplier/v1/notifications/${id}`, { method: 'DELETE' })
       items.value = items.value.filter((item) => item.id !== id)
-      unreadCount.value = response?.data?.unread_count ?? unreadCount.value
+      setUnreadCount(response?.data?.unread_count ?? unreadCount.value)
       return true
     } catch {
       return false
@@ -102,6 +117,7 @@ export const useNotificationStore = defineStore('notifications', () => {
     meta,
     loading,
     error,
+    setUnreadCount,
     fetchNotifications,
     refreshUnreadCount,
     markRead,

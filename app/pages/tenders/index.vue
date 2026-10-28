@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-slate-50 text-slate-900" data-page="tender-catalogue">
     <section class="border-b border-emerald-950/10 bg-[#123c2f] text-white">
-      <div class="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-16">
+      <div class="app-shell px-5 py-12 sm:px-8 sm:py-16">
         <p class="text-xs font-bold uppercase tracking-[0.22em] text-emerald-300">Public procurement opportunities</p>
         <div class="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -17,7 +17,7 @@
       </div>
     </section>
 
-    <main class="mx-auto max-w-7xl space-y-6 px-5 py-8 sm:px-8 sm:py-10">
+    <main class="app-shell space-y-6 px-5 py-8 sm:px-8 sm:py-10">
       <nav class="grid grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm sm:grid-cols-4" aria-label="Tender status">
         <button
           v-for="tab in statusTabs"
@@ -94,9 +94,23 @@
         </span>
       </div>
 
-      <div v-if="loading" class="grid gap-5 md:grid-cols-2 xl:grid-cols-3" aria-label="Loading tenders">
-        <div v-for="index in 6" :key="index" class="rounded-2xl border border-slate-200 bg-white p-6">
-          <div class="skeleton h-5 w-28" /><div class="skeleton mt-5 h-5 w-full" /><div class="skeleton mt-2 h-5 w-3/4" /><div class="skeleton mt-8 h-12 w-full" />
+      <div v-if="loading" class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" aria-label="Loading tenders">
+        <div class="overflow-x-auto">
+          <table class="table table-sm min-w-[960px]">
+            <thead class="bg-slate-100 text-xs text-slate-600">
+              <tr><th>Status / reference</th><th>Tender</th><th>Procurement entity</th><th>Method / group</th><th>Closing date</th><th><span class="sr-only">Action</span></th></tr>
+            </thead>
+            <tbody>
+              <tr v-for="index in 6" :key="index">
+                <td><div class="skeleton h-5 w-20" /><div class="skeleton mt-2 h-3 w-28" /></td>
+                <td><div class="skeleton h-4 w-64" /><div class="skeleton mt-2 h-3 w-48" /></td>
+                <td><div class="skeleton h-4 w-40" /></td>
+                <td><div class="skeleton h-4 w-36" /><div class="skeleton mt-2 h-3 w-24" /></td>
+                <td><div class="skeleton h-4 w-28" /></td>
+                <td><div class="skeleton ml-auto h-8 w-24" /></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -112,43 +126,59 @@
         <button v-if="hasFilters" type="button" class="btn btn-ghost btn-sm mt-4" @click="clearFilters">Clear filters</button>
       </div>
 
-      <div v-else class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        <article v-for="tender in opportunities" :key="`${tender.opportunity_type || 'TENDER'}-${tender.uuid}`" class="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
-          <div class="h-1.5" :class="statusAccent(tender.status_bucket)" />
-          <div class="flex flex-1 flex-col p-6">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <span class="flex flex-wrap items-center gap-2">
-                <span class="badge badge-sm font-semibold" :class="statusBadge(tender.status_bucket)">{{ statusLabel(tender.status_bucket) }}</span>
-                <span v-if="isEoi(tender)" class="badge badge-warning badge-sm font-semibold">Expression of Interest</span>
-              </span>
-              <span class="font-mono text-[11px] uppercase tracking-wide text-slate-400">{{ tender.reference || 'Reference pending' }}</span>
-            </div>
-
-            <h3 class="mt-4 line-clamp-2 text-lg font-bold leading-6">{{ tender.title }}</h3>
-            <p class="mt-2 line-clamp-2 text-sm leading-6 text-slate-500">{{ tender.description || 'No description supplied.' }}</p>
-
-            <dl class="mt-5 space-y-3 border-y border-slate-100 py-4 text-sm">
-              <div class="flex gap-3"><Icon name="lucide:landmark" class="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" /><div><dt class="text-xs text-slate-400">Procurement entity</dt><dd class="font-semibold text-slate-700">{{ tender.entity || 'Not specified' }}</dd></div></div>
-              <div class="grid grid-cols-2 gap-3">
-                <div><dt class="text-xs text-slate-400">Method</dt><dd class="mt-0.5 line-clamp-2 font-semibold text-slate-700">{{ tender.method || 'Not specified' }}</dd></div>
-                <div><dt class="text-xs text-slate-400">Group</dt><dd class="mt-0.5 line-clamp-2 font-semibold text-slate-700">{{ tender.category || 'Not specified' }}</dd></div>
-              </div>
-              <div><dt class="text-xs text-slate-400">Supplier categories</dt><dd class="mt-0.5 line-clamp-2 font-semibold text-slate-700">{{ categoryLabel(tender) }}</dd></div>
-            </dl>
-
-            <div class="mt-4 flex items-center justify-between gap-3 text-xs text-slate-500">
-              <span>{{ deadlineLabel(tender) }}</span>
-              <span>{{ formatDateTime(tender.closing_at) }}</span>
-            </div>
-
-            <NuxtLink v-if="tender.status_bucket === 'ACTIVE'" :to="opportunityLink(tender)" class="btn btn-outline btn-success mt-5 w-full">
-              {{ isEoi(tender) ? 'View EOI and respond' : 'View tender details' }} <Icon name="lucide:arrow-up-right" />
-            </NuxtLink>
-            <div v-else class="mt-5 rounded-xl bg-slate-50 px-4 py-3 text-center text-xs font-medium text-slate-500">
-              {{ historicalMessage(tender.status_bucket) }}
-            </div>
-          </div>
-        </article>
+      <div v-else class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="table table-sm min-w-[960px]">
+            <thead class="bg-slate-100 text-xs text-slate-600">
+              <tr>
+                <th class="w-40">Status / reference</th>
+                <th class="min-w-72">Tender</th>
+                <th class="min-w-48">Procurement entity</th>
+                <th class="min-w-48">Method / group</th>
+                <th class="w-44">Closing date</th>
+                <th class="w-32"><span class="sr-only">Action</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="tender in opportunities" :key="`${tender.opportunity_type || 'TENDER'}-${tender.uuid}`" class="group border-slate-100 align-top transition-colors hover:bg-emerald-50/40">
+                <td class="py-4">
+                  <div class="flex flex-wrap gap-1.5">
+                    <span class="badge badge-sm font-semibold" :class="statusBadge(tender.status_bucket)">{{ statusLabel(tender.status_bucket) }}</span>
+                    <span v-if="isEoi(tender)" class="badge badge-warning badge-sm font-semibold">EOI</span>
+                  </div>
+                  <p class="mt-2 font-mono text-[11px] uppercase tracking-wide text-slate-500">{{ tender.reference || 'Reference pending' }}</p>
+                </td>
+                <td class="max-w-md whitespace-normal py-4">
+                  <NuxtLink :to="opportunityLink(tender)" class="font-bold leading-5 text-slate-900 transition-colors group-hover:text-emerald-800">
+                    {{ tender.title }}
+                  </NuxtLink>
+                  <p class="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">{{ tender.description || 'No description supplied.' }}</p>
+                  <p class="mt-2 text-[11px] text-slate-400">Supplier categories: {{ categoryLabel(tender) }}</p>
+                </td>
+                <td class="whitespace-normal py-4">
+                  <span class="flex items-start gap-2 text-sm font-semibold text-slate-700">
+                    <Icon name="lucide:landmark" class="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />
+                    {{ tender.entity || 'Not specified' }}
+                  </span>
+                </td>
+                <td class="whitespace-normal py-4">
+                  <p class="text-sm font-semibold text-slate-700">{{ tender.method || 'Not specified' }}</p>
+                  <p class="mt-1 text-xs text-slate-500">{{ tender.category || 'Group not specified' }}</p>
+                </td>
+                <td class="py-4">
+                  <p class="text-xs font-medium text-slate-500">{{ deadlineLabel(tender) }}</p>
+                  <p class="mt-1 whitespace-nowrap text-sm font-semibold text-slate-700">{{ formatDateTime(tender.closing_at) }}</p>
+                </td>
+                <td class="py-4 text-right">
+                  <NuxtLink v-if="tender.status_bucket === 'ACTIVE'" :to="opportunityLink(tender)" class="btn btn-outline btn-success btn-sm whitespace-nowrap">
+                    {{ isEoi(tender) ? 'View EOI' : 'View tender' }} <Icon name="lucide:arrow-up-right" />
+                  </NuxtLink>
+                  <span v-else class="inline-block max-w-32 text-xs leading-5 text-slate-500">{{ historicalMessage(tender.status_bucket) }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div v-if="!loading && !error && pagination.last_page > 1" class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
@@ -279,7 +309,6 @@ const isEoi = opportunity => opportunity.opportunity_type === 'EXPRESSION_OF_INT
 const opportunityLink = opportunity => opportunity.detail_path || `/tenders/${opportunity.uuid}`
 const statusLabel = status => statusTabs.find(tab => tab.value === status)?.label || 'Closed'
 const statusBadge = status => ({ ACTIVE: 'badge-success', CLOSED: 'badge-neutral', AWARDED: 'badge-warning', CANCELLED: 'badge-error text-white' }[status] || 'badge-neutral')
-const statusAccent = status => ({ ACTIVE: 'bg-emerald-600', CLOSED: 'bg-slate-500', AWARDED: 'bg-amber-400', CANCELLED: 'bg-red-600' }[status] || 'bg-slate-400')
 const categoryLabel = tender => tender.required_categories?.length
   ? tender.required_categories.map(category => category.code || category.name).join(', ')
   : 'Open to all registered categories'

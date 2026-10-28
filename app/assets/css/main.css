@@ -53,6 +53,9 @@
 }
 
 @layer components {
+  .app-shell {
+    @apply mx-auto w-full max-w-[1600px];
+  }
   .document-surface {
     @apply border border-base-300 bg-base-100;
     box-shadow: 0 1px 1px rgb(23 33 27 / 0.04), 0 12px 36px rgb(23 33 27 / 0.05);

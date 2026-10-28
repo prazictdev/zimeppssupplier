@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto max-w-7xl space-y-5 px-4 py-5">
+  <div class="app-shell space-y-5 px-4 py-5 sm:px-8">
     <!-- ── Loading ─────────────────────────────────────────────────────────── -->
     <div v-if="loading" class="space-y-4 py-8">
       <div class="skeleton h-8 w-44" />

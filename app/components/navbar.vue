@@ -1,5 +1,6 @@
 <template>
-  <header class="navbar sticky top-0 z-40 min-h-[4.75rem] border-b border-base-300 bg-base-100/95 px-4 py-2 backdrop-blur-md sm:px-6 lg:px-8">
+  <header class="sticky top-0 z-40 border-b border-base-300 bg-base-100/95 backdrop-blur-md">
+    <div class="navbar app-shell min-h-[4.75rem] px-4 py-2 sm:px-6 lg:px-8">
     <div class="navbar-start min-w-0 gap-2">
       <button class="btn btn-ghost btn-sm lg:hidden" aria-label="Open navigation" @click="$emit('toggleSidebar')">
         <Icon name="lucide:menu" class="h-5 w-5" />
@@ -36,7 +37,8 @@
         </ul>
       </div>
     </div>
-    <UpgradeSupplierGroupModal ref="upgradeModal" @upgraded="onUpgraded" />
+      <UpgradeSupplierGroupModal ref="upgradeModal" @upgraded="onUpgraded" />
+    </div>
   </header>
 </template>
 
