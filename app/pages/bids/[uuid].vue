@@ -31,13 +31,16 @@
       <div
         v-if="!hasSubmittedBid"
         role="alert"
-        class="alert sticky top-3 z-30 flex-col items-stretch border-2 shadow-lg sm:flex-row sm:items-start"
+        class="alert alert-vertical sticky top-3 z-30 items-stretch border-2 shadow-lg sm:alert-horizontal sm:items-start"
         :class="draftWarningClass"
       >
-        <Icon name="lucide:triangle-alert" class="mt-1 h-6 w-6 shrink-0" />
+        <Icon name="lucide:triangle-alert" class="h-5 w-5 shrink-0 self-start sm:mt-1 sm:h-6 sm:w-6" />
         <div class="min-w-0 flex-1">
           <p class="font-bold">Draft only — your bid has not been submitted</p>
-          <p class="mt-1 text-sm">
+          <p class="mt-1 text-sm sm:hidden">
+            Saving a draft does not submit it. Use “Seal &amp; submit” to deliver your response.
+          </p>
+          <p class="mt-1 hidden text-sm sm:block">
             Changes are cached automatically in this browser. “Save encrypted draft” protects your work, but only
             “Seal &amp; submit” delivers the response to the procuring entity.
           </p>
@@ -45,7 +48,7 @@
             Tender closes {{ formatDateTime(tenderClosingAt) }}.
           </p>
         </div>
-        <div class="w-full shrink-0 rounded-xl border border-current/20 bg-base-100/80 px-4 py-2 text-center sm:w-auto">
+        <div class="w-full shrink-0 rounded-box border border-current/20 bg-base-100/80 px-4 py-2 text-center sm:w-auto">
           <p class="text-[10px] font-bold uppercase tracking-wider opacity-70">
             {{ tenderClosed ? 'Submission closed' : 'Time remaining' }}
           </p>
@@ -91,29 +94,52 @@
         </div>
       </section>
 
-      <section v-else-if="!vaultUnlocked" class="card border border-base-200 bg-base-100 shadow-sm">
-        <div class="card-body p-4 sm:p-6">
-          <h2 class="flex items-center gap-2 text-lg font-bold"><Icon name="lucide:lock-keyhole" /> Unlock Bid Vault</h2>
-          <p class="text-sm text-base-content/60">Unlock locally to retrieve or save your encrypted response.</p>
-          <form class="mt-3 flex flex-col gap-3 sm:flex-row" @submit.prevent="unlockExistingVault">
-            <input v-model="vaultPassphrase" type="password" class="input input-bordered flex-1" placeholder="Bid Vault passphrase" autocomplete="current-password">
-            <button class="btn btn-primary" :disabled="busy || !vaultPassphrase">
+      <section v-else-if="!vaultUnlocked" class="card card-border bg-base-100">
+        <div class="card-body gap-4 p-4 sm:p-6">
+          <div class="flex items-start gap-3">
+            <div class="grid h-10 w-10 shrink-0 place-items-center rounded-box bg-primary/10 text-primary">
+              <Icon name="lucide:lock-keyhole" class="h-5 w-5" />
+            </div>
+            <div class="min-w-0">
+              <h2 class="card-title text-lg">Unlock Bid Vault</h2>
+              <p class="mt-1 text-sm text-base-content/60">Unlock locally to retrieve or save your encrypted response.</p>
+            </div>
+          </div>
+
+          <form class="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end" @submit.prevent="unlockExistingVault">
+            <fieldset class="fieldset min-w-0">
+              <legend class="fieldset-legend">Bid Vault passphrase</legend>
+              <input v-model="vaultPassphrase" type="password" class="input w-full" placeholder="Enter your passphrase" autocomplete="current-password">
+            </fieldset>
+            <button class="btn btn-primary w-full sm:w-auto" :disabled="busy || !vaultPassphrase">
               <span v-if="busy" class="loading loading-spinner loading-sm" />
-              Unlock
+              <Icon v-else name="lucide:unlock-keyhole" class="h-4 w-4" />
+              Unlock vault
             </button>
           </form>
-          <details class="mt-2">
-            <summary class="cursor-pointer text-sm text-primary">Use recovery code</summary>
-            <form class="mt-3 flex flex-col gap-3 sm:flex-row" @submit.prevent="unlockWithRecovery">
-              <input v-model="recoveryInput" class="input input-bordered flex-1 font-mono text-xs" placeholder="Paste recovery code">
-              <button class="btn btn-outline" :disabled="busy || !recoveryInput">Recover</button>
-            </form>
+
+          <p class="flex items-center gap-2 text-xs text-base-content/50">
+            <Icon name="lucide:shield-check" class="h-4 w-4 shrink-0" />
+            Your passphrase is processed only on this device.
+          </p>
+
+          <details class="collapse collapse-arrow border border-base-200 bg-base-200/40">
+            <summary class="collapse-title min-h-0 py-3 text-sm font-medium">Use recovery code instead</summary>
+            <div class="collapse-content">
+              <form class="grid min-w-0 gap-3 pt-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end" @submit.prevent="unlockWithRecovery">
+                <fieldset class="fieldset min-w-0">
+                  <legend class="fieldset-legend">Recovery code</legend>
+                  <input v-model="recoveryInput" class="input w-full font-mono text-xs" placeholder="Paste your recovery code">
+                </fieldset>
+                <button class="btn btn-outline w-full sm:w-auto" :disabled="busy || !recoveryInput">Recover vault</button>
+              </form>
+            </div>
           </details>
         </div>
       </section>
 
       <template v-else-if="eligibility?.participation_eligible">
-        <div v-if="recoveryCode" role="alert" class="alert alert-warning flex-col items-stretch sm:flex-row sm:items-start">
+        <div v-if="recoveryCode" role="alert" class="alert alert-warning alert-vertical items-stretch sm:alert-horizontal sm:items-start">
           <Icon name="lucide:key-round" class="mt-1" />
           <div class="min-w-0 flex-1">
             <p class="font-bold">Save this one-time recovery code now</p>
