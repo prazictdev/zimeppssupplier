@@ -12,75 +12,152 @@
       <Icon name="lucide:circle-alert" />
       <span>{{ error }}</span>
     </div>
-    <div v-else class="overflow-x-auto rounded-xl border border-base-200 bg-base-100">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Opportunity</th>
-            <th>Entity / method</th>
-            <th>Closing</th>
-            <th>Status</th>
-            <th>Latest receipt</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="bid in bids" :key="bid.uuid">
-            <td>
-              <p class="font-semibold">{{ bid.title }}</p>
-              <p class="text-xs text-base-content/50">{{ bid.reference }} <span class="badge badge-ghost badge-xs ml-1">{{ bid.response_type === 'EOI' ? 'EOI' : 'Tender' }}</span></p>
-            </td>
-            <td>
-              <p class="text-sm">{{ bid.entity || '—' }}</p>
-              <p class="text-xs text-base-content/50">{{ bid.method || '—' }}</p>
-            </td>
-            <td class="text-sm">{{ formatDateTime(bid.closing_at) }}</td>
-            <td>
-              <span class="badge badge-sm" :class="bid.status === 'DRAFT' ? 'badge-warning' : 'badge-success'">
+    <div v-else-if="!bids.length" class="card card-border bg-base-100">
+      <div class="card-body items-center py-14 text-center">
+        <Icon name="lucide:file-search" class="h-10 w-10 text-base-content/25" />
+        <h2 class="card-title mt-2 text-base">No tenders or EOIs added</h2>
+        <p class="text-sm text-base-content/55">Browse current opportunities when you are ready to prepare a response.</p>
+        <div class="card-actions mt-2">
+          <NuxtLink to="/supplieropportunities" class="btn btn-success btn-sm">Browse opportunities</NuxtLink>
+        </div>
+      </div>
+    </div>
+    <template v-else>
+      <div class="space-y-3 md:hidden">
+        <article v-for="bid in bids" :key="`mobile-${bid.uuid}`" class="card card-border card-sm overflow-hidden bg-base-100">
+          <div class="card-body gap-4 p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="badge badge-ghost badge-xs">{{ bid.response_type === 'EOI' ? 'EOI' : 'Tender' }}</span>
+                  <span class="font-mono text-xs text-base-content/50">{{ bid.reference || 'No reference' }}</span>
+                </div>
+                <h2 class="card-title mt-2 break-words text-base">{{ bid.title }}</h2>
+              </div>
+              <span class="badge badge-sm shrink-0" :class="bid.status === 'DRAFT' ? 'badge-warning badge-soft' : 'badge-success badge-soft'">
                 {{ label(bid.status) }}
               </span>
-            </td>
-            <td class="max-w-xs text-xs">
-              <p class="break-all font-mono">{{ latestVersion(bid)?.receipt_hash ?? '—' }}</p>
-              <span v-if="latestVersion(bid)?.recalled_at" class="badge badge-warning badge-xs mt-1">Recalled</span>
-            </td>
-            <td class="text-right">
+            </div>
+
+            <dl class="grid grid-cols-2 gap-3 rounded-box bg-base-200/60 p-3 text-sm">
+              <div class="col-span-2">
+                <dt class="text-xs text-base-content/50">Procuring entity</dt>
+                <dd class="mt-0.5 font-medium">{{ bid.entity || '—' }}</dd>
+              </div>
+              <div>
+                <dt class="text-xs text-base-content/50">Method</dt>
+                <dd class="mt-0.5 break-words">{{ bid.method || '—' }}</dd>
+              </div>
+              <div>
+                <dt class="text-xs text-base-content/50">Closing</dt>
+                <dd class="mt-0.5">{{ formatDateTime(bid.closing_at) }}</dd>
+              </div>
+            </dl>
+
+            <div v-if="latestVersion(bid)?.receipt_hash" class="rounded-box border border-base-200 p-3">
+              <div class="flex items-center justify-between gap-2">
+                <p class="text-xs font-semibold text-base-content/60">Latest receipt</p>
+                <span v-if="latestVersion(bid)?.recalled_at" class="badge badge-warning badge-xs">Recalled</span>
+              </div>
+              <p class="mt-1 break-all font-mono text-[0.68rem] text-base-content/55">{{ latestVersion(bid).receipt_hash }}</p>
+            </div>
+
+            <div v-if="bid.status === 'DRAFT' && !bid.can_edit" role="status" class="alert alert-error alert-soft items-start">
+              <Icon name="lucide:lock-keyhole" class="mt-0.5 h-4 w-4 shrink-0" />
+              <span class="text-xs">Draft locked — it was not submitted before closing.</span>
+            </div>
+
+            <div class="card-actions grid grid-cols-1 gap-2">
               <NuxtLink
                 v-if="bid.status === 'DRAFT' && bid.can_edit"
                 :to="responseLink(bid)"
-                class="btn btn-success btn-sm"
+                class="btn btn-success btn-sm w-full"
               >
                 <Icon name="lucide:file-pen-line" /> Start / continue response
               </NuxtLink>
-              <div v-else-if="bid.status === 'DRAFT'" class="flex flex-col items-end gap-1">
-                <span class="badge badge-error badge-sm"><Icon name="lucide:lock-keyhole" /> Closed</span>
-                <span class="max-w-48 text-right text-xs text-base-content/55">Draft locked — it was not submitted before closing.</span>
-              </div>
-              <div v-else class="flex justify-end gap-2">
-                <NuxtLink :to="submittedResponseLink(bid)" class="btn btn-primary btn-sm">
+              <template v-else-if="bid.status !== 'DRAFT'">
+                <NuxtLink :to="submittedResponseLink(bid)" class="btn btn-primary btn-sm w-full">
                   <Icon :name="bid.response_type === 'EOI' ? 'lucide:file-search' : 'lucide:milestone'" />
-                  {{ bid.response_type === 'EOI' ? 'Review response' : 'Track stages' }}
+                  {{ bid.response_type === 'EOI' ? 'Review response' : 'Track tender stages' }}
                 </NuxtLink>
                 <button
                   v-if="bid.can_recall"
                   type="button"
-                  class="btn btn-warning btn-sm"
+                  class="btn btn-outline btn-warning btn-sm w-full"
                   @click="openRecall(bid)"
                 >
                   <Icon name="lucide:undo-2" /> Recall response
                 </button>
-              </div>
-            </td>
-          </tr>
-          <tr v-if="!bids.length">
-            <td colspan="6" class="py-16 text-center text-base-content/50">
-              No tenders or EOIs have been added.
-              <NuxtLink to="/supplieropportunities" class="link link-success">Browse opportunities</NuxtLink>.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              </template>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="hidden overflow-x-auto rounded-xl border border-base-200 bg-base-100 md:block">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Opportunity</th>
+              <th>Entity / method</th>
+              <th>Closing</th>
+              <th>Status</th>
+              <th>Latest receipt</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="bid in bids" :key="bid.uuid">
+              <td>
+                <p class="font-semibold">{{ bid.title }}</p>
+                <p class="text-xs text-base-content/50">{{ bid.reference }} <span class="badge badge-ghost badge-xs ml-1">{{ bid.response_type === 'EOI' ? 'EOI' : 'Tender' }}</span></p>
+              </td>
+              <td>
+                <p class="text-sm">{{ bid.entity || '—' }}</p>
+                <p class="text-xs text-base-content/50">{{ bid.method || '—' }}</p>
+              </td>
+              <td class="text-sm">{{ formatDateTime(bid.closing_at) }}</td>
+              <td>
+                <span class="badge badge-sm" :class="bid.status === 'DRAFT' ? 'badge-warning' : 'badge-success'">
+                  {{ label(bid.status) }}
+                </span>
+              </td>
+              <td class="max-w-xs text-xs">
+                <p class="break-all font-mono">{{ latestVersion(bid)?.receipt_hash ?? '—' }}</p>
+                <span v-if="latestVersion(bid)?.recalled_at" class="badge badge-warning badge-xs mt-1">Recalled</span>
+              </td>
+              <td class="text-right">
+                <NuxtLink
+                  v-if="bid.status === 'DRAFT' && bid.can_edit"
+                  :to="responseLink(bid)"
+                  class="btn btn-success btn-sm"
+                >
+                  <Icon name="lucide:file-pen-line" /> Start / continue response
+                </NuxtLink>
+                <div v-else-if="bid.status === 'DRAFT'" class="flex flex-col items-end gap-1">
+                  <span class="badge badge-error badge-sm"><Icon name="lucide:lock-keyhole" /> Closed</span>
+                  <span class="max-w-48 text-right text-xs text-base-content/55">Draft locked — it was not submitted before closing.</span>
+                </div>
+                <div v-else class="flex justify-end gap-2">
+                  <NuxtLink :to="submittedResponseLink(bid)" class="btn btn-primary btn-sm">
+                    <Icon :name="bid.response_type === 'EOI' ? 'lucide:file-search' : 'lucide:milestone'" />
+                    {{ bid.response_type === 'EOI' ? 'Review response' : 'Track stages' }}
+                  </NuxtLink>
+                  <button
+                    v-if="bid.can_recall"
+                    type="button"
+                    class="btn btn-warning btn-sm"
+                    @click="openRecall(bid)"
+                  >
+                    <Icon name="lucide:undo-2" /> Recall response
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </template>
 
     <dialog id="recall_bid_modal" class="modal">
       <div class="modal-box max-w-lg">
@@ -114,9 +191,9 @@
           <span>{{ recallError }}</span>
         </div>
 
-        <div class="modal-action">
-          <button class="btn" :disabled="recalling" @click="closeRecall">Keep submitted response</button>
-          <button class="btn btn-warning" :disabled="recalling" @click="confirmRecall">
+        <div class="modal-action flex-col-reverse sm:flex-row">
+          <button class="btn w-full sm:w-auto" :disabled="recalling" @click="closeRecall">Keep submitted response</button>
+          <button class="btn btn-warning w-full sm:w-auto" :disabled="recalling" @click="confirmRecall">
             <span v-if="recalling" class="loading loading-spinner loading-sm" />
             <Icon v-else name="lucide:undo-2" />
             Recall and edit response
