@@ -49,7 +49,7 @@
             </button>
             <ul id="tenders-menu" class="menu dropdown-content z-50 mt-2 w-52 rounded-box border border-base-200 bg-base-100 p-2 shadow-xl">
               <li><NuxtLink to="/tenders" @click="closeMenus"><Icon name="lucide:search" class="h-4 w-4" /> Browse Tenders</NuxtLink></li>
-              <li><NuxtLink to="/#current-tenders" @click="closeMenus"><Icon name="lucide:radio" class="h-4 w-4" /> Live Opportunities</NuxtLink></li>
+              <li><NuxtLink to="/live-opportunities" @click="closeMenus"><Icon name="lucide:radio" class="h-4 w-4" /> Live Opportunities</NuxtLink></li>
             </ul>
           </li>
           <li class="dropdown dropdown-bottom" :class="{ 'dropdown-open': openMenu === 'suppliers' }">
@@ -65,7 +65,7 @@
             </button>
             <ul id="suppliers-menu" class="menu dropdown-content z-50 mt-2 w-52 rounded-box border border-base-200 bg-base-100 p-2 shadow-xl">
               <li><NuxtLink to="/register" @click="closeMenus"><Icon name="lucide:user-plus" class="h-4 w-4" /> Supplier Registration</NuxtLink></li>
-              <li><NuxtLink to="/#how-it-works" @click="closeMenus"><Icon name="lucide:list-checks" class="h-4 w-4" /> How It Works</NuxtLink></li>
+              <li><NuxtLink to="/how-it-works" @click="closeMenus"><Icon name="lucide:list-checks" class="h-4 w-4" /> How It Works</NuxtLink></li>
             </ul>
           </li>
           <li class="dropdown dropdown-bottom" :class="{ 'dropdown-open': openMenu === 'entities' }">
@@ -80,12 +80,12 @@
               <Icon name="lucide:chevron-down" class="h-3.5 w-3.5 transition-transform" :class="{ 'rotate-180': openMenu === 'entities' }" />
             </button>
             <ul id="entities-menu" class="menu dropdown-content z-50 mt-2 w-52 rounded-box border border-base-200 bg-base-100 p-2 shadow-xl">
-              <li><button type="button" @click="closeMenus"><Icon name="lucide:building-2" class="h-4 w-4" /> Procuring Entities</button></li>
-              <li><button type="button" @click="closeMenus"><Icon name="lucide:file-text" class="h-4 w-4" /> Publish a Tender</button></li>
+              <li><NuxtLink to="/procuring-entities" @click="closeMenus"><Icon name="lucide:building-2" class="h-4 w-4" /> Procuring Entities</NuxtLink></li>
+              <li><NuxtLink to="/publish-tender" @click="closeMenus"><Icon name="lucide:file-text" class="h-4 w-4" /> Publish a Tender</NuxtLink></li>
             </ul>
           </li>
           <li>
-            <button type="button" class="rounded-lg font-medium" @click="closeMenus">Resources</button>
+            <NuxtLink to="/resources" class="rounded-lg font-medium" active-class="bg-base-200" @click="closeMenus">Resources</NuxtLink>
           </li>
         </ul>
       </nav>
@@ -116,11 +116,12 @@
           <ul id="mobile-navigation-menu" class="menu dropdown-content z-50 mt-2 w-64 rounded-box border border-base-200 bg-base-100 p-2 shadow-xl">
             <li><NuxtLink to="/" @click="closeMenus">Home</NuxtLink></li>
             <li><NuxtLink to="/tenders" @click="closeMenus">Browse Tenders</NuxtLink></li>
-            <li><NuxtLink to="/#current-tenders" @click="closeMenus">Live Opportunities</NuxtLink></li>
+            <li><NuxtLink to="/live-opportunities" @click="closeMenus">Live Opportunities</NuxtLink></li>
             <li><NuxtLink to="/register" @click="closeMenus">Supplier Registration</NuxtLink></li>
-            <li><NuxtLink to="/#how-it-works" @click="closeMenus">How It Works</NuxtLink></li>
-            <li><button type="button" @click="closeMenus">Procuring Entities</button></li>
-            <li><button type="button" @click="closeMenus">Resources</button></li>
+            <li><NuxtLink to="/how-it-works" @click="closeMenus">How It Works</NuxtLink></li>
+            <li><NuxtLink to="/procuring-entities" @click="closeMenus">Procuring Entities</NuxtLink></li>
+            <li><NuxtLink to="/publish-tender" @click="closeMenus">Publish a Tender</NuxtLink></li>
+            <li><NuxtLink to="/resources" @click="closeMenus">Resources</NuxtLink></li>
             <li class="mt-2 border-t border-base-200 pt-2">
               <NuxtLink to="/login" class="font-medium text-primary" @click="closeMenus">Login</NuxtLink>
             </li>

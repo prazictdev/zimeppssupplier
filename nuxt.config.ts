@@ -70,6 +70,7 @@ export default defineNuxtConfig({
    },
   runtimeConfig: {
     public: {
+      pePortalUrl: process.env.NUXT_PUBLIC_PE_PORTAL_URL || 'http://localhost:3002',
     },
   },
   sanctum: {

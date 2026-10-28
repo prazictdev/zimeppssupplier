@@ -13,7 +13,7 @@ export const usePublicTenderHelper = () => {
     err?.data?.message ?? err?.response?._data?.message ?? err?.message ?? fallback;
 
   /**
-   * @param {{ search?: string, procurementgroup_id?: number|string, procurementmethod_id?: number|string, suppliercategory_id?: number|string, company_id?: number|string, closing_date?: string, per_page?: number, page?: number }} params
+   * @param {{ search?: string, procurementgroup_id?: number|string, procurementmethod_id?: number|string, suppliercategory_id?: number|string, company_id?: number|string, closing_date?: string, closing_within_days?: number|string, per_page?: number, page?: number }} params
    */
   const getPublishedTenders = async (params = {}) => {
     const query = new URLSearchParams();
@@ -23,6 +23,7 @@ export const usePublicTenderHelper = () => {
     if (params.suppliercategory_id) query.set('suppliercategory_id', params.suppliercategory_id);
     if (params.company_id) query.set('company_id', params.company_id);
     if (params.closing_date) query.set('closing_date', params.closing_date);
+    if (params.closing_within_days) query.set('closing_within_days', params.closing_within_days);
     if (params.per_page) query.set('per_page', params.per_page);
     if (params.page) query.set('page', params.page);
 
