@@ -30,13 +30,13 @@
                 </NuxtLink>
               </div>
 
-              <button type="button" class="group mt-7 inline-flex items-center gap-3 text-sm font-bold text-[#182b67]" @click="scrollToHowItWorks">
+              <button type="button" class="group mt-7 hidden items-center gap-3 text-sm font-bold text-[#182b67] md:inline-flex" @click="scrollToHowItWorks">
                 <span class="flex h-10 w-10 items-center justify-center rounded-full border border-[#182b67]/25 bg-white transition group-hover:border-[#182b67] group-hover:shadow-md"><Icon name="lucide:play" class="ml-0.5 h-4 w-4" /></span>
                 See how ZimEpps works
               </button>
             </div>
 
-            <div id="how-it-works" class="card card-border relative scroll-mt-24 border-[#182b67]/20 bg-white/80 shadow-2xl shadow-sky-900/10">
+            <div id="how-it-works" class="card card-border relative hidden scroll-mt-24 border-[#182b67]/20 bg-white/80 shadow-2xl shadow-sky-900/10 md:block">
               <div class="card-body gap-0 p-6 sm:p-8 lg:p-9">
               <div class="mb-9">
                 <div>
@@ -66,7 +66,7 @@
             </div>
           </div>
 
-          <div class="stats stats-vertical mt-14 w-full overflow-hidden border border-[#182b67]/20 bg-white shadow-xl shadow-sky-900/10 sm:grid sm:grid-cols-2 lg:grid-cols-5">
+          <div class="stats mt-14 hidden w-full overflow-hidden border border-[#182b67]/20 bg-white shadow-xl shadow-sky-900/10 md:grid md:grid-cols-2 lg:grid-cols-5">
             <div v-for="metric in heroMetrics" :key="metric.label" class="stat min-w-0 border-b border-slate-200 px-5 py-5 last:border-b-0 sm:border-b sm:border-r sm:[&:nth-child(even)]:border-r-0 lg:border-b-0 lg:border-r lg:[&:nth-child(even)]:border-r lg:last:border-r-0">
               <div class="stat-figure ml-2">
                 <span class="flex h-10 w-10 items-center justify-center rounded-xl" :class="metric.surface"><Icon :name="metric.icon" class="h-5 w-5" /></span>
@@ -98,8 +98,19 @@
             </button>
           </div>
 
-          <div v-if="loadingTenders" class="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div class="overflow-x-auto">
+          <div v-if="loadingTenders" class="mt-8">
+            <div class="grid gap-4 md:hidden">
+              <div v-for="index in 3" :key="`mobile-${index}`" class="card card-border border-slate-200 bg-white shadow-sm">
+                <div class="card-body gap-3 p-5">
+                  <div class="flex items-center justify-between gap-3"><div class="skeleton h-4 w-24" /><div class="skeleton h-5 w-20 rounded-full" /></div>
+                  <div class="skeleton h-5 w-full" />
+                  <div class="skeleton h-5 w-3/4" />
+                  <div class="skeleton mt-2 h-4 w-44" />
+                  <div class="skeleton h-11 w-full rounded-lg" />
+                </div>
+              </div>
+            </div>
+            <div class="hidden overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm md:block">
               <table class="table min-w-[960px]">
                 <thead class="bg-slate-50 text-xs text-slate-500">
                   <tr><th>Reference</th><th>Opportunity</th><th>Procuring entity</th><th>Method</th><th>Closing</th><th><span class="sr-only">Action</span></th></tr>
@@ -125,8 +136,39 @@
             <button v-if="searchQuery || activeTenderFilter !== 'all'" class="btn btn-ghost btn-sm mt-4" @click="clearSearch">Clear search</button>
           </div>
 
-          <div v-else class="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div class="overflow-x-auto">
+          <div v-else class="mt-8">
+            <div class="grid gap-4 md:hidden">
+              <article v-for="tender in filteredTenders" :key="`mobile-${tender.uuid}`" class="card card-border border-slate-200 bg-white shadow-sm">
+                <div class="card-body gap-0 p-5">
+                  <div class="flex items-start justify-between gap-3">
+                    <span class="font-mono text-[11px] font-semibold uppercase tracking-wide text-slate-500">{{ tender.reference || 'Pending' }}</span>
+                    <span class="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold" :class="isClosingSoon(tender.closing_at) ? 'text-red-600' : 'text-slate-600'">
+                      <Icon name="lucide:clock-3" class="h-3.5 w-3.5" />{{ daysLeft(tender.closing_at) }}
+                    </span>
+                  </div>
+
+                  <NuxtLink :to="opportunityLink(tender)" class="mt-3 text-base font-black leading-6 text-[#101d3f]">
+                    {{ tender.title }}
+                  </NuxtLink>
+
+                  <div class="mt-3 flex flex-wrap items-center gap-2">
+                    <span v-if="isEoi(tender)" class="badge border-0 bg-amber-100 text-[10px] font-bold text-amber-900">Expression of Interest</span>
+                    <span class="badge border-0 bg-emerald-50 text-[10px] font-semibold text-emerald-800">{{ tender.category || 'Public procurement' }}</span>
+                  </div>
+
+                  <div class="mt-4 space-y-3 border-t border-slate-100 pt-4 text-sm">
+                    <p class="flex items-start gap-2 text-slate-600"><Icon name="lucide:landmark" class="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" /><span>{{ tender.entity || 'Procuring entity' }}</span></p>
+                    <p class="flex items-start gap-2 text-slate-600"><Icon name="lucide:gavel" class="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" /><span><strong class="font-semibold text-slate-700">{{ tender.method || 'Tender' }}</strong><span class="block text-xs text-slate-400">{{ tender.required_bid_bond ? 'Bid bond required' : tender.allowed_participants || 'Open participation' }}</span></span></p>
+                  </div>
+
+                  <div class="card-actions mt-5">
+                    <NuxtLink :to="opportunityLink(tender)" class="btn btn-primary w-full">View opportunity <Icon name="lucide:arrow-up-right" class="h-4 w-4" /></NuxtLink>
+                  </div>
+                </div>
+              </article>
+            </div>
+
+            <div class="hidden overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm md:block">
               <table class="table min-w-[960px]">
                 <thead class="bg-slate-50 text-xs text-slate-500">
                   <tr>
