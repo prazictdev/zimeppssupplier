@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-full w-full space-y-5 p-4 sm:p-6">
-    <div class="flex flex-wrap items-center justify-between gap-3">
-      <div>
+  <div class="min-h-full w-full min-w-0 space-y-4 overflow-x-hidden p-3 sm:space-y-5 sm:p-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+      <div class="min-w-0">
         <NuxtLink to="/supplieropportunities" class="text-sm text-base-content/60 hover:text-primary">← Opportunities</NuxtLink>
-        <h1 class="mt-1 text-2xl font-bold">Online bid response</h1>
-        <p v-if="tender" class="text-sm text-base-content/60">{{ tender.reference }} · {{ tender.title }}</p>
+        <h1 class="mt-1 text-xl font-bold sm:text-2xl">Online bid response</h1>
+        <p v-if="tender" class="mt-1 break-words text-sm text-base-content/60">{{ tender.reference }} · {{ tender.title }}</p>
       </div>
-      <div v-if="draft || localDraftSavedAt" class="text-right text-xs text-base-content/50">
+      <div v-if="draft || localDraftSavedAt" class="text-left text-xs text-base-content/50 sm:text-right">
         <template v-if="draft">
           <p class="font-medium text-success">Encrypted cloud draft</p>
           <p>Revision {{ draft.revision }} · {{ formatDateTime(draft.last_saved_at) }}</p>
@@ -31,7 +31,7 @@
       <div
         v-if="!hasSubmittedBid"
         role="alert"
-        class="alert sticky top-3 z-30 items-start border-2 shadow-lg"
+        class="alert sticky top-3 z-30 flex-col items-stretch border-2 shadow-lg sm:flex-row sm:items-start"
         :class="draftWarningClass"
       >
         <Icon name="lucide:triangle-alert" class="mt-1 h-6 w-6 shrink-0" />
@@ -45,7 +45,7 @@
             Tender closes {{ formatDateTime(tenderClosingAt) }}.
           </p>
         </div>
-        <div class="shrink-0 rounded-xl border border-current/20 bg-base-100/80 px-4 py-2 text-center">
+        <div class="w-full shrink-0 rounded-xl border border-current/20 bg-base-100/80 px-4 py-2 text-center sm:w-auto">
           <p class="text-[10px] font-bold uppercase tracking-wider opacity-70">
             {{ tenderClosed ? 'Submission closed' : 'Time remaining' }}
           </p>
@@ -62,7 +62,7 @@
       </div>
 
       <section v-if="!vaultRecord" class="card border border-primary/30 bg-base-100 shadow-sm">
-        <div class="card-body">
+        <div class="card-body p-4 sm:p-6">
           <div class="flex items-start gap-3">
             <div class="rounded-xl bg-primary/10 p-3"><Icon name="lucide:vault" class="h-6 w-6 text-primary" /></div>
             <div>
@@ -92,7 +92,7 @@
       </section>
 
       <section v-else-if="!vaultUnlocked" class="card border border-base-200 bg-base-100 shadow-sm">
-        <div class="card-body">
+        <div class="card-body p-4 sm:p-6">
           <h2 class="flex items-center gap-2 text-lg font-bold"><Icon name="lucide:lock-keyhole" /> Unlock Bid Vault</h2>
           <p class="text-sm text-base-content/60">Unlock locally to retrieve or save your encrypted response.</p>
           <form class="mt-3 flex flex-col gap-3 sm:flex-row" @submit.prevent="unlockExistingVault">
@@ -113,17 +113,27 @@
       </section>
 
       <template v-else-if="eligibility?.participation_eligible">
-        <div v-if="recoveryCode" role="alert" class="alert alert-warning items-start">
+        <div v-if="recoveryCode" role="alert" class="alert alert-warning flex-col items-stretch sm:flex-row sm:items-start">
           <Icon name="lucide:key-round" class="mt-1" />
           <div class="min-w-0 flex-1">
             <p class="font-bold">Save this one-time recovery code now</p>
             <p class="text-xs">It can restore this vault if the passphrase or device is lost. EGP cannot regenerate it.</p>
             <code class="mt-2 block break-all rounded bg-base-100 p-2 text-xs">{{ recoveryCode }}</code>
           </div>
-          <button class="btn btn-sm btn-warning" @click="downloadRecoveryCode">Download</button>
+          <button class="btn btn-sm btn-warning w-full sm:w-auto" @click="downloadRecoveryCode">Download</button>
         </div>
 
-        <div class="overflow-x-auto rounded-xl border border-base-200 bg-base-100 p-2">
+        <div class="rounded-xl border border-base-200 bg-base-100 p-3 sm:hidden">
+          <label class="fieldset">
+            <span class="fieldset-legend">Response step {{ currentStep + 1 }} of {{ steps.length }}</span>
+            <select :value="currentStep" class="select select-bordered w-full" @change="goToStep(Number($event.target.value))">
+              <option v-for="(step, index) in steps" :key="step.key" :value="index">{{ index + 1 }}. {{ step.label }}</option>
+            </select>
+          </label>
+          <progress class="progress progress-primary mt-3 w-full" :value="currentStep + 1" :max="steps.length" />
+        </div>
+
+        <div class="hidden overflow-x-auto rounded-xl border border-base-200 bg-base-100 p-2 sm:block">
           <div class="flex min-w-max gap-1">
             <button
               v-for="(step, index) in steps"
@@ -137,8 +147,8 @@
           </div>
         </div>
 
-        <section class="card border border-base-200 bg-base-100 shadow-sm">
-          <div class="card-body">
+        <section class="card min-w-0 border border-base-200 bg-base-100 shadow-sm">
+          <div class="card-body min-w-0 p-4 sm:p-6">
             <template v-if="activeStep.key === 'lots'">
               <h2 class="card-title">Select lots</h2>
               <div role="alert" class="alert alert-info items-start">
@@ -156,7 +166,7 @@
                 <label
                   v-for="item in tender.items"
                   :key="item.id"
-                  class="flex cursor-pointer items-start gap-4 rounded-xl border p-4 transition"
+                  class="flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition sm:gap-4 sm:p-4"
                   :class="isLotSelected(item.id) ? 'border-primary bg-primary/5' : 'border-base-200 hover:border-primary/40'"
                 >
                   <input
@@ -185,8 +195,16 @@
                   <div class="flex flex-col gap-3 border-b border-base-200 bg-base-200/30 p-4 sm:flex-row sm:items-center sm:justify-between"><div><p class="text-xs font-bold uppercase tracking-widest text-primary">Card 1</p><h3 class="text-lg font-bold">Documents</h3><p class="text-xs text-base-content/60">Download the procuring entity’s files and attach every document requested from your organisation.</p></div><button type="button" class="btn btn-outline btn-secondary btn-sm" @click="openMediaPicker(null)"><Icon name="lucide:library" class="h-4 w-4" />Open Media Center</button></div>
 
                   <div v-if="providedDocuments.length" class="p-4">
-                    <div class="mb-3 flex items-center justify-between"><div><h4 class="font-bold">Section (A) · Downloads</h4><p class="text-xs text-base-content/55">Files provided by the procuring entity for bidder download.</p></div><span class="badge badge-primary">{{ providedDocuments.length }}</span></div>
-                    <div class="overflow-x-auto rounded-xl border border-base-200">
+                    <div class="mb-3 flex items-start justify-between gap-3"><div><h4 class="font-bold">Section (A) · Downloads</h4><p class="text-xs text-base-content/55">Files provided by the procuring entity for bidder download.</p></div><span class="badge badge-primary shrink-0">{{ providedDocuments.length }}</span></div>
+                    <div class="grid gap-3 md:hidden">
+                      <article v-for="document in providedDocuments" :key="`provided-mobile-${document.uuid}`" class="rounded-xl border border-base-200 p-4">
+                        <div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="break-words font-semibold">{{ document.name }}</p><p v-if="document.description" class="mt-1 text-xs text-base-content/55">{{ document.description }}</p></div><span class="badge badge-ghost badge-sm shrink-0">{{ providedDocumentType(document) }}</span></div>
+                        <p class="mt-2 text-xs text-base-content/50">{{ formatFileSize(document.file_size) }}</p>
+                        <label class="mt-3 flex cursor-pointer items-center gap-2 rounded-lg bg-base-200/50 p-3"><input v-model="response.documentAcknowledgements[document.uuid]" type="checkbox" class="checkbox checkbox-primary checkbox-sm"><span class="text-sm">{{ response.documentAcknowledgements[document.uuid] ? 'Reviewed' : 'Mark as reviewed' }}</span></label>
+                        <button type="button" class="btn btn-primary btn-sm mt-3 w-full" :disabled="!document.has_file || downloadingDocument === document.uuid" @click="downloadProvidedDocument(document)"><span v-if="downloadingDocument === document.uuid" class="loading loading-spinner loading-xs" /><Icon v-else name="lucide:download" class="h-3.5 w-3.5" />Download</button>
+                      </article>
+                    </div>
+                    <div class="hidden overflow-x-auto rounded-xl border border-base-200 md:block">
                       <table class="table table-sm">
                         <thead><tr><th>Document</th><th>File type</th><th>Size</th><th>Review status</th><th class="text-right">Action</th></tr></thead>
                         <tbody>
@@ -202,8 +220,16 @@
                   </div>
 
                   <div class="border-t border-base-200 p-4">
-                    <div class="mb-3 flex items-center justify-between"><div><h4 class="font-bold">Section (B) · Bidder uploads</h4><p class="text-xs text-base-content/55">Documents your organisation must submit with the tender response.</p></div><span class="badge badge-secondary">{{ uploadedRequestedCount }} / {{ requestedDocuments.length }}</span></div>
-                    <div class="overflow-x-auto rounded-xl border border-base-200">
+                    <div class="mb-3 flex items-start justify-between gap-3"><div><h4 class="font-bold">Section (B) · Bidder uploads</h4><p class="text-xs text-base-content/55">Documents your organisation must submit with the tender response.</p></div><span class="badge badge-secondary shrink-0">{{ uploadedRequestedCount }} / {{ requestedDocuments.length }}</span></div>
+                    <div v-if="requestedDocuments.length" class="grid gap-3 md:hidden">
+                      <article v-for="document in requestedDocuments" :key="`requested-mobile-${document.uuid}`" class="rounded-xl border border-base-200 p-4">
+                        <div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="break-words font-semibold">{{ document.name }}</p><p v-if="document.description" class="mt-1 text-xs text-base-content/55">{{ document.description }}</p></div><span :class="['badge badge-sm shrink-0', response.documents[document.uuid]?.media_uuid ? 'badge-success' : 'badge-warning']">{{ response.documents[document.uuid]?.media_uuid ? 'Attached' : 'Required' }}</span></div>
+                        <div v-if="response.documents[document.uuid]?.name" class="mt-3 flex min-w-0 items-center gap-2 rounded-lg bg-success/10 p-3 text-success"><Icon name="lucide:file-check-2" class="h-4 w-4 shrink-0" /><span class="min-w-0 flex-1 truncate text-sm">{{ response.documents[document.uuid].name }}</span><button type="button" class="btn btn-ghost btn-xs shrink-0 text-error" @click="delete response.documents[document.uuid]"><Icon name="lucide:x" class="h-3.5 w-3.5" /></button></div>
+                        <button type="button" class="btn btn-outline btn-secondary btn-sm mt-3 w-full" @click="openMediaPicker(document.uuid)"><Icon name="lucide:library" class="h-3.5 w-3.5" />Choose document</button>
+                      </article>
+                    </div>
+                    <p v-else class="rounded-xl border border-dashed border-base-300 p-6 text-center text-sm text-base-content/50 md:hidden">No bidder uploads are required.</p>
+                    <div class="hidden overflow-x-auto rounded-xl border border-base-200 md:block">
                       <table class="table table-sm">
                         <thead><tr><th>Requirement</th><th>Attached document</th><th>Status</th><th class="text-right">Actions</th></tr></thead>
                         <tbody>
@@ -415,7 +441,15 @@
                     <span class="badge badge-ghost">Lot {{ item.lot_number }}</span>
                     <p class="mt-1 font-semibold">{{ item.description }}</p>
                   </div>
-                  <div v-if="item.pricing_mode === 'MILESTONE' && item.pricing_milestones?.length" class="overflow-x-auto">
+                  <div v-if="item.pricing_mode === 'MILESTONE' && item.pricing_milestones?.length">
+                    <div class="grid gap-3 p-3 md:hidden">
+                      <article v-for="milestone in item.pricing_milestones" :key="`milestone-mobile-${milestone.key}`" class="rounded-xl border border-base-200 p-4">
+                        <div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="font-medium">{{ milestone.title }}</p><p v-if="milestone.due_point" class="mt-1 text-xs text-base-content/50">Due: {{ milestone.due_point }}</p></div><span class="badge badge-ghost shrink-0">{{ formatQuantity(milestone.payment_percentage) }}%</span></div>
+                        <label class="fieldset mt-3"><span class="fieldset-legend">Your quotation</span><div class="join w-full"><span v-if="tender.currency_code" class="btn btn-disabled btn-sm join-item">{{ tender.currency_code }}</span><input v-model.number="response.pricing[item.id].milestones[milestone.key].quoted_amount" type="number" min="0" step="0.01" class="input input-bordered input-sm join-item min-w-0 flex-1" inputmode="decimal" placeholder="0.00"></div></label>
+                      </article>
+                      <div class="flex items-center justify-between rounded-xl bg-primary/5 p-4"><span class="font-bold">Total firm lump sum</span><span class="font-mono font-bold text-primary">{{ formatMoney(lotSubtotal(item)) }}</span></div>
+                    </div>
+                    <div class="hidden overflow-x-auto md:block">
                     <table class="table">
                       <thead><tr><th>Milestone / deliverable</th><th class="w-40 text-right">Payment allocation</th><th class="w-56">Your quotation</th></tr></thead>
                       <tbody>
@@ -427,8 +461,18 @@
                       </tbody>
                       <tfoot><tr><th colspan="2" class="text-right">Total firm lump sum</th><th class="font-mono text-right">{{ formatMoney(lotSubtotal(item)) }}</th></tr></tfoot>
                     </table>
+                    </div>
                   </div>
-                  <div v-else-if="item.products?.length" class="overflow-x-auto">
+                  <div v-else-if="item.products?.length">
+                    <div class="grid gap-3 p-3 md:hidden">
+                      <article v-for="product in item.products" :key="`product-mobile-${product.id}`" class="rounded-xl border border-base-200 p-4" :class="isProductSelected(product.id) ? '' : 'opacity-60'">
+                        <label class="flex cursor-pointer items-start gap-3"><input type="checkbox" class="checkbox checkbox-primary checkbox-sm mt-0.5" :checked="isProductSelected(product.id)" :disabled="tender.lot_rules.requires_all_lines" @change="toggleProduct(item.id, product.id)"><span class="min-w-0 flex-1 break-words font-medium">{{ product.description }}</span></label>
+                        <div class="mt-3 grid grid-cols-2 gap-3 text-sm"><div class="rounded-lg bg-base-200/50 p-3"><p class="text-xs text-base-content/50">Quantity</p><p class="mt-1 font-mono font-semibold">{{ formatQuantity(product.quantity) }}</p></div><div class="rounded-lg bg-base-200/50 p-3 text-right"><p class="text-xs text-base-content/50">Line total</p><p class="mt-1 font-mono font-semibold">{{ formatMoney(productLineTotal(item.id, product)) }}</p></div></div>
+                        <label class="fieldset mt-3"><span class="fieldset-legend">Unit price</span><div class="join w-full"><span v-if="tender.currency_code" class="btn btn-disabled btn-sm join-item">{{ tender.currency_code }}</span><input v-model.number="response.pricing[item.id].products[product.id].unit_price" type="number" min="0" step="0.01" class="input input-bordered input-sm join-item min-w-0 flex-1" inputmode="decimal" placeholder="0.00" :disabled="!isProductSelected(product.id)"></div></label>
+                      </article>
+                      <div class="flex items-center justify-between rounded-xl bg-primary/5 p-4"><span class="font-bold">Lot subtotal</span><span class="font-mono font-bold text-primary">{{ formatMoney(lotSubtotal(item)) }}</span></div>
+                    </div>
+                    <div class="hidden overflow-x-auto md:block">
                     <table class="table">
                       <thead>
                         <tr><th>Product / service</th><th class="w-28 text-right">Quantity</th><th class="w-48">Unit price</th><th class="w-36 text-right">Line total</th></tr>
@@ -447,11 +491,12 @@
                         <tr><th colspan="3" class="text-right">Lot subtotal</th><th class="text-right font-mono">{{ formatMoney(lotSubtotal(item)) }}</th></tr>
                       </tfoot>
                     </table>
+                    </div>
                   </div>
                   <p v-else class="p-4 text-sm text-warning">This lot has no products or services available for pricing.</p>
                 </div>
               </div>
-              <label class="label cursor-pointer justify-start gap-3">
+              <label class="label flex-wrap cursor-pointer justify-start gap-3">
                 <input v-model="response.charges_vat" type="checkbox" class="checkbox checkbox-primary">
                 <span>Prices attract VAT</span>
                 <input v-if="response.charges_vat" v-model.number="response.vat_percentage" type="number" min="0" max="100" step="0.01" class="input input-bordered input-sm w-28" placeholder="VAT %">
@@ -606,14 +651,14 @@
 
             <div v-if="saveError" role="alert" class="alert alert-error mt-4"><Icon name="lucide:circle-alert" /><span>{{ saveError }}</span></div>
 
-            <div class="mt-6 flex items-center justify-between border-t border-base-200 pt-4">
-              <button class="btn btn-ghost" :disabled="currentStep === 0 || busy" @click="previousStep">Back</button>
-              <div class="flex gap-2">
-                <button class="btn btn-outline" :disabled="busy" @click="saveEncryptedDraft">
+            <div class="mt-6 flex flex-col-reverse gap-2 border-t border-base-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
+              <button class="btn btn-ghost w-full sm:w-auto" :disabled="currentStep === 0 || busy" @click="previousStep">Back</button>
+              <div class="grid w-full gap-2 sm:flex sm:w-auto">
+                <button class="btn btn-outline w-full sm:w-auto" :disabled="busy" @click="saveEncryptedDraft">
                   <span v-if="saving" class="loading loading-spinner loading-sm" /> Save encrypted draft
                 </button>
-                <button v-if="activeStep.key !== 'review'" class="btn btn-primary" :disabled="busy || (activeStep.key === 'fees' && !tenderFeesComplete)" @click="saveAndContinue">Save &amp; continue</button>
-                <button v-else class="btn btn-success" :disabled="busy || !portalSigningKey || !declarationAccepted" @click="sealAndSubmit">
+                <button v-if="activeStep.key !== 'review'" class="btn btn-primary w-full sm:w-auto" :disabled="busy || (activeStep.key === 'fees' && !tenderFeesComplete)" @click="saveAndContinue">Save &amp; continue</button>
+                <button v-else class="btn btn-success w-full sm:w-auto" :disabled="busy || !portalSigningKey || !declarationAccepted" @click="sealAndSubmit">
                   <span v-if="submitting" class="loading loading-spinner loading-sm" />
                   Seal &amp; submit
                 </button>
@@ -686,7 +731,12 @@
             <div><dt class="text-base-content/50">Submitted</dt><dd>{{ formatDateTime(receipt.submitted_at) }}</dd></div>
             <div><dt class="text-base-content/50">Signing key</dt><dd>{{ receipt.key_serial }}</dd></div>
           </dl>
-          <div class="modal-action"><NuxtLink to="/mysupplierbids" class="btn btn-success">View My Bids</NuxtLink></div>
+          <div class="modal-action flex-col sm:flex-row">
+            <NuxtLink to="/mysupplierbids" class="btn btn-ghost w-full sm:w-auto">My bids</NuxtLink>
+            <NuxtLink :to="`/supplierbidopening/${route.params.uuid}`" class="btn btn-success w-full sm:w-auto">
+              <Icon name="lucide:milestone" /> Track tender stages
+            </NuxtLink>
+          </div>
         </div>
       </dialog>
     </template>

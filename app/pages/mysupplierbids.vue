@@ -57,7 +57,10 @@
                 <span class="max-w-48 text-right text-xs text-base-content/55">Draft locked — it was not submitted before closing.</span>
               </div>
               <div v-else class="flex justify-end gap-2">
-                <NuxtLink :to="opportunityLink(bid)" class="btn btn-ghost btn-sm">View {{ bid.response_type === 'EOI' ? 'EOI' : 'tender' }}</NuxtLink>
+                <NuxtLink :to="submittedResponseLink(bid)" class="btn btn-primary btn-sm">
+                  <Icon :name="bid.response_type === 'EOI' ? 'lucide:file-search' : 'lucide:milestone'" />
+                  {{ bid.response_type === 'EOI' ? 'Review response' : 'Track stages' }}
+                </NuxtLink>
                 <button
                   v-if="bid.can_recall"
                   type="button"
@@ -199,7 +202,9 @@ async function confirmRecall() {
 }
 
 const responseLink = bid => bid.response_type === 'EOI' ? `/expressions-of-interest/${bid.eoi_uuid}` : `/bids/${bid.tender_uuid}`;
-const opportunityLink = bid => bid.response_type === 'EOI' ? `/expressions-of-interest/${bid.eoi_uuid}` : `/supplieropportunities/${bid.tender_uuid}`;
+const submittedResponseLink = bid => bid.response_type === 'EOI'
+  ? `/expressions-of-interest/${bid.eoi_uuid}`
+  : `/supplierbidopening/${bid.tender_uuid}`;
 
 const label = (value) => value
   ?.replaceAll('_', ' ')

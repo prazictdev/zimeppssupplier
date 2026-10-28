@@ -347,7 +347,7 @@ const formatAmount = value => Number(value || 0).toLocaleString('en-ZW', { minim
 const formatMoney = (value, currency) => `${currency || 'USD'} ${formatAmount(value)}`
 const bidLink = bid => bid.status === 'DRAFT' && bid.can_edit
   ? (bid.response_type === 'EOI' ? `/expressions-of-interest/${bid.eoi_uuid}` : `/bids/${bid.tender_uuid}`)
-  : (bid.response_type === 'EOI' ? `/expressions-of-interest/${bid.eoi_uuid}` : `/supplieropportunities/${bid.tender_uuid}`)
+  : (bid.response_type === 'EOI' ? `/expressions-of-interest/${bid.eoi_uuid}` : `/supplierbidopening/${bid.tender_uuid}`)
 const maturityClass = status => status === 'MATURED' ? 'badge-error badge-soft' : status === 'DUE_SOON' ? 'badge-warning badge-soft' : 'badge-success badge-soft'
 
 onMounted(() => {
