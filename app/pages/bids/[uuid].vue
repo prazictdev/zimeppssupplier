@@ -652,37 +652,37 @@
 
             <template v-else-if="activeStep.key === 'review'">
               <h2 class="card-title">Review, seal and submit</h2>
-              <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <div class="stat rounded-xl border border-base-200"><div class="stat-title">Envelope</div><div class="stat-value text-xl">{{ envelopeMode }}</div></div>
-                <div class="stat rounded-xl border border-base-200"><div class="stat-title">Selected lots</div><div class="stat-value text-xl">{{ response.selected_lot_ids.length }}</div></div>
-                <div class="stat rounded-xl border border-base-200"><div class="stat-title">Draft revision</div><div class="stat-value text-xl">{{ draft?.revision ?? 0 }}</div></div>
-                <div class="stat rounded-xl border border-base-200"><div class="stat-title">Closing</div><div class="stat-value text-base">{{ formatDateTime(tender.closing_at) }}</div></div>
+              <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <div class="rounded-box border border-base-200 bg-base-100 p-3 sm:p-4"><p class="text-xs text-base-content/55">Envelope</p><p class="mt-1 break-words text-lg font-bold">{{ envelopeMode }}</p></div>
+                <div class="rounded-box border border-base-200 bg-base-100 p-3 sm:p-4"><p class="text-xs text-base-content/55">Selected lots</p><p class="mt-1 text-lg font-bold">{{ response.selected_lot_ids.length }}</p></div>
+                <div class="rounded-box border border-base-200 bg-base-100 p-3 sm:p-4"><p class="text-xs text-base-content/55">Draft revision</p><p class="mt-1 text-lg font-bold">{{ draft?.revision ?? 0 }}</p></div>
+                <div class="rounded-box border border-base-200 bg-base-100 p-3 sm:p-4"><p class="text-xs text-base-content/55">Closing</p><p class="mt-1 break-words text-sm font-bold sm:text-base">{{ formatDateTime(tender.closing_at) }}</p></div>
               </div>
 
-              <div v-if="!portalSigningKey" role="alert" class="alert alert-warning mt-4">
-                <Icon name="lucide:key-round" />
-                <div class="flex-1">
+              <div v-if="!portalSigningKey" role="alert" class="alert alert-warning alert-vertical mt-4 items-stretch sm:alert-horizontal sm:items-start">
+                <Icon name="lucide:key-round" class="h-5 w-5 shrink-0 self-start sm:mt-0.5" />
+                <div class="min-w-0 flex-1">
                   <p class="font-semibold">Portal signing key required</p>
-                  <p class="text-xs">Set up your assigned licence in this encrypted Bid Vault before submitting.</p>
+                  <p class="mt-1 text-sm">Set up your assigned licence in this encrypted Bid Vault before submitting.</p>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                  <button class="btn btn-sm btn-outline" :disabled="busy" @click="refreshSubmissionKeys">
+                <div class="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap">
+                  <button class="btn btn-sm btn-outline w-full sm:w-auto" :disabled="busy" @click="refreshSubmissionKeys">
                     <Icon name="lucide:refresh-cw" /> Refresh keys
                   </button>
-                  <button class="btn btn-sm btn-warning" :disabled="busy || !availableSigningKey" @click="setupPortalSigningKey">
+                  <button class="btn btn-sm btn-warning w-full sm:w-auto" :disabled="busy || !availableSigningKey" @click="setupPortalSigningKey">
                     Set up portal key
                   </button>
                 </div>
               </div>
 
-              <div v-else role="alert" class="alert alert-success mt-4">
-                <Icon name="lucide:badge-check" />
-                <span>Ready to sign with {{ portalSigningKey.key_serial }}.</span>
+              <div v-else role="alert" class="alert alert-success mt-4 items-start">
+                <Icon name="lucide:badge-check" class="mt-0.5 h-5 w-5 shrink-0" />
+                <span class="min-w-0 break-words">Ready to sign with {{ portalSigningKey.key_serial }}.</span>
               </div>
 
-              <label class="label mt-4 cursor-pointer justify-start gap-3">
-                <input v-model="declarationAccepted" type="checkbox" class="checkbox checkbox-primary">
-                <span>I confirm that this response is complete and I am authorised to submit it.</span>
+              <label class="mt-4 flex min-w-0 cursor-pointer items-start gap-3 rounded-box border border-base-200 bg-base-100 p-3 sm:p-4">
+                <input v-model="declarationAccepted" type="checkbox" class="checkbox checkbox-primary mt-0.5 shrink-0">
+                <span class="min-w-0 flex-1 break-words text-sm leading-relaxed sm:text-base">I confirm that this response is complete and I am authorised to submit it.</span>
               </label>
             </template>
 
