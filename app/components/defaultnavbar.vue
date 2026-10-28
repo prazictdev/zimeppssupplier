@@ -81,7 +81,7 @@
             </button>
             <ul id="entities-menu" class="menu dropdown-content z-50 mt-2 w-52 rounded-box border border-base-200 bg-base-100 p-2 shadow-xl">
               <li><NuxtLink to="/procuring-entities" @click="closeMenus"><Icon name="lucide:building-2" class="h-4 w-4" /> Procuring Entities</NuxtLink></li>
-              <li><NuxtLink to="/publish-tender" @click="closeMenus"><Icon name="lucide:file-text" class="h-4 w-4" /> Publish a Tender</NuxtLink></li>
+              <li><NuxtLink to="/published-plans" @click="closeMenus"><Icon name="lucide:book-open-check" class="h-4 w-4" /> Published Plans</NuxtLink></li>
             </ul>
           </li>
           <li>
@@ -120,7 +120,7 @@
             <li><NuxtLink to="/register" @click="closeMenus">Supplier Registration</NuxtLink></li>
             <li><NuxtLink to="/how-it-works" @click="closeMenus">How It Works</NuxtLink></li>
             <li><NuxtLink to="/procuring-entities" @click="closeMenus">Procuring Entities</NuxtLink></li>
-            <li><NuxtLink to="/publish-tender" @click="closeMenus">Publish a Tender</NuxtLink></li>
+            <li><NuxtLink to="/published-plans" @click="closeMenus">Published Plans</NuxtLink></li>
             <li><NuxtLink to="/resources" @click="closeMenus">Resources</NuxtLink></li>
             <li class="mt-2 border-t border-base-200 pt-2">
               <NuxtLink to="/login" class="font-medium text-primary" @click="closeMenus">Login</NuxtLink>

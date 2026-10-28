@@ -113,6 +113,51 @@ export const usePublicTenderHelper = () => {
     }
   };
 
+  const getPublishedPlans = async (params = {}) => {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null && value !== '') query.set(key, value);
+    }
+
+    const qs = query.toString();
+    try {
+      const data = await client(`/api/supplier/v1/public/procurement-plans${qs ? `?${qs}` : ''}`, { method: 'GET' });
+      return { ok: true, data, error: null };
+    } catch (err) {
+      return { ok: false, data: null, error: extractError(err, 'Failed to load published plans.') };
+    }
+  };
+
+  const getPublishedPlanFilters = async () => {
+    try {
+      const data = await client('/api/supplier/v1/public/procurement-plans/filters', { method: 'GET' });
+      return { ok: true, data, error: null };
+    } catch (err) {
+      return { ok: false, data: null, error: extractError(err, 'Failed to load plan years.') };
+    }
+  };
+
+  const getPublishedPlan = async (uuid, params = {}) => {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null && value !== '') query.set(key, value);
+    }
+
+    const qs = query.toString();
+    try {
+      const data = await client(`/api/supplier/v1/public/procurement-plans/${uuid}${qs ? `?${qs}` : ''}`, { method: 'GET' });
+      return { ok: true, data, error: null };
+    } catch (err) {
+      const status = err?.response?.status ?? err?.status;
+      return {
+        ok: false,
+        data: null,
+        error: status === 404 ? 'This published plan is no longer available.' : extractError(err, 'Failed to load the published plan.'),
+        notFound: status === 404,
+      };
+    }
+  };
+
   const getTenderDetail = async (uuid) => {
     try {
       const data = await client(`/api/supplier/v1/public/tenders/${uuid}`, { method: 'GET' });
@@ -193,6 +238,9 @@ export const usePublicTenderHelper = () => {
     getPublicConsultancyEois,
     getPublicConsultancyEoi,
     getTenderStats,
+    getPublishedPlans,
+    getPublishedPlanFilters,
+    getPublishedPlan,
     getTenderDetail,
     getSbdDownloadUrl,
     getTenderDocumentUrl,
