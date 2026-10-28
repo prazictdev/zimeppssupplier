@@ -82,7 +82,7 @@
               </div>
             </div>
 
-            <div class="grid gap-3 lg:grid-cols-2">
+            <div class="space-y-3">
               <div v-for="plan in entity.plans" :key="plan.uuid" class="rounded-box border border-base-300 bg-base-200/55 p-4">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
@@ -93,7 +93,7 @@
                     </div>
                     <div class="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-base-content/60">
                       <span><strong class="text-base-content">{{ plan.items_count.toLocaleString() }}</strong> planned {{ plan.items_count === 1 ? 'item' : 'items' }}</span>
-                      <span><strong class="text-base-content">{{ money(plan.total_value, plan.currency) }}</strong> planned value</span>
+                      <span>Published {{ formatDate(plan.published_at) }}</span>
                     </div>
                   </div>
                   <NuxtLink :to="`/published-plans/${plan.uuid}`" class="btn btn-primary btn-sm shrink-0">
@@ -195,11 +195,7 @@ function clearFilters() {
   router.push('/published-plans')
 }
 
-function money(value, currency = 'USD') {
-  try {
-    return new Intl.NumberFormat('en-ZW', { style: 'currency', currency: currency || 'USD', maximumFractionDigits: 2 }).format(Number(value || 0))
-  } catch {
-    return `${currency || ''} ${Number(value || 0).toLocaleString('en-ZW', { maximumFractionDigits: 2 })}`.trim()
-  }
-}
+const formatDate = value => value
+  ? new Intl.DateTimeFormat('en-ZW', { dateStyle: 'medium' }).format(new Date(value))
+  : 'date not recorded'
 </script>

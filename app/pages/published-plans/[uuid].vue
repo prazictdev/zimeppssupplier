@@ -27,8 +27,8 @@
               <p class="mt-1 text-xl font-black">{{ plan.items_count.toLocaleString() }}</p>
             </div>
             <div class="col-span-2 bg-base-100 p-4 sm:col-span-1">
-              <p class="text-xs text-base-content/50">Planned value</p>
-              <p class="mt-1 text-xl font-black">{{ money(plan.total_value) }}</p>
+              <p class="text-xs text-base-content/50">Published</p>
+              <p class="mt-1 text-base font-black">{{ dateTime(plan.published_at) }}</p>
             </div>
           </div>
         </div>
@@ -118,15 +118,15 @@
                   <div><dt class="text-xs text-base-content/45">Bid closing</dt><dd class="mt-1 font-medium">{{ date(item.bid_closing_date) }}</dd></div>
                 </dl>
                 <div class="mt-4 flex items-end justify-between gap-3 border-t border-base-200 pt-4">
-                  <span class="text-xs text-base-content/45">Planned value</span>
-                  <strong>{{ money(item.total_cost) }}</strong>
+                  <span class="text-xs text-base-content/45">Quantity</span>
+                  <strong>{{ number(item.quantity) }}<span v-if="item.unit_of_measure" class="ml-1 text-xs font-normal text-base-content/50">{{ item.unit_of_measure }}</span></strong>
                 </div>
               </div>
             </article>
           </div>
 
           <div class="hidden overflow-x-auto rounded-box border border-base-300 bg-base-100 shadow-sm md:block">
-            <table class="table min-w-[1180px]">
+            <table class="table min-w-[1020px]">
               <thead class="bg-base-200 text-xs text-base-content/60">
                 <tr>
                   <th>Reference</th>
@@ -135,7 +135,6 @@
                   <th>Quarter</th>
                   <th>Expected market dates</th>
                   <th class="text-right">Quantity</th>
-                  <th class="text-right">Planned value</th>
                 </tr>
               </thead>
               <tbody>
@@ -156,7 +155,6 @@
                     <p class="mt-1"><span class="text-base-content/45">Closing:</span> {{ date(item.bid_closing_date) }}</p>
                   </td>
                   <td class="py-4 text-right text-sm">{{ number(item.quantity) }}<span v-if="item.unit_of_measure" class="ml-1 text-xs text-base-content/45">{{ item.unit_of_measure }}</span></td>
-                  <td class="py-4 text-right font-bold">{{ money(item.total_cost) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -257,15 +255,7 @@ function clearFilters() {
   router.push(route.path)
 }
 
-function money(value) {
-  const code = plan.value?.currency?.code || 'USD'
-  try {
-    return new Intl.NumberFormat('en-ZW', { style: 'currency', currency: code, maximumFractionDigits: 2 }).format(Number(value || 0))
-  } catch {
-    return `${code} ${number(value)}`
-  }
-}
-
 const number = value => Number(value || 0).toLocaleString('en-ZW', { maximumFractionDigits: 2 })
 const date = value => value ? new Intl.DateTimeFormat('en-ZW', { dateStyle: 'medium' }).format(new Date(`${value}T00:00:00`)) : 'Not specified'
+const dateTime = value => value ? new Intl.DateTimeFormat('en-ZW', { dateStyle: 'medium' }).format(new Date(value)) : 'Not recorded'
 </script>
