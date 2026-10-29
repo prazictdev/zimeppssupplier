@@ -1,5 +1,23 @@
 <template>
   <div class="space-y-6">
+    <div
+      v-for="session in pendingFeedbackSessions"
+      :key="session.uuid"
+      role="alert"
+      class="alert alert-info alert-soft sm:alert-horizontal"
+    >
+      <Icon name="lucide:message-square-more" class="h-5 w-5 shrink-0" />
+      <div class="min-w-0 flex-1">
+        <h3 class="font-bold">Your feedback is requested</h3>
+        <p class="mt-0.5 text-sm opacity-80">
+          {{ session.title }}<template v-if="session.closes_at"> · Complete by {{ formatFeedbackDate(session.closes_at) }}</template>
+        </p>
+      </div>
+      <NuxtLink :to="`/feedback/${session.uuid}`" class="btn btn-info btn-sm">
+        {{ feedbackSubmission(session) ? 'Continue feedback' : 'Give feedback' }}
+      </NuxtLink>
+    </div>
+
     <div v-if="pendingUpgradeInvoice && canViewRegistrations" role="alert" class="alert alert-error alert-soft sm:alert-horizontal">
       <Icon name="lucide:triangle-alert" class="h-5 w-5 shrink-0" />
       <div class="min-w-0 flex-1">
@@ -45,13 +63,28 @@ const pendingUpgradeInvoice = computed(() => user.value?.data?.pending_upgrade_i
 const walletStore = useWalletStore()
 const wallets = computed(() => walletStore.wallets)
 const { getWalletBalances } = useWallet()
+const feedbackApi = useFeedbackHelper()
+const feedbackSessions = ref([])
 const canViewRegistrations = computed(() => can('can.access.myregistrations'))
 const canViewAutorenewals = computed(() => can('can.access.supplierautorenewals'))
 const canViewFinances = computed(() => canAny([
   'can.acccess.supplierinvoices', 'can.access.supplierstatement',
   'can.access.supplierbankpayments', 'can.access.onlinepayments',
 ]))
+const feedbackSubmission = session => session.submissions?.[0] ?? null
+const pendingFeedbackSessions = computed(() => feedbackSessions.value.filter(session => feedbackSubmission(session)?.status !== 'SUBMITTED'))
+const formatFeedbackDate = value => new Intl.DateTimeFormat('en-ZW', { dateStyle: 'medium' }).format(new Date(value))
+
+const loadFeedbackSessions = async () => {
+  try {
+    feedbackSessions.value = (await feedbackApi.available()).data ?? []
+  } catch {
+    feedbackSessions.value = []
+  }
+}
+
 onMounted(() => {
+  loadFeedbackSessions()
   if (canViewFinances.value) getWalletBalances()
 })
 </script>

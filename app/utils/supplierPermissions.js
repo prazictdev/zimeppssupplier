@@ -12,6 +12,7 @@ const PUBLIC_PATHS = [
 const AUTHENTICATED_ONLY_PATHS = [
   '/dashboard',
   '/notifications',
+  '/feedback',
   '/setup-organisation',
   '/complete-migrated-profile',
   '/access-denied',

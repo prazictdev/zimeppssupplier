@@ -39,7 +39,7 @@
           <slot />
         </div>
       </main>
-      <SystemFooter />
+      <WorkspaceFooter />
     </div>
 
     <PendingAddendumDialog />
