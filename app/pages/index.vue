@@ -78,7 +78,7 @@
         </div>
       </section>
 
-      <section id="current-tenders" class="scroll-mt-24 py-16 sm:py-20">
+      <section id="current-tenders" class="scroll-mt-24 pb-8 pt-12 sm:pb-10 sm:pt-14">
         <div class="app-shell px-5 sm:px-8">
           <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
@@ -98,7 +98,15 @@
             </button>
           </div>
 
-          <div v-if="loadingTenders" class="mt-8">
+          <div v-if="closingSoonCount" role="alert" class="alert alert-warning alert-soft mt-6 rounded-2xl border border-warning/35 px-5 py-4">
+            <Icon name="lucide:alarm-clock" class="h-5 w-5 shrink-0" />
+            <div>
+              <p class="text-sm font-bold">{{ closingSoonCount }} {{ closingSoonCount === 1 ? 'opportunity closes' : 'opportunities close' }} within 72 hours</p>
+              <p class="mt-0.5 text-xs opacity-70">Allow enough time to complete, seal and submit your bid before the deadline.</p>
+            </div>
+          </div>
+
+          <div v-if="loadingTenders" :class="closingSoonCount ? 'mt-4' : 'mt-8'">
             <div class="grid gap-4 md:hidden">
               <div v-for="index in 3" :key="`mobile-${index}`" class="card card-border border-slate-200 bg-white shadow-sm">
                 <div class="card-body gap-3 p-5">
@@ -129,14 +137,14 @@
             </div>
           </div>
 
-          <div v-else-if="!filteredTenders.length" class="mt-8 flex min-h-72 flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white px-6 text-center">
+          <div v-else-if="!filteredTenders.length" class="flex min-h-72 flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white px-6 text-center" :class="closingSoonCount ? 'mt-4' : 'mt-8'">
             <span class="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-700"><Icon name="lucide:file-search" class="h-7 w-7" /></span>
             <h3 class="mt-4 font-bold">No matching opportunities</h3>
             <p class="mt-1 max-w-md text-sm text-slate-500">{{ tendersError || 'Try a different keyword or category, or check again when new tenders are published.' }}</p>
             <button v-if="searchQuery || activeTenderFilter !== 'all'" class="btn btn-ghost btn-sm mt-4" @click="clearSearch">Clear search</button>
           </div>
 
-          <div v-else class="mt-8">
+          <div v-else :class="closingSoonCount ? 'mt-4' : 'mt-8'">
             <div class="grid gap-4 md:hidden">
               <article v-for="tender in filteredTenders" :key="`mobile-${tender.uuid}`" class="card card-border border-slate-200 bg-white shadow-sm">
                 <div class="card-body gap-0 p-5">
@@ -209,14 +217,10 @@
             </div>
           </div>
 
-          <div v-if="closingSoonCount" class="mt-8 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:flex-row sm:items-center">
-            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700"><Icon name="lucide:alarm-clock" class="h-5 w-5" /></span>
-            <div><p class="text-sm font-bold text-amber-900">{{ closingSoonCount }} {{ closingSoonCount === 1 ? 'opportunity closes' : 'opportunities close' }} within 72 hours</p><p class="mt-0.5 text-xs text-amber-800/70">Allow enough time to complete, seal and submit your bid before the deadline.</p></div>
-          </div>
         </div>
       </section>
 
-      <section id="system-modules" class="border-t border-slate-200 bg-[#f4f8f7] py-16 sm:py-24">
+      <section id="system-modules" class="border-t border-slate-200 bg-[#f4f8f7] py-10 sm:py-14">
         <div class="app-shell px-5 sm:px-8">
           <div class="max-w-3xl">
             <p class="text-sm font-semibold text-emerald-700">Everything suppliers need in one place</p>
