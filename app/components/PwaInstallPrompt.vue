@@ -42,9 +42,26 @@
           <span>On iPhone or iPad, tap <strong>Share</strong>, then choose <strong>Add to Home Screen</strong>.</span>
         </div>
 
+        <div v-else-if="requiresChromeInstall" role="alert" class="alert alert-warning alert-soft mt-5 text-sm">
+          <Icon name="lucide:shield-alert" class="h-5 w-5" />
+          <span>
+            Samsung Internet may create an outdated Android app package that Play Protect blocks.
+            Open this page in Chrome, then install ZimEpps there.
+          </span>
+        </div>
+
         <div class="modal-action mt-6">
           <button type="button" class="btn btn-ghost" @click="dismiss">Not now</button>
-          <button v-if="canInstall" type="button" class="btn btn-primary min-w-36" :disabled="isInstalling" @click="installApp">
+          <a
+            v-if="requiresChromeInstall"
+            :href="chromeInstallUrl"
+            class="btn btn-primary min-w-36"
+            @click="dismiss"
+          >
+            <Icon name="lucide:external-link" class="h-4 w-4" />
+            Open in Chrome
+          </a>
+          <button v-else-if="canInstall" type="button" class="btn btn-primary min-w-36" :disabled="isInstalling" @click="installApp">
             <span v-if="isInstalling" class="loading loading-spinner loading-sm" />
             <Icon v-else name="lucide:download" class="h-4 w-4" />
             {{ isInstalling ? 'Opening installer' : 'Install ZimEpps' }}
@@ -69,9 +86,21 @@ const isOpen = ref(false)
 const isIos = ref(false)
 const isStandalone = ref(false)
 const isInstalling = ref(false)
+const isAndroid = ref(false)
+const isSamsungInternet = ref(false)
+const chromeInstallUrl = ref('#')
 
 const canInstall = computed(() => Boolean(unref($pwa?.showInstallPrompt)))
 const isAlreadyInstalled = computed(() => Boolean(unref($pwa?.isPWAInstalled)) || isStandalone.value)
+const requiresChromeInstall = computed(() => isAndroid.value && isSamsungInternet.value)
+
+const buildChromeInstallUrl = () => {
+  const currentUrl = new URL(window.location.href)
+  const scheme = currentUrl.protocol.replace(':', '')
+  const fallbackUrl = encodeURIComponent(currentUrl.href)
+
+  return `intent://${currentUrl.host}${currentUrl.pathname}${currentUrl.search}#Intent;scheme=${scheme};package=com.android.chrome;S.browser_fallback_url=${fallbackUrl};end`
+}
 
 const wasRecentlyDismissed = () => {
   const dismissedAt = Number(localStorage.getItem(DISMISS_KEY) || 0)
@@ -80,7 +109,7 @@ const wasRecentlyDismissed = () => {
 
 const openWhenAvailable = () => {
   if (isOpen.value || isAlreadyInstalled.value || wasRecentlyDismissed()) return
-  if (!canInstall.value && !isIos.value) return
+  if (!canInstall.value && !isIos.value && !requiresChromeInstall.value) return
 
   window.setTimeout(() => {
     if (!installDialog.value?.open && !isAlreadyInstalled.value && !wasRecentlyDismissed()) {
@@ -113,7 +142,10 @@ watch(canInstall, openWhenAvailable)
 
 onMounted(() => {
   isIos.value = /iphone|ipad|ipod/i.test(navigator.userAgent)
+  isAndroid.value = /android/i.test(navigator.userAgent)
+  isSamsungInternet.value = /samsungbrowser/i.test(navigator.userAgent)
   isStandalone.value = window.matchMedia('(display-mode: standalone)').matches || Boolean(navigator.standalone)
+  chromeInstallUrl.value = buildChromeInstallUrl()
   window.addEventListener('appinstalled', dismiss)
   openWhenAvailable()
 })
