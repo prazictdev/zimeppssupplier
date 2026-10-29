@@ -4,18 +4,24 @@
       v-for="session in pendingFeedbackSessions"
       :key="session.uuid"
       role="alert"
-      class="alert alert-info alert-soft sm:alert-horizontal"
+      class="alert border-l-4 border-primary bg-base-100 text-base-content shadow-sm sm:alert-horizontal"
     >
-      <Icon name="lucide:message-square-more" class="h-5 w-5 shrink-0" />
+      <span class="grid h-11 w-11 shrink-0 place-items-center rounded-box bg-primary/10 text-primary">
+        <Icon name="lucide:message-square-more" class="h-5 w-5" />
+      </span>
       <div class="min-w-0 flex-1">
-        <h3 class="font-bold">Your feedback is requested</h3>
-        <p class="mt-0.5 text-sm opacity-80">
-          {{ session.title }}<template v-if="session.closes_at"> · Complete by {{ formatFeedbackDate(session.closes_at) }}</template>
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <h3 class="font-bold">{{ session.title }}</h3>
+          <span v-if="session.closes_at" class="text-xs text-base-content/55">Complete by {{ formatFeedbackDate(session.closes_at) }}</span>
+        </div>
+        <p class="mt-1 max-w-4xl text-sm leading-5 text-base-content/65">
+          {{ session.description || 'Tell us about your experience so we can improve the supplier portal.' }}
         </p>
       </div>
-      <NuxtLink :to="`/feedback/${session.uuid}`" class="btn btn-info btn-sm">
+      <button type="button" class="btn btn-primary btn-sm shrink-0" @click="openFeedback(session.uuid)">
         {{ feedbackSubmission(session) ? 'Continue feedback' : 'Give feedback' }}
-      </NuxtLink>
+        <Icon name="lucide:arrow-right" class="h-4 w-4" />
+      </button>
     </div>
 
     <div v-if="pendingUpgradeInvoice && canViewRegistrations" role="alert" class="alert alert-error alert-soft sm:alert-horizontal">
@@ -82,6 +88,8 @@ const loadFeedbackSessions = async () => {
     feedbackSessions.value = []
   }
 }
+
+const openFeedback = uuid => navigateTo(`/feedback/${uuid}`)
 
 onMounted(() => {
   loadFeedbackSessions()

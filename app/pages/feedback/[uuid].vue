@@ -22,7 +22,7 @@
   </div>
 </template>
 <script setup>
-definePageMeta({ middleware: ['sanctum:auth'] }); useHead({ title: 'Testing feedback' })
+useHead({ title: 'Testing feedback' })
 const route = useRoute(); const api = useFeedbackHelper(); const session = ref(null); const answers = reactive({}); const loading = ref(true); const saving = ref(''); const error = ref('')
 const submission = computed(() => session.value?.submissions?.[0]); const submitted = computed(() => submission.value?.status === 'SUBMITTED')
 const date = value => new Intl.DateTimeFormat('en-ZW', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(value))

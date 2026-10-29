@@ -15,7 +15,7 @@
   </div>
 </template>
 <script setup>
-definePageMeta({ middleware: ['sanctum:auth'] }); useHead({ title: 'Testing feedback' })
+useHead({ title: 'Testing feedback' })
 const api = useFeedbackHelper(); const sessions = ref([]); const loading = ref(true); const error = ref('')
 const submission = session => session.submissions?.[0]
 const date = value => new Intl.DateTimeFormat('en-ZW', { dateStyle: 'medium' }).format(new Date(value))

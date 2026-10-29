@@ -36,7 +36,7 @@
           <Icon name="lucide:chevron-down" class="h-4 w-4 text-base-content/45" />
         </button>
         <ul tabindex="0" class="menu dropdown-content z-[60] mt-2 w-64 rounded-box border border-base-300 bg-base-100 p-2 shadow-xl">
-          <li><NuxtLink to="/organisationprofile" class="gap-2 rounded-md"><Icon name="lucide:building-2" />Organisation profile</NuxtLink></li>
+          <li><NuxtLink to="/personal-profile" class="gap-2 rounded-md"><Icon name="lucide:user-round" />Personal profile</NuxtLink></li>
           <li><button class="gap-2 rounded-md text-error" @click="logout"><Icon name="lucide:log-out" />Sign out</button></li>
         </ul>
       </div>

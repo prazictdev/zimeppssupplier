@@ -13,6 +13,7 @@ const AUTHENTICATED_ONLY_PATHS = [
   '/dashboard',
   '/notifications',
   '/feedback',
+  '/personal-profile',
   '/setup-organisation',
   '/complete-migrated-profile',
   '/access-denied',

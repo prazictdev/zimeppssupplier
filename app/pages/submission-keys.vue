@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-3">
-    <div class="card outline card-xs outline-1 outline-base-200">
+    <div class="card card-xs bg-base-100 outline outline-1 outline-base-200">
       <div class="card-body">
         <div class="breadcrumbs text-sm">
           <ul>
@@ -12,7 +12,7 @@
     </div>
 
     <!-- Buy / overview card -->
-    <div class="card border border-base-200">
+    <div class="card border border-base-200 bg-base-100">
       <div class="card-body">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-base-200 pb-2">
           <div>
@@ -38,19 +38,19 @@
 
         <!-- Counters -->
         <div v-if="!loading" class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <div class="rounded-lg border border-base-200 p-3">
+          <div class="rounded-lg border border-base-200 bg-base-100 p-3">
             <p class="text-xs text-base-content/50">Awaiting payment</p>
             <p class="text-2xl font-bold">{{ countByStatus.PENDING_PAYMENT }}</p>
           </div>
-          <div class="rounded-lg border border-warning/40 bg-warning/5 p-3">
+          <div class="rounded-lg border border-warning/40 bg-base-100 p-3">
             <p class="text-xs text-base-content/50">Unassigned</p>
             <p class="text-2xl font-bold text-warning">{{ countByStatus.UNASSIGNED }}</p>
           </div>
-          <div class="rounded-lg border border-info/40 bg-info/5 p-3">
+          <div class="rounded-lg border border-info/40 bg-base-100 p-3">
             <p class="text-xs text-base-content/50">Ready to generate</p>
             <p class="text-2xl font-bold text-info">{{ countByStatus.PENDING_GENERATION }}</p>
           </div>
-          <div class="rounded-lg border border-success/40 bg-success/5 p-3">
+          <div class="rounded-lg border border-success/40 bg-base-100 p-3">
             <p class="text-xs text-base-content/50">Active</p>
             <p class="text-2xl font-bold text-success">{{ countByStatus.ACTIVE }}</p>
           </div>
@@ -64,7 +64,7 @@
 
     <template v-else>
       <!-- Purchased licences (company-wide overview) -->
-      <div class="card border border-base-200">
+      <div class="card border border-base-200 bg-base-100">
         <div class="card-body">
           <div class="flex items-center justify-between border-b border-base-200 pb-2">
             <span class="text-base font-bold">Purchased licences</span>
@@ -140,7 +140,7 @@
       </div>
 
       <!-- My assigned licences (current user only) -->
-      <div class="card border border-base-200">
+      <div class="card border border-base-200 bg-base-100">
         <div class="card-body">
           <div class="flex items-center justify-between border-b border-base-200 pb-2">
             <span class="text-base font-bold">My assigned licences</span>
