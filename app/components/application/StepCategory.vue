@@ -98,65 +98,87 @@
       </div>
     </template>
 
-    <!-- Category picker modal -->
     <dialog ref="modalRef" class="modal">
-      <div class="modal-box max-w-xl w-full">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="font-bold text-lg">Choose a Category</h3>
-          <button type="button" class="btn btn-ghost btn-sm btn-circle" @click="closeModal">
+      <div class="modal-box w-full max-w-2xl overflow-hidden p-0">
+        <div class="flex items-start justify-between gap-4 border-b border-base-300 px-5 py-5 sm:px-6">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-xl font-bold">Choose supplier categories</h3>
+              <span v-if="selected.length" class="badge badge-primary badge-soft badge-sm">{{ selected.length }} selected</span>
+            </div>
+            <p class="mt-1 text-sm leading-5 text-base-content/60">Add every category that describes the goods or services your company supplies.</p>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm btn-circle shrink-0" aria-label="Close category picker" @click="closeModal">
             <Icon name="lucide:x" class="h-4 w-4" />
           </button>
         </div>
 
-        <!-- Search -->
-        <label class="input input-bordered flex items-center gap-2 mb-4">
-          <Icon name="lucide:search" class="h-4 w-4 text-base-content/40 shrink-0" />
+        <div class="border-b border-base-300 px-5 py-4 sm:px-6">
+          <label class="input flex w-full items-center gap-2">
+          <Icon name="lucide:search" class="h-4 w-4 shrink-0 text-base-content/40" />
           <input
             v-model="search"
             type="text"
-            placeholder="Search by name, code or section…"
+            placeholder="Search categories by name, code or section"
             class="grow"
+            autofocus
           />
-          <button v-if="search" type="button" class="btn btn-ghost btn-xs btn-circle" @click="search = ''">
+          <button v-if="search" type="button" class="btn btn-ghost btn-xs btn-circle" aria-label="Clear search" @click="search = ''">
             <Icon name="lucide:x" class="h-3 w-3" />
           </button>
         </label>
+          <p class="mt-2 text-xs text-base-content/50">{{ filteredCategories.length }} {{ filteredCategories.length === 1 ? 'category' : 'categories' }} found</p>
+        </div>
 
-        <!-- Results -->
-        <div class="max-h-80 overflow-y-auto space-y-2 pr-1">
-          <div v-if="!filteredCategories.length" class="py-8 text-center text-sm text-base-content/50">
-            No categories match your search.
+        <div class="max-h-[26rem] overflow-y-auto px-5 py-4 sm:px-6">
+          <div v-if="!filteredCategories.length" class="flex flex-col items-center py-10 text-center">
+            <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-base-200">
+              <Icon name="lucide:search-x" class="h-5 w-5 text-base-content/50" />
+            </div>
+            <p class="font-semibold">No matching categories</p>
+            <p class="mt-1 text-sm text-base-content/55">Try a category name, code or section.</p>
           </div>
-          <button
+
+          <ul v-else class="list gap-2">
+          <li
             v-for="cat in filteredCategories"
             :key="cat.id"
-            type="button"
-            class="flex w-full items-start gap-4 rounded-xl border-2 p-3 text-left transition-all"
-            :class="isSelected(cat.id)
-              ? 'border-primary bg-primary/10 text-primary opacity-60 cursor-default'
-              : saving === cat.id
-              ? 'border-primary/30 bg-base-200 cursor-wait'
-              : 'border-base-200 bg-base-100 hover:border-primary/40 hover:bg-base-200/60'"
-            :disabled="isSelected(cat.id) || saving === cat.id"
-            @click="pick(cat)"
+            class="list-row items-center rounded-selector border border-base-300 px-4 py-3"
+            :class="isSelected(cat.id) ? 'bg-primary/5' : 'bg-base-100'"
           >
             <span
-              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold"
-              :class="isSelected(cat.id) ? 'bg-primary text-primary-content' : 'bg-base-200 text-base-content/50'"
+              class="flex h-10 w-12 shrink-0 items-center justify-center rounded-selector bg-base-200 px-2 text-xs font-bold text-base-content/65"
             >
               {{ cat.code ?? cat.name?.charAt(0) }}
             </span>
-            <div class="min-w-0 flex-1">
-              <p class="font-semibold text-sm truncate">{{ cat.name }}</p>
-              <p v-if="cat.section?.name" class="text-xs text-base-content/50 mt-0.5 truncate">{{ cat.section.name }}</p>
+            <div class="list-col-grow min-w-0">
+              <p class="truncate text-sm font-semibold text-base-content">{{ cat.name }}</p>
+              <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-base-content/55">
+                <span v-if="cat.section?.name">{{ cat.section.name }}</span>
+                <span v-if="cat.code" class="badge badge-ghost badge-xs">{{ cat.code }}</span>
+              </div>
             </div>
-            <span v-if="saving === cat.id" class="loading loading-spinner loading-xs text-primary mt-0.5" />
-            <Icon v-else-if="isSelected(cat.id)" name="lucide:circle-check" class="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-          </button>
+            <button
+              type="button"
+              class="btn btn-sm min-w-20 shrink-0"
+              :class="isSelected(cat.id) ? 'btn-ghost' : 'btn-primary'"
+              :disabled="isSelected(cat.id) || saving === cat.id"
+              :aria-label="`${isSelected(cat.id) ? 'Added' : 'Add'} ${cat.name}`"
+              @click="pick(cat)"
+            >
+              <span v-if="saving === cat.id" class="loading loading-spinner loading-xs" />
+              <Icon v-else :name="isSelected(cat.id) ? 'lucide:check' : 'lucide:plus'" class="h-4 w-4" />
+              {{ isSelected(cat.id) ? 'Added' : 'Add' }}
+            </button>
+          </li>
+          </ul>
         </div>
 
-        <div class="modal-action mt-4">
-          <button type="button" class="btn btn-primary btn-sm" @click="closeModal">Done</button>
+        <div class="flex items-center justify-between gap-4 border-t border-base-300 bg-base-200/40 px-5 py-4 sm:px-6">
+          <p class="text-sm text-base-content/60">
+            <strong class="text-base-content">{{ selected.length }}</strong> {{ selected.length === 1 ? 'category' : 'categories' }} selected
+          </p>
+          <button type="button" class="btn btn-primary btn-sm min-w-24" @click="closeModal">Done</button>
         </div>
       </div>
       <form method="dialog" class="modal-backdrop">
@@ -174,6 +196,7 @@ const props = defineProps({
 const emit = defineEmits(['init', 'select', 'remove', 'invoice-voided'])
 
 const client = useSupplierClient()
+const toast = useToast()
 
 const categories = ref([])
 const loading = ref(true)
@@ -235,8 +258,15 @@ async function pick(cat) {
       body: { suppliercategory_id: cat.id },
     })
     emit('select', res.data)
-  } catch {
-    // silently ignore — category stays unselected
+  } catch (error) {
+    toast.error({
+      title: 'Category could not be added',
+      message: error?.data?.message
+        ?? error?.response?._data?.message
+        ?? 'Please check your connection and try again.',
+      position: 'topRight',
+      layout: 2,
+    })
   } finally {
     saving.value = null
   }
