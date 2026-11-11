@@ -1,11 +1,7 @@
 <template>
   <div class="space-y-6">
-    <section v-if="showWallets" aria-labelledby="balances-heading">
-      <div class="mb-3 flex items-end justify-between gap-4">
-        <div>
-          <p class="section-kicker">Funds</p>
-          <h2 id="balances-heading" class="mt-1 text-lg font-bold">Available balances</h2>
-        </div>
+    <section v-if="showWallets" aria-label="Available balances">
+      <div class="mb-3 flex justify-end">
         <NuxtLink to="/supplierstatement" class="btn btn-ghost btn-sm">View statement</NuxtLink>
       </div>
       <!-- Loading skeleton -->
@@ -16,12 +12,7 @@
       <Wallets v-else :wallets="wallets" />
     </section>
 
-    <section v-if="workspaceTabs.length" aria-labelledby="activity-heading" class="space-y-4">
-      <div>
-        <p class="section-kicker">Your activity</p>
-        <h2 id="activity-heading" class="mt-1 text-lg font-bold">Procurement workspace</h2>
-      </div>
-
+    <section v-if="workspaceTabs.length" aria-label="Procurement workspace" class="space-y-4">
       <div class="hidden overflow-x-auto rounded-box border border-base-200 bg-base-100 p-2 shadow-sm md:block">
         <div role="tablist" aria-label="Supplier activity" class="tabs tabs-box grid w-full min-w-[42rem] grid-flow-col auto-cols-fr gap-3 bg-base-200/60 p-2">
           <button
