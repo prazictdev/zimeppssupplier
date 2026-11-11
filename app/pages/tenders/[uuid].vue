@@ -85,44 +85,53 @@
 
     <!-- ── Tender detail ──────────────────────────────────────────────────── -->
     <template v-else>
-      <section class="overflow-hidden rounded-2xl bg-gradient-to-r from-green-800 to-green-600 text-white shadow-sm">
-        <div class="p-6 lg:p-8">
-          <NuxtLink to="/" class="inline-flex items-center gap-1 text-sm text-green-100 hover:text-white">
-            <Icon name="lucide:arrow-left" class="h-4 w-4" />
-            All tenders
-          </NuxtLink>
-
-          <div class="mt-5 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-            <div class="min-w-0">
-              <div class="flex flex-wrap items-center gap-2 text-xs">
-                <span class="badge border-0 bg-white/20 text-white">{{ daysLeft(tender.closing_at) }}</span>
-                <span class="font-mono text-green-100">{{ tender.reference }}</span>
-                <span v-if="tender.method" class="badge border-0 bg-white/15 text-white">{{ tender.method }}</span>
-              </div>
-              <h1 class="mt-3 text-2xl font-extrabold leading-tight lg:text-3xl">{{ tender.title }}</h1>
-              <p class="mt-3 flex items-center gap-2 text-sm text-green-100"><Icon name="lucide:building-2" class="h-4 w-4" />{{ tender.entity ?? 'Procuring entity' }}</p>
-            </div>
-            <div class="flex shrink-0 flex-wrap gap-2">
-              <button
-                v-if="!user"
-                class="btn btn-sm border-white/30 bg-white/10 text-white hover:bg-white/20"
-                :disabled="watchLoading || !guestWatchSupported"
-                @click="toggleGuestWatch"
-              >
-                <span v-if="watchLoading" class="loading loading-spinner loading-xs" />
-                <Icon v-else :name="watching ? 'lucide:bell-ring' : 'lucide:bell-plus'" class="h-4 w-4" />
-                {{ watching ? 'Alerts enabled' : 'Watch tender' }}
-              </button>
-              <button v-if="tender.sbd_available" class="btn btn-sm border-white/30 bg-white/10 text-white hover:bg-white/20" :disabled="downloadingSbd" @click="downloadSbd"><span v-if="downloadingSbd" class="loading loading-spinner loading-xs" /><Icon v-else name="lucide:file-down" class="h-4 w-4" /> Download document</button>
-              <NuxtLink :to="`/login?redirect=${encodeURIComponent(`/supplieropportunities/${uuid}`)}`" class="btn btn-sm bg-white text-green-800 hover:bg-green-50"><Icon name="lucide:log-in" class="h-4 w-4" /> Sign in to bid</NuxtLink>
+      <section class="relative overflow-hidden rounded-box border border-base-300 bg-base-100 shadow-sm">
+        <div class="absolute inset-y-0 left-0 w-1.5 bg-primary" aria-hidden="true" />
+        <div class="px-5 py-5 sm:px-7 sm:py-6">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <NuxtLink to="/tenders" class="btn btn-ghost btn-sm -ml-3">
+              <Icon name="lucide:arrow-left" class="h-4 w-4" />
+              All tenders
+            </NuxtLink>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="badge badge-success badge-soft">Published</span>
+              <span class="badge" :class="isClosingSoon(tender.closing_at) ? 'badge-warning' : 'badge-ghost'">{{ daysLeft(tender.closing_at) }}</span>
             </div>
           </div>
 
-          <div class="mt-6 grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
-            <div class="rounded-xl bg-black/10 p-3"><p class="text-xs text-green-100">Closing</p><p class="mt-1 font-semibold">{{ formatDateTime(tender.closing_at) }}</p></div>
-            <div class="rounded-xl bg-black/10 p-3"><p class="text-xs text-green-100">Bid opening</p><p class="mt-1 font-semibold">{{ formatDateTime(tender.opening_at) }}</p></div>
-            <div class="rounded-xl bg-black/10 p-3"><p class="text-xs text-green-100">Lots</p><p class="mt-1 font-semibold">{{ tender.items?.length || 0 }}</p></div>
-            <div class="rounded-xl bg-black/10 p-3"><p class="text-xs text-green-100">Time remaining</p><p class="mt-1 font-semibold">{{ daysLeft(tender.closing_at) }}</p></div>
+          <div class="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-primary">Tender notice</p>
+              <h1 class="mt-1 max-w-4xl text-2xl font-bold leading-tight tracking-tight sm:text-3xl">{{ tender.title }}</h1>
+              <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-base-content/60">
+                <span class="inline-flex items-center gap-2"><Icon name="lucide:building-2" class="h-4 w-4 text-primary" />{{ tender.entity ?? 'Procuring entity' }}</span>
+                <span class="inline-flex items-center gap-2"><Icon name="lucide:hash" class="h-4 w-4" /><span class="font-mono">{{ tender.reference || 'Reference pending' }}</span></span>
+                <span v-if="tender.method" class="inline-flex items-center gap-2"><Icon name="lucide:gavel" class="h-4 w-4" />{{ tender.method }}</span>
+              </div>
+            </div>
+            <div class="rounded-box border border-primary/25 bg-primary/5 p-4">
+              <p class="text-xs font-semibold text-base-content/55">Submission deadline</p>
+              <p class="mt-1 font-bold text-base-content">{{ formatDateTime(tender.closing_at) }}</p>
+              <div class="mt-3 flex items-center gap-2 text-sm font-semibold text-primary">
+                <Icon name="lucide:timer" class="h-4 w-4" />
+                {{ daysLeft(tender.closing_at) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 grid border-t border-base-300 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="border-b border-base-300 py-4 sm:border-r sm:px-4 xl:border-b-0 xl:pl-0">
+              <p class="text-xs text-base-content/50">Published</p><p class="mt-1 text-sm font-semibold">{{ formatDate(tender.publication_start_date) || 'Not specified' }}</p>
+            </div>
+            <div class="border-b border-base-300 py-4 sm:px-4 xl:border-b-0 xl:border-r">
+              <p class="text-xs text-base-content/50">Bid opening</p><p class="mt-1 text-sm font-semibold">{{ formatDateTime(tender.opening_at) || 'Not specified' }}</p>
+            </div>
+            <div class="border-b border-base-300 py-4 sm:border-r sm:px-4 xl:border-b-0">
+              <p class="text-xs text-base-content/50">Lot structure</p><p class="mt-1 text-sm font-semibold">{{ tender.items?.length || 0 }} {{ tender.items?.length === 1 ? 'lot' : 'lots' }}</p>
+            </div>
+            <div class="py-4 sm:px-4 xl:pr-0">
+              <p class="text-xs text-base-content/50">Bid validity</p><p class="mt-1 text-sm font-semibold">{{ tender.bid_validity_period ? `${tender.bid_validity_period} days` : 'Not specified' }}</p>
+            </div>
           </div>
         </div>
       </section>
@@ -303,50 +312,88 @@
             </section>
           </main>
 
-          <!-- Sidebar: key details -->
-          <aside class="space-y-5">
-            <div class="card border border-base-200 bg-base-100 shadow-sm">
+          <!-- Sidebar: supplier actions and notice particulars -->
+          <aside class="space-y-5 xl:sticky xl:top-24 xl:self-start">
+            <section class="card card-border bg-base-100 shadow-sm">
+              <div class="card-body gap-3 p-5">
+                <div>
+                  <h2 class="card-title text-base">Respond to this tender</h2>
+                  <p class="mt-1 text-sm text-base-content/60">Open the supplier workspace to prepare your bid and track submission requirements.</p>
+                </div>
+
+                <NuxtLink
+                  :to="user ? `/supplieropportunities/${uuid}` : `/login?redirect=${encodeURIComponent(`/supplieropportunities/${uuid}`)}`"
+                  class="btn btn-primary w-full"
+                >
+                  <Icon :name="user ? 'lucide:folder-open' : 'lucide:log-in'" class="h-4 w-4" />
+                  {{ user ? 'Open bidding workspace' : 'Sign in to bid' }}
+                </NuxtLink>
+
+                <button v-if="tender.sbd_available" class="btn btn-outline w-full" :disabled="downloadingSbd" @click="downloadSbd">
+                  <span v-if="downloadingSbd" class="loading loading-spinner loading-xs" />
+                  <Icon v-else name="lucide:file-down" class="h-4 w-4" />
+                  Download bidding document
+                </button>
+
+                <button
+                  v-if="!user"
+                  class="btn btn-ghost w-full"
+                  :disabled="watchLoading || !guestWatchSupported"
+                  @click="toggleGuestWatch"
+                >
+                  <span v-if="watchLoading" class="loading loading-spinner loading-xs" />
+                  <Icon v-else :name="watching ? 'lucide:bell-ring' : 'lucide:bell-plus'" class="h-4 w-4" />
+                  {{ watching ? 'Tender alerts enabled' : 'Watch for updates' }}
+                </button>
+
+                <p v-if="!user" class="text-center text-xs text-base-content/50">
+                  New supplier? <NuxtLink to="/register" class="link link-primary font-semibold">Create an account</NuxtLink>
+                </p>
+              </div>
+            </section>
+
+            <section class="card card-border bg-base-100 shadow-sm">
               <div class="card-body gap-0 p-5">
-                <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-base-content/60">Key Details</h3>
-                <dl class="divide-y divide-base-200 text-sm">
+                <div class="mb-3 flex items-center justify-between gap-3">
+                  <h2 class="font-bold">Tender particulars</h2>
+                  <span class="badge badge-success badge-soft badge-sm">Published</span>
+                </div>
+                <dl class="divide-y divide-base-300 text-sm">
+                  <DetailRow label="Reference" :value="tender.reference" />
                   <DetailRow label="Procurement method" :value="tender.method" />
                   <DetailRow label="Procurement category" :value="tender.category" />
+                  <DetailRow v-if="tender.lot_rules?.lot_type" label="Lot type" :value="humanize(tender.lot_rules.lot_type)" />
                   <DetailRow label="Participation" :value="tender.allowed_participants" />
                   <DetailRow label="Bid opening" :value="tender.bid_opening_type" />
-                  <DetailRow label="Published" :value="formatDate(tender.publication_start_date)" />
-                  <DetailRow label="Closing" :value="formatDateTime(tender.closing_at)" highlight />
-                  <DetailRow label="Bid opening date" :value="formatDateTime(tender.opening_at)" />
-                  <DetailRow
-                    label="Bid bond required"
-                    :value="tender.required_bid_bond ? 'Yes' : 'No'"
-                  />
-                  <DetailRow
-                    v-if="tender.required_bid_bond && tender.bid_validity_period"
-                    label="Bid validity"
-                    :value="`${tender.bid_validity_period} days`"
-                  />
-                  <DetailRow
-                    v-if="tender.require_prequalification"
-                    label="Prequalification"
-                    :value="formatDateTime(tender.prequalification_at) ?? 'Required'"
-                  />
-                  <DetailRow
-                    v-if="tender.prequalification_venue"
-                    label="Prequal. venue"
-                    :value="tender.prequalification_venue"
-                  />
+                  <DetailRow v-if="tender.selection_method?.name" label="Evaluation method" :value="tender.selection_method.name" />
+                  <DetailRow label="Bid bond" :value="tender.required_bid_bond ? 'Required' : 'Not required'" />
+                  <DetailRow v-if="tender.require_prequalification" label="Prequalification" :value="formatDateTime(tender.prequalification_at) ?? 'Required'" />
+                  <DetailRow v-if="tender.prequalification_venue" label="Prequal. venue" :value="tender.prequalification_venue" />
                 </dl>
               </div>
-            </div>
+            </section>
 
-            <div class="rounded-xl border border-green-200 bg-green-50 p-5 text-sm">
-              <p class="font-semibold text-green-800">Want to respond to this tender?</p>
-              <p class="mt-1 text-green-700">Register or sign in to download documents and submit a bid.</p>
-              <NuxtLink to="/register" class="btn btn-sm btn-success mt-3 w-full">
-                <Icon name="lucide:user-plus" class="h-4 w-4" />
-                Register as Supplier
-              </NuxtLink>
-            </div>
+            <section class="card card-border bg-base-100 shadow-sm">
+              <div class="card-body gap-0 p-5">
+                <h2 class="mb-3 font-bold">Activity schedule</h2>
+                <dl class="divide-y divide-base-300 text-sm">
+                  <DetailRow label="Published" :value="formatDateTime(tender.published_at || tender.publication_start_date)" />
+                  <DetailRow label="Closing" :value="formatDateTime(tender.closing_at)" highlight />
+                  <DetailRow label="Bid opening" :value="formatDateTime(tender.opening_at)" />
+                  <DetailRow label="Addenda" :value="String(tender.addenda?.length ?? 0)" />
+                </dl>
+              </div>
+            </section>
+
+            <section v-if="tender.fees?.administration_fee || tender.fees?.bid_security" class="card card-border bg-base-100 shadow-sm">
+              <div class="card-body gap-3 p-5">
+                <h2 class="font-bold">Tender fees</h2>
+                <div class="stats stats-vertical border border-base-300">
+                  <div v-if="tender.fees?.administration_fee" class="stat p-3"><div class="stat-title text-xs">Administration fee</div><div class="stat-value text-lg">{{ tender.fees.administration_fee.currency || tender.fees.currency || '' }} {{ formatAmount(tender.fees.administration_fee.amount) }}</div></div>
+                  <div v-if="tender.fees?.bid_security" class="stat p-3"><div class="stat-title text-xs">Bid security</div><div class="stat-value text-lg">{{ tender.fees.currency || '' }} {{ formatAmount(tender.fees.bid_security.amount) }}</div><div v-if="tender.fees.bid_security.establishment_fee" class="stat-desc">Establishment fee: {{ tender.fees.currency || '' }} {{ formatAmount(tender.fees.bid_security.establishment_fee) }}</div></div>
+                </div>
+              </div>
+            </section>
           </aside>
       </div>
     </template>
@@ -506,6 +553,16 @@ function formatQuantity(value) {
   const num = Number(value)
   if (Number.isNaN(num)) return value
   return new Intl.NumberFormat('en-US').format(num)
+}
+
+function formatAmount(value) {
+  const amount = Number(value)
+  if (!Number.isFinite(amount)) return value ?? '—'
+  return new Intl.NumberFormat('en-ZW', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)
+}
+
+function humanize(value) {
+  return String(value ?? '').replaceAll('_', ' ').toLowerCase().replace(/\b\w/g, character => character.toUpperCase())
 }
 
 function acceptanceLabel(value) {
