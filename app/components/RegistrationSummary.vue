@@ -68,31 +68,53 @@
                 </span>
               </td>
               <td class="text-right">
-                <div class="flex flex-col items-stretch justify-end gap-2 sm:flex-row sm:items-center">
-                  <button
-                    v-if="canDownload(reg)"
-                    class="btn btn-info btn-sm gap-1.5 whitespace-nowrap"
-                    :disabled="downloadingId === reg.id"
-                    :title="downloadTitle(reg)"
-                    @click="onDownload(reg)"
-                  >
-                    <span v-if="downloadingId === reg.id" class="loading loading-spinner loading-xs" />
-                    <Icon v-else name="lucide:download" class="h-3.5 w-3.5" />
-                    <span>Download certificate</span>
-                  </button>
-                  <button
-                    v-if="allowAutorenewal && canEnrolAutorenewal(reg)"
-                    class="btn btn-xs gap-1"
-                    :class="isEnrolled(reg) ? 'btn-disabled' : 'btn-outline btn-primary'"
-                    :disabled="isEnrolled(reg) || enrollingId === reg.id"
-                    :title="autorenewalTitle(reg)"
-                    @click="onEnrolAutorenewal(reg)"
-                  >
-                    <span v-if="enrollingId === reg.id" class="loading loading-spinner loading-xs" />
-                    <Icon v-else :name="isEnrolled(reg) ? 'lucide:check' : 'lucide:refresh-cw'" class="h-3.5 w-3.5" />
-                    <span class="hidden sm:inline">{{ isEnrolled(reg) ? 'On autorenewal' : 'Add to autorenewal' }}</span>
-                  </button>
-                </div>
+                <button
+                  v-if="hasActions(reg)"
+                  :popovertarget="`summary-actions-${reg.id}`"
+                  :style="{ anchorName: `--summary-actions-${reg.id}` }"
+                  type="button"
+                  class="btn btn-ghost btn-sm whitespace-nowrap"
+                  :aria-label="`Actions for ${reg.suppliercategory?.name ?? 'registration'}`"
+                >
+                  Actions
+                  <Icon name="lucide:chevron-down" class="h-4 w-4" />
+                </button>
+
+                <ul
+                  v-if="hasActions(reg)"
+                  :id="`summary-actions-${reg.id}`"
+                  popover
+                  :style="{ positionAnchor: `--summary-actions-${reg.id}` }"
+                  class="dropdown dropdown-end menu menu-sm z-50 w-60 rounded-box border border-base-300 bg-base-100 p-2 shadow-lg"
+                >
+                  <li v-if="canDownload(reg)">
+                    <button
+                      :popovertarget="`summary-actions-${reg.id}`"
+                      popovertargetaction="hide"
+                      :disabled="downloadingId === reg.id"
+                      :title="downloadTitle(reg)"
+                      @click="onDownload(reg)"
+                    >
+                      <span v-if="downloadingId === reg.id" class="loading loading-spinner loading-xs" />
+                      <Icon v-else name="lucide:download" class="h-4 w-4" />
+                      Download certificate
+                    </button>
+                  </li>
+                  <li v-if="allowAutorenewal && canEnrolAutorenewal(reg)">
+                    <button
+                      :popovertarget="`summary-actions-${reg.id}`"
+                      popovertargetaction="hide"
+                      :disabled="isEnrolled(reg) || enrollingId === reg.id"
+                      :title="autorenewalTitle(reg)"
+                      @click="onEnrolAutorenewal(reg)"
+                    >
+                      <span v-if="enrollingId === reg.id" class="loading loading-spinner loading-xs" />
+                      <Icon v-else :name="isEnrolled(reg) ? 'lucide:check-circle-2' : 'lucide:refresh-cw'" class="h-4 w-4" />
+                      {{ isEnrolled(reg) ? 'On autorenewal' : 'Add to autorenewal' }}
+                    </button>
+                  </li>
+                </ul>
+                <span v-else class="text-base-content/30">—</span>
               </td>
             </tr>
           </tbody>
@@ -120,7 +142,7 @@
 
 
 <script setup>
-defineProps({
+const props = defineProps({
   allowAutorenewal: {
     type: Boolean,
     default: false,
@@ -136,6 +158,7 @@ const enrollingId = ref(null)
 const canDownload = (reg) => !reg?.is_locked && reg?.approval_status === 'APPROVED' && !!reg?.certificate_number
 const canEnrolAutorenewal = (reg) => reg?.approval_status === 'APPROVED'
 const isEnrolled = (reg) => autorenewalStore.enrolledCategoryIds.has(reg?.suppliercategory_id)
+const hasActions = (reg) => canDownload(reg) || (props.allowAutorenewal && canEnrolAutorenewal(reg))
 
 const autorenewalTitle = (reg) => {
   if (isEnrolled(reg)) return 'This category is already enrolled in autorenewal.'
