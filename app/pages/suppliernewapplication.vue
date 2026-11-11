@@ -1,67 +1,62 @@
 <template>
-  <div class="flex h-[calc(100vh-4rem)]">
-
-    <!-- Sidebar -->
-    <aside class="hidden lg:flex flex-col w-72 shrink-0 bg-base-100 border-r border-base-200">
-      <div class="bg-green-600 text-white p-6">
-        <h1 class="text-lg font-bold leading-snug">New Registration</h1>
-        <p class="text-green-100 text-xs mt-1">Complete all steps to submit your application.</p>
-      </div>
-      <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
-        <button
-          v-for="(s, idx) in steps"
-          :key="idx"
-          type="button"
-          :disabled="step < idx + 1"
-          :class="[
-            'w-full flex items-center gap-3 rounded-xl px-4 py-3 text-left transition-all',
-            step === idx + 1
-              ? 'bg-green-50 text-green-700 font-semibold border border-green-200'
-              : step > idx + 1
-              ? 'text-base-content/60 hover:bg-base-200 cursor-pointer'
-              : 'text-base-content/40 cursor-default',
-          ]"
-          @click="step > idx + 1 ? (step = idx + 1) : null"
-        >
-          <span
-            :class="[
-              'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold border-2',
-              step > idx + 1
-                ? 'bg-green-500 border-green-500 text-white'
-                : step === idx + 1
-                ? 'border-green-500 text-green-600 bg-white'
-                : 'border-base-300 text-base-content/30 bg-white',
-            ]"
-          >
-            <Icon v-if="step > idx + 1" name="lucide:check" class="w-3.5 h-3.5" />
-            <span v-else>{{ idx + 1 }}</span>
-          </span>
-          <div class="min-w-0">
-            <div class="text-sm truncate">{{ s.label }}</div>
-            <div class="text-xs truncate" :class="step === idx + 1 ? 'text-green-600/70' : 'text-base-content/40'">{{ s.sub }}</div>
+  <div class="min-h-[calc(100dvh-4rem)] bg-base-200/50 px-3 py-4 sm:px-5 lg:px-7 lg:py-6">
+    <div class="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[17rem_minmax(0,1fr)]">
+      <aside class="hidden self-start overflow-hidden rounded-box border border-base-300 bg-base-100 lg:sticky lg:top-4 lg:block">
+        <div class="border-b border-base-300 px-5 py-5">
+          <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-selector bg-primary text-primary-content">
+            <Icon name="lucide:badge-check" class="h-5 w-5" />
           </div>
-        </button>
-      </nav>
-    </aside>
-
-    <!-- Main content -->
-    <div class="flex flex-1 flex-col min-w-0">
-
-      <!-- Mobile step bar -->
-      <div class="lg:hidden bg-green-600 text-white px-4 py-3 flex items-center gap-3">
-        <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm font-bold">{{ step }}</span>
-        <div>
-          <div class="font-semibold text-sm">{{ steps[step - 1].label }}</div>
-          <div class="text-green-200 text-xs">Step {{ step }} of {{ steps.length }}</div>
+          <h1 class="text-lg font-bold">Supplier registration</h1>
+          <p class="mt-1 max-w-52 text-sm leading-5 text-base-content/60">Choose your categories, review the fee, then complete payment.</p>
         </div>
-        <div class="ml-auto text-xs text-green-200">{{ Math.round(((step - 1) / steps.length) * 100) }}%</div>
-      </div>
 
-      <div class="flex-1 overflow-y-auto">
-        <div class="max-w-3xl mx-auto p-6 lg:p-8">
+        <nav class="p-3" aria-label="Registration progress">
+          <button
+            v-for="(s, idx) in steps"
+            :key="s.label"
+            type="button"
+            class="group flex w-full items-start gap-3 rounded-selector px-3 py-3 text-left"
+            :class="step === idx + 1 ? 'bg-primary/10' : 'hover:bg-base-200'"
+            :disabled="step < idx + 1"
+            :aria-current="step === idx + 1 ? 'step' : undefined"
+            @click="step > idx + 1 ? (step = idx + 1) : null"
+          >
+            <span
+              class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold"
+              :class="step >= idx + 1 ? 'border-primary bg-primary text-primary-content' : 'border-base-300 text-base-content/40'"
+            >
+              <Icon v-if="step > idx + 1" name="lucide:check" class="h-3.5 w-3.5" />
+              <span v-else>{{ idx + 1 }}</span>
+            </span>
+            <span class="min-w-0">
+              <span class="block text-sm font-semibold" :class="step < idx + 1 ? 'text-base-content/40' : ''">{{ s.label }}</span>
+              <span class="mt-0.5 block text-xs leading-4 text-base-content/50">{{ s.sub }}</span>
+            </span>
+          </button>
+        </nav>
 
+        <div class="border-t border-base-300 px-5 py-4 text-xs leading-5 text-base-content/55">
+          Your selections are saved as you progress.
+        </div>
+      </aside>
+
+      <main class="min-w-0 overflow-hidden rounded-box border border-base-300 bg-base-100 shadow-sm">
+        <div class="border-b border-base-300 px-5 py-4 lg:hidden">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="text-xs font-medium text-base-content/55">Step {{ step }} of {{ steps.length }}</p>
+              <h1 class="font-bold">{{ steps[step - 1].label }}</h1>
+            </div>
+            <span class="badge badge-primary badge-outline">{{ Math.round((step / steps.length) * 100) }}%</span>
+          </div>
+          <div class="mt-3 grid grid-cols-4 gap-1.5" aria-hidden="true">
+            <span v-for="(_, idx) in steps" :key="idx" class="h-1 rounded-full" :class="step >= idx + 1 ? 'bg-primary' : 'bg-base-300'" />
+          </div>
+        </div>
+
+        <div class="mx-auto max-w-5xl px-5 py-6 sm:px-7 lg:px-10 lg:py-9">
           <div v-if="progressLoading" class="flex justify-center py-20">
-            <span class="loading loading-spinner loading-lg text-base-content/30" />
+            <span class="loading loading-spinner loading-lg text-primary" />
           </div>
 
           <template v-else>
@@ -143,41 +138,30 @@
           </div>
 
           </template>
-
         </div>
-      </div>
 
-      <!-- Footer nav -->
-      <div class="shrink-0 border-t border-base-200 bg-base-100 px-6 py-4 flex items-center justify-between gap-4">
-        <button v-if="step > 1" type="button" class="btn btn-ghost gap-2" @click="step--">
-          <Icon name="lucide:arrow-left" class="w-4 h-4" />
+        <div class="sticky bottom-0 z-20 flex items-center justify-between gap-4 border-t border-base-300 bg-base-100/95 px-5 py-4 backdrop-blur sm:px-7 lg:px-10">
+        <button v-if="step > 1" type="button" class="btn btn-ghost" @click="step--">
+          <Icon name="lucide:arrow-left" class="h-4 w-4" />
           Back
         </button>
-        <button v-else type="button" class="btn btn-ghost gap-2" @click="navigateTo('/dashboard')">
-          <Icon name="lucide:x" class="w-4 h-4" />
+        <button v-else type="button" class="btn btn-ghost" @click="navigateTo('/dashboard')">
+          <Icon name="lucide:x" class="h-4 w-4" />
           Cancel
         </button>
 
         <div class="flex items-center gap-3">
-          <div class="lg:hidden flex gap-1">
-            <span
-              v-for="(_, idx) in steps"
-              :key="idx"
-              :class="['w-2 h-2 rounded-full', step === idx + 1 ? 'bg-green-500' : step > idx + 1 ? 'bg-green-300' : 'bg-base-300']"
-            />
-          </div>
-
           <button
             v-if="step < steps.length"
             type="button"
-            class="btn btn-success gap-2"
+            class="btn btn-primary min-w-28"
             :disabled="!canProceed || generatingInvoice"
             @click="handleNext"
           >
             <span v-if="generatingInvoice" class="loading loading-spinner loading-xs" />
             <template v-else>
               Next
-              <Icon name="lucide:arrow-right" class="w-4 h-4" />
+              <Icon name="lucide:arrow-right" class="h-4 w-4" />
             </template>
           </button>
 
@@ -185,7 +169,7 @@
             <button
               v-if="walletChecking"
               type="button"
-              class="btn btn-disabled gap-2"
+              class="btn btn-disabled"
               disabled
             >
               <span class="loading loading-spinner loading-xs" />
@@ -195,23 +179,23 @@
             <button
               v-else-if="walletSettled || paymentCheckResult === 'success'"
               type="button"
-              class="btn btn-success gap-2"
+              class="btn btn-primary"
               @click="navigateTo('/dashboard')"
             >
               Continue
-              <Icon name="lucide:arrow-right" class="w-4 h-4" />
+              <Icon name="lucide:arrow-right" class="h-4 w-4" />
             </button>
 
             <button
               v-else-if="isOnlinePayment"
               type="button"
-              class="btn btn-primary gap-2"
+              class="btn btn-primary"
               :disabled="submitting || !canSubmit"
               @click="handleSubmit"
             >
               <span v-if="submitting" class="loading loading-spinner loading-xs" />
               <template v-else>
-                <Icon name="lucide:external-link" class="w-4 h-4" />
+                <Icon name="lucide:external-link" class="h-4 w-4" />
                 Continue to Online Payment
               </template>
             </button>
@@ -219,19 +203,20 @@
             <button
               v-else
               type="button"
-              class="btn btn-success gap-2"
+              class="btn btn-primary"
               :disabled="submitting || !canSubmit"
               @click="handleSubmit"
             >
               <span v-if="submitting" class="loading loading-spinner loading-xs" />
               <template v-else>
                 Submit Bank Payment
-                <Icon name="lucide:send" class="w-4 h-4" />
+                <Icon name="lucide:send" class="h-4 w-4" />
               </template>
             </button>
           </template>
         </div>
-      </div>
+        </div>
+      </main>
     </div>
   </div>
 </template>
@@ -245,10 +230,10 @@ const route = useRoute()
 useHead({ title: 'New Supplier Registration' })
 
 const steps = [
-  { label: 'Category Selection', sub: 'Choose a supplier category',      icon: 'lucide:tag' },
-  { label: 'Currency Selection', sub: 'Select your payment currency',     icon: 'lucide:coins' },
-  { label: 'Invoice',            sub: 'Review your registration invoice', icon: 'lucide:file-text' },
-  { label: 'Payment',            sub: 'Select your payment method',          icon: 'lucide:credit-card' },
+  { label: 'Categories', sub: 'Choose what your company supplies' },
+  { label: 'Payment currency', sub: 'Review the fee in ZiG or USD' },
+  { label: 'Review invoice', sub: 'Check the invoice and payment reference' },
+  { label: 'Payment', sub: 'Choose and complete a payment method' },
 ]
 
 const step = ref(1)
@@ -457,12 +442,19 @@ async function handleNext() {
         body: { currency_id: application.currency_id },
       })
       application.invoice = res?.data ?? null
-    } catch {
-      // keep on step if invoice generation fails
-      generatingInvoice.value = false
+    } catch (error) {
+      toast.error({
+        title: 'Invoice could not be created',
+        message: error?.data?.message
+          ?? error?.response?._data?.message
+          ?? 'Please check your connection and try again.',
+        position: 'topRight',
+        layout: 2,
+      })
       return
+    } finally {
+      generatingInvoice.value = false
     }
-    generatingInvoice.value = false
   }
   step.value++
 }

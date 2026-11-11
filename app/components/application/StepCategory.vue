@@ -5,13 +5,10 @@
       <p class="text-sm text-base-content/50 mt-1">Add one or more categories that describe the goods or services your company provides.</p>
     </div>
 
-    <!-- Step instructions -->
-    <div class="flex gap-3 rounded-lg border border-blue-300 bg-blue-600 px-4 py-3 text-sm text-white">
-      <Icon name="lucide:info" class="h-4 w-4 shrink-0 mt-0.5" />
+    <div role="alert" class="alert alert-soft">
+      <Icon name="lucide:info" class="h-4 w-4" />
       <span>
-        Click <strong>Select Category</strong> to search and add one or more supplier categories your company offers.
-        You can add multiple categories and remove any by clicking the trash icon.
-        When you are done, click <strong>Next</strong> to continue.
+        Add every category your company wants to register for. Your fee is calculated per category.
       </span>
     </div>
 
@@ -136,16 +133,16 @@
             type="button"
             class="flex w-full items-start gap-4 rounded-xl border-2 p-3 text-left transition-all"
             :class="isSelected(cat.id)
-              ? 'border-green-500 bg-green-50 text-green-700 opacity-60 cursor-default'
+              ? 'border-primary bg-primary/10 text-primary opacity-60 cursor-default'
               : saving === cat.id
               ? 'border-primary/30 bg-base-200 cursor-wait'
-              : 'border-base-200 bg-base-100 hover:border-green-300 hover:bg-green-50/50'"
+              : 'border-base-200 bg-base-100 hover:border-primary/40 hover:bg-base-200/60'"
             :disabled="isSelected(cat.id) || saving === cat.id"
             @click="pick(cat)"
           >
             <span
               class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold"
-              :class="isSelected(cat.id) ? 'bg-green-500 text-white' : 'bg-base-200 text-base-content/50'"
+              :class="isSelected(cat.id) ? 'bg-primary text-primary-content' : 'bg-base-200 text-base-content/50'"
             >
               {{ cat.code ?? cat.name?.charAt(0) }}
             </span>
@@ -154,7 +151,7 @@
               <p v-if="cat.section?.name" class="text-xs text-base-content/50 mt-0.5 truncate">{{ cat.section.name }}</p>
             </div>
             <span v-if="saving === cat.id" class="loading loading-spinner loading-xs text-primary mt-0.5" />
-            <Icon v-else-if="isSelected(cat.id)" name="lucide:circle-check" class="h-5 w-5 shrink-0 text-green-500 mt-0.5" />
+            <Icon v-else-if="isSelected(cat.id)" name="lucide:circle-check" class="mt-0.5 h-5 w-5 shrink-0 text-primary" />
           </button>
         </div>
 

@@ -16,13 +16,10 @@
       </button>
     </div>
 
-    <!-- Step instructions -->
-    <div class="flex gap-3 rounded-lg border border-blue-300 bg-blue-600 px-4 py-3 text-sm text-white">
-      <Icon name="lucide:info" class="h-4 w-4 shrink-0 mt-0.5" />
+    <div role="alert" class="alert alert-soft">
+      <Icon name="lucide:info" class="h-4 w-4" />
       <span>
-        Your invoice has been generated. Please review the details — company information, selected categories, and the total amount due.
-        Make note of the invoice number as your payment reference.
-        When you are ready to make payment, click <strong>Next</strong> to proceed to the payment step.
+        Check the company, categories and total. Use the payment reference exactly as shown when paying.
       </span>
     </div>
 
@@ -30,14 +27,14 @@
     <div class="rounded-xl border border-base-200 bg-base-100 overflow-hidden">
 
       <!-- Invoice header -->
-      <div class="bg-green-600 px-6 py-5 text-white flex items-start justify-between gap-4">
+      <div class="flex items-start justify-between gap-4 bg-primary px-6 py-5 text-primary-content">
         <div>
-          <p class="text-xs text-green-200 uppercase tracking-wide font-medium">Invoice</p>
+          <p class="text-xs font-medium opacity-70">Invoice</p>
           <p class="text-2xl font-bold mt-0.5">{{ invoice?.invoice_number ?? '—' }}</p>
-          <p class="text-green-100 text-sm mt-1">{{ invoiceDate }}</p>
+          <p class="mt-1 text-sm opacity-80">{{ invoiceDate }}</p>
         </div>
         <div class="text-right">
-          <p class="text-xs text-green-200 uppercase tracking-wide font-medium">Status</p>
+          <p class="text-xs font-medium opacity-70">Status</p>
           <span class="badge badge-sm bg-yellow-400/20 text-yellow-200 border-yellow-300 mt-1">Pending Payment</span>
         </div>
       </div>
@@ -94,7 +91,7 @@
             <tfoot>
               <tr class="border-t border-base-200">
                 <td colspan="3" class="font-bold text-base-content text-right">Total Due</td>
-                <td class="text-right font-bold text-lg text-green-700">
+                <td class="text-right text-lg font-bold text-primary">
                   {{ currencyCode }} {{ formatNum(invoice?.total) }}
                 </td>
               </tr>
@@ -136,15 +133,15 @@
         </div>
 
         <!-- Payment instructions -->
-        <div class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-4 text-sm text-blue-800 space-y-2">
+        <div class="space-y-2 rounded-selector border border-base-300 bg-base-200/60 px-4 py-4 text-sm text-base-content/75">
           <div class="flex items-center gap-2 font-semibold">
             <Icon name="lucide:info" class="h-4 w-4 shrink-0" />
             Payment Instructions
           </div>
           <p>When making payment, use the reference below as the description or narration. Our system will automatically match the transaction and settle your invoice.</p>
-          <div class="flex items-center gap-3 rounded-lg border border-blue-300 bg-white px-4 py-2.5 mt-1">
-            <span class="text-xs text-blue-400 uppercase tracking-wide shrink-0">Payment Reference</span>
-            <span class="font-mono font-bold text-blue-900 text-base tracking-wider">{{ invoice?.paymentreference ?? '—' }}</span>
+          <div class="mt-1 flex items-center gap-3 rounded-selector border border-base-300 bg-base-100 px-4 py-2.5">
+            <span class="shrink-0 text-xs text-base-content/50">Payment reference</span>
+            <span class="font-mono text-base font-bold tracking-wider text-base-content">{{ invoice?.paymentreference ?? '—' }}</span>
           </div>
         </div>
 
