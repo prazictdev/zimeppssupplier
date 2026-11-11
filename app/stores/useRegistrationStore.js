@@ -12,6 +12,13 @@ export const useRegistrationStore = defineStore('registrations', () => {
   const error = ref(null)
   const outstandingActions = ref([])
   const actionsPending = ref(false)
+  const paymentReconciliation = ref({
+    affected_invoice_count: 0,
+    affected_registration_count: 0,
+    invoices: [],
+  })
+  const reconciliationPending = ref(false)
+  const reconciliationError = ref(null)
 
   async function fetchRegistrations() {
     const client = useSupplierClient()
@@ -90,15 +97,57 @@ export const useRegistrationStore = defineStore('registrations', () => {
     }
   }
 
+  async function fetchPaymentReconciliation() {
+    const client = useSupplierClient()
+    reconciliationError.value = null
+
+    try {
+      const response = await client('/api/supplier/v1/registrations/payment-reconciliation', { method: 'GET' })
+      paymentReconciliation.value = response?.data ?? {
+        affected_invoice_count: 0,
+        affected_registration_count: 0,
+        invoices: [],
+      }
+      return { ok: true, data: paymentReconciliation.value, error: null }
+    } catch (err) {
+      const message = err?.data?.message ?? err?.response?._data?.message ?? err?.message ?? 'Failed to check registration payment status.'
+      reconciliationError.value = message
+      return { ok: false, data: null, error: message }
+    }
+  }
+
+  async function reconcilePaidRegistrations() {
+    const client = useSupplierClient()
+    reconciliationPending.value = true
+    reconciliationError.value = null
+
+    try {
+      const response = await client('/api/supplier/v1/registrations/payment-reconciliation', { method: 'POST' })
+      paymentReconciliation.value = response?.data ?? paymentReconciliation.value
+      return { ok: true, data: paymentReconciliation.value, message: response?.message ?? null, error: null }
+    } catch (err) {
+      const message = err?.data?.message ?? err?.response?._data?.message ?? err?.message ?? 'Automatic registration correction failed.'
+      reconciliationError.value = message
+      return { ok: false, data: null, message: null, error: message }
+    } finally {
+      reconciliationPending.value = false
+    }
+  }
+
   return {
     registrations,
     outstandingActions,
     actionsPending,
+    paymentReconciliation,
+    reconciliationPending,
+    reconciliationError,
     pending,
     error,
     fetchRegistrations,
     fetchOutstandingActions,
     actionRequirement,
+    fetchPaymentReconciliation,
+    reconcilePaidRegistrations,
     downloadCertificate,
   }
 })
