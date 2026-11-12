@@ -414,10 +414,12 @@ onMounted(async () => {
         ? 'success'
         : (status?.status === 'PROCESSING' ? 'processing' : 'error')
       if (status?.status === 'PAID') {
-        toast.success({ title: 'Payment confirmed', message: 'Your registration is being processed.', position: 'topRight', layout: 2 })
         if (application.invoice) application.invoice.status = 'PAID'
         paymentChecking.value = false
-        await navigateTo('/dashboard')
+        await navigateTo({
+          path: '/dashboard',
+          query: { registration_payment: 'success' },
+        }, { replace: true })
         return
       } else if (status?.status === 'PROCESSING') {
         toast.success({ title: 'Payment received', message: 'PRAZ CRM is still receipting your invoice.', position: 'topRight', layout: 2 })

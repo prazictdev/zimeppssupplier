@@ -1,6 +1,35 @@
 <template>
   <div class="space-y-6">
     <div
+      v-if="registrationPaymentSuccessful"
+      role="alert"
+      class="alert alert-success alert-soft alert-vertical items-stretch sm:alert-horizontal sm:items-center"
+    >
+      <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-success text-success-content">
+        <Icon name="lucide:circle-check-big" class="h-6 w-6" aria-hidden="true" />
+      </span>
+      <div class="min-w-0 flex-1">
+        <h2 class="font-bold">Registration payment successful</h2>
+        <p class="mt-0.5 text-sm leading-6 opacity-80">
+          Your payment was confirmed successfully. Your supplier registration has been submitted and is now being processed.
+        </p>
+      </div>
+      <div class="flex w-full items-center gap-2 sm:w-auto">
+        <NuxtLink to="/supplierregistrations" class="btn btn-success btn-sm flex-1 sm:flex-none">
+          View registrations
+        </NuxtLink>
+        <button
+          type="button"
+          class="btn btn-ghost btn-circle btn-sm shrink-0"
+          aria-label="Dismiss payment success message"
+          @click="dismissRegistrationPaymentSuccess"
+        >
+          <Icon name="lucide:x" class="h-4 w-4" aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+
+    <div
       v-for="session in pendingFeedbackSessions"
       :key="session.uuid"
       role="alert"
@@ -100,6 +129,7 @@ definePageMeta({ layout: 'default' })
 useHead({ title: 'Supplier workspace' })
 
 const { user } = useSanctumAuth()
+const route = useRoute()
 const { can, canAny } = useAbility()
 const company = computed(() => user.value?.data?.company ?? null)
 const pendingUpgradeInvoice = computed(() => user.value?.data?.pending_upgrade_invoice ?? null)
@@ -110,6 +140,7 @@ const feedbackApi = useFeedbackHelper()
 const registrationStore = useRegistrationStore()
 const toast = useToast()
 const feedbackSessions = ref([])
+const registrationPaymentSuccessful = ref(route.query.registration_payment === 'success')
 const canViewRegistrations = computed(() => can('can.access.myregistrations'))
 const canViewAutorenewals = computed(() => can('can.access.supplierautorenewals'))
 const canViewFinances = computed(() => canAny([
@@ -134,6 +165,13 @@ const loadFeedbackSessions = async () => {
 }
 
 const openFeedback = uuid => navigateTo(`/feedback/${uuid}`)
+
+const dismissRegistrationPaymentSuccess = async () => {
+  registrationPaymentSuccessful.value = false
+  const query = { ...route.query }
+  delete query.registration_payment
+  await navigateTo({ path: '/dashboard', query }, { replace: true })
+}
 
 const stopReconciliationCountdown = () => {
   if (reconciliationTimer) {
