@@ -154,43 +154,57 @@
         </div>
 
         <div class="grid grid-cols-2 gap-3">
-          <button
+          <div
             v-for="tab in workspaceTabs"
             :key="`mobile-action-${tab.key}`"
-            type="button"
-            class="card card-sm border-2 text-left shadow-sm transition active:scale-[0.98]"
+            class="card card-sm relative border-2 shadow-sm"
             :class="[tab.cardClasses, isEmptyCategoriesCard(tab.key) ? 'col-span-2 min-h-0' : 'min-h-36']"
-            :aria-label="isEmptyCategoriesCard(tab.key) ? 'No active supplier category found. Get started' : `Show ${tab.mobileLabel || tab.label} details`"
-            @click="openMobileTab(tab.key)"
           >
-            <span v-if="isEmptyCategoriesCard(tab.key)" class="flex w-full items-center gap-4 p-4">
-              <span class="grid h-12 w-12 shrink-0 place-items-center rounded-box bg-primary/15 text-primary">
-                <Icon name="lucide:folder-plus" class="h-6 w-6" aria-hidden="true" />
-              </span>
-              <span class="min-w-0 flex-1">
-                <span class="block text-sm font-bold">My categories</span>
-                <span class="mt-0.5 block text-sm leading-5 text-base-content/65">No active supplier category found</span>
-                <span class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                  Tap to get started
-                  <Icon name="lucide:arrow-right" class="h-4 w-4" aria-hidden="true" />
-                </span>
-              </span>
-            </span>
+            <NuxtLink
+              v-if="tab.key === 'registrations'"
+              to="/suppliernewapplication"
+              class="btn btn-primary btn-xs absolute right-3 top-3 z-10 gap-1"
+              aria-label="Start a new supplier category registration"
+            >
+              <Icon name="lucide:plus" class="h-3.5 w-3.5" aria-hidden="true" />
+              New
+            </NuxtLink>
 
-            <span v-else class="card-body w-full justify-between gap-4 p-4">
-              <span class="flex items-start justify-between gap-2">
-                <span class="grid h-11 w-11 place-items-center rounded-box" :class="tab.iconClasses">
-                  <Icon :name="tab.icon" class="h-5 w-5" aria-hidden="true" />
+            <button
+              type="button"
+              class="h-full w-full text-left transition active:scale-[0.98]"
+              :aria-label="isEmptyCategoriesCard(tab.key) ? 'No active supplier category found. Get started' : `Show ${tab.mobileLabel || tab.label} details`"
+              @click="openMobileTab(tab.key)"
+            >
+              <span v-if="isEmptyCategoriesCard(tab.key)" class="flex w-full items-center gap-4 p-4 pr-20">
+                <span class="grid h-12 w-12 shrink-0 place-items-center rounded-box bg-primary/15 text-primary">
+                  <Icon name="lucide:folder-plus" class="h-6 w-6" aria-hidden="true" />
                 </span>
-                <Icon name="lucide:arrow-up-right" class="h-4 w-4 text-base-content/35" aria-hidden="true" />
+                <span class="min-w-0 flex-1">
+                  <span class="block text-sm font-bold">My categories</span>
+                  <span class="mt-0.5 block text-sm leading-5 text-base-content/65">No active supplier category found</span>
+                  <span class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                    Tap to get started
+                    <Icon name="lucide:arrow-right" class="h-4 w-4" aria-hidden="true" />
+                  </span>
+                </span>
               </span>
-              <span>
-                <span v-if="tabLoading(tab.key)" class="skeleton mb-1 block h-8 w-12" />
-                <span v-else class="block text-3xl font-black tabular-nums leading-none">{{ tabCount(tab.key) ?? 0 }}</span>
-                <span class="mt-2 block text-sm font-semibold leading-5">{{ tab.mobileLabel || tab.label }}</span>
+
+              <span v-else class="card-body w-full justify-between gap-4 p-4">
+                <span class="flex items-start justify-between gap-2">
+                  <span class="grid h-11 w-11 place-items-center rounded-box" :class="tab.iconClasses">
+                    <Icon :name="tab.icon" class="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <Icon v-if="tab.key !== 'registrations'" name="lucide:arrow-up-right" class="h-4 w-4 text-base-content/35" aria-hidden="true" />
+                </span>
+                <span>
+                  <span v-if="tabLoading(tab.key)" class="skeleton mb-1 block h-8 w-12" />
+                  <span v-else class="block text-3xl font-black tabular-nums leading-none">{{ tabCount(tab.key) ?? 0 }}</span>
+                  <span class="mt-2 block text-sm font-semibold leading-5">{{ tab.mobileLabel || tab.label }}</span>
+                </span>
               </span>
-            </span>
-          </button>
+            </button>
+          </div>
         </div>
 
         <dialog ref="mobileActivityDialog" class="modal modal-bottom sm:modal-middle" @close="activeMobileTab = ''">
