@@ -1,28 +1,40 @@
 <template>
   <div class="space-y-6">
-    <div>
-      <h2 class="text-xl font-bold text-base-content">Payment</h2>
-      <p class="mt-1 text-sm text-base-content/50">Choose how you want to settle your registration invoice.</p>
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 class="text-xl font-bold text-base-content">Payment</h2>
+        <p class="mt-1 text-sm text-base-content/55">Choose how you want to settle your registration invoice.</p>
+      </div>
+      <span class="badge badge-primary badge-outline w-fit gap-1.5"><Icon name="lucide:mouse-pointer-click" class="h-3.5 w-3.5" /> Select one option</span>
     </div>
 
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-      <button
+      <label
         v-for="option in supplierRegistrationPaymentOptions"
         :key="option.id"
-        type="button"
-        class="flex items-center gap-4 rounded-xl border-2 bg-base-100 px-5 py-5 text-left transition-all"
-        :class="selectedOption === option.id ? 'border-primary bg-primary/5 shadow-sm' : 'border-base-200 hover:border-primary/40'"
-        @click="selectOption(option.id)"
+        class="relative flex cursor-pointer items-start gap-4 rounded-xl border-2 px-4 py-5 text-left transition-all sm:px-5"
+        :class="[option.cardClass, selectedOption === option.id ? option.selectedClass : '']"
       >
-        <span class="rounded-xl bg-base-200 p-3">
-          <Icon :name="option.icon" class="h-6 w-6" :class="selectedOption === option.id ? 'text-primary' : 'text-base-content/50'" />
+        <span class="grid h-12 w-12 shrink-0 place-items-center rounded-xl" :class="option.iconClass">
+          <Icon :name="option.icon" class="h-6 w-6" />
         </span>
-        <span class="flex-1">
-          <span class="block font-semibold">{{ option.name }}</span>
-          <span class="mt-0.5 block text-xs text-base-content/50">{{ option.description }}</span>
+        <span class="min-w-0 flex-1 pr-7">
+          <span class="flex flex-wrap items-center gap-2">
+            <span class="block font-bold">{{ option.name }}</span>
+            <span v-if="selectedOption === option.id" class="badge badge-sm" :class="option.badgeClass">Selected</span>
+          </span>
+          <span class="mt-1 block text-xs leading-5 text-base-content/60">{{ option.description }}</span>
         </span>
-        <Icon v-if="selectedOption === option.id" name="lucide:check-circle-2" class="h-5 w-5 text-primary" />
-      </button>
+        <input
+          :checked="selectedOption === option.id"
+          type="radio"
+          name="registration-payment-method"
+          class="radio radio-sm absolute right-4 top-5"
+          :class="option.radioClass"
+          :aria-label="option.name"
+          @change="selectOption(option.id)"
+        >
+      </label>
     </div>
 
     <div v-if="selectedOption === 'online'" class="flex gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-4 text-sm text-primary">
@@ -35,23 +47,32 @@
 
     <template v-if="selectedOption === 'bank'">
       <div>
-        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-base-content/50">Select bank payment type</p>
+        <div class="mb-3 flex items-center justify-between gap-3">
+          <p class="text-sm font-semibold">Select bank payment type</p>
+          <span class="text-xs text-base-content/50">Required</span>
+        </div>
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <button
+          <label
             v-for="type in supplierRegistrationBankTypes"
             :key="type.id"
-            type="button"
-            class="flex items-center gap-3 rounded-xl border-2 bg-base-100 px-4 py-4 text-left transition-all"
-            :class="selectedBankType === type.id ? 'border-primary bg-primary/5' : 'border-base-200 hover:border-primary/40'"
-            @click="selectBankType(type.id)"
+            class="relative flex cursor-pointer items-center gap-3 rounded-xl border-2 px-4 py-4 text-left transition-all"
+            :class="[type.cardClass, selectedBankType === type.id ? type.selectedClass : '']"
           >
-            <Icon :name="type.icon" class="h-5 w-5 text-primary" />
-            <span class="flex-1">
+            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg" :class="type.iconClass"><Icon :name="type.icon" class="h-5 w-5" /></span>
+            <span class="min-w-0 flex-1 pr-7">
               <span class="block text-sm font-semibold">{{ type.name }}</span>
-              <span class="block text-xs text-base-content/50">{{ type.description }}</span>
+              <span class="mt-0.5 block text-xs leading-4 text-base-content/55">{{ type.description }}</span>
             </span>
-            <Icon v-if="selectedBankType === type.id" name="lucide:check-circle-2" class="h-4 w-4 text-primary" />
-          </button>
+            <input
+              :checked="selectedBankType === type.id"
+              type="radio"
+              name="registration-bank-payment-type"
+              class="radio radio-sm absolute right-4 top-1/2 -translate-y-1/2"
+              :class="type.radioClass"
+              :aria-label="type.name"
+              @change="selectBankType(type.id)"
+            >
+          </label>
         </div>
       </div>
 
