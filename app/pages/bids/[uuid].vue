@@ -30,30 +30,20 @@
     <template v-else>
       <div
         v-if="!hasSubmittedBid"
-        role="alert"
-        class="alert alert-vertical sticky top-3 z-30 items-stretch border-2 shadow-lg sm:alert-horizontal sm:items-start"
-        :class="draftWarningClass"
+        class="flex items-center justify-between gap-4 rounded-box border px-4 py-3 shadow-sm"
+        :class="countdownToneClass"
+        aria-live="polite"
       >
-        <Icon name="lucide:triangle-alert" class="h-5 w-5 shrink-0 self-start sm:mt-1 sm:h-6 sm:w-6" />
-        <div class="min-w-0 flex-1">
-          <p class="font-bold">Draft only — your bid has not been submitted</p>
-          <p class="mt-1 text-sm sm:hidden">
-            Saving a draft does not submit it. Use “Seal &amp; submit” to deliver your response.
-          </p>
-          <p class="mt-1 hidden text-sm sm:block">
-            Changes are cached automatically in this browser. “Save encrypted draft” protects your work, but only
-            “Seal &amp; submit” delivers the response to the procuring entity.
-          </p>
-          <p v-if="tenderClosingAt" class="mt-1 text-xs opacity-80">
-            Tender closes {{ formatDateTime(tenderClosingAt) }}.
-          </p>
+        <div class="flex min-w-0 items-center gap-3">
+          <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-base-100/80" :class="countdownIconClass">
+            <Icon :name="tenderClosed ? 'lucide:circle-x' : 'lucide:timer'" class="h-5 w-5" aria-hidden="true" />
+          </span>
+          <div class="min-w-0">
+            <p class="text-sm font-semibold">{{ tenderClosed ? 'Submission closed' : 'Time left to submit' }}</p>
+            <p v-if="tenderClosingAt" class="truncate text-xs text-base-content/55">Closes {{ formatDateTime(tenderClosingAt) }}</p>
+          </div>
         </div>
-        <div class="w-full shrink-0 rounded-box border border-current/20 bg-base-100/80 px-4 py-2 text-center sm:w-auto">
-          <p class="text-[10px] font-bold uppercase tracking-wider opacity-70">
-            {{ tenderClosed ? 'Submission closed' : 'Time remaining' }}
-          </p>
-          <p class="mt-0.5 whitespace-nowrap font-mono text-lg font-black">{{ closingCountdown }}</p>
-        </div>
+        <p class="shrink-0 whitespace-nowrap font-mono text-lg font-black tabular-nums sm:text-xl">{{ closingCountdown }}</p>
       </div>
 
       <div v-if="eligibility && !eligibility.participation_eligible" role="alert" class="alert alert-warning">
@@ -139,14 +129,22 @@
       </section>
 
       <template v-else-if="eligibility?.participation_eligible">
-        <div v-if="recoveryCode" role="alert" class="alert alert-warning alert-vertical items-stretch sm:alert-horizontal sm:items-start">
-          <Icon name="lucide:key-round" class="mt-1" />
+        <div v-if="recoveryCode && !recoveryNoticeDismissed" role="alert" class="alert alert-warning alert-soft alert-vertical relative items-stretch pr-12 sm:alert-horizontal sm:items-start sm:pr-14">
+          <Icon name="lucide:key-round" class="mt-1 h-5 w-5 shrink-0" aria-hidden="true" />
           <div class="min-w-0 flex-1">
             <p class="font-bold">Save this one-time recovery code now</p>
             <p class="text-xs">It can restore this vault if the passphrase or device is lost. EGP cannot regenerate it.</p>
             <code class="mt-2 block break-all rounded bg-base-100 p-2 text-xs">{{ recoveryCode }}</code>
           </div>
-          <button class="btn btn-sm btn-warning w-full sm:w-auto" @click="downloadRecoveryCode">Download</button>
+          <button type="button" class="btn btn-sm btn-warning w-full sm:w-auto" @click="downloadRecoveryCode">Download</button>
+          <button
+            type="button"
+            class="btn btn-ghost btn-circle btn-sm absolute right-2 top-2"
+            aria-label="Dismiss recovery code reminder"
+            @click="recoveryNoticeDismissed = true"
+          >
+            <Icon name="lucide:x" class="h-4 w-4" aria-hidden="true" />
+          </button>
         </div>
 
         <div class="card card-border bg-base-100 lg:hidden">
@@ -244,65 +242,10 @@
 
             <template v-else-if="activeStep.key === 'eligibility'">
               <div class="space-y-6">
-                <div><h2 class="card-title">Eligibility</h2><p class="text-sm text-base-content/60">Complete the required document actions and tender eligibility forms.</p></div>
-
-                <section class="overflow-hidden rounded-2xl border border-base-200 bg-base-100 shadow-sm">
-                  <div class="flex flex-col gap-3 border-b border-base-200 bg-base-200/30 p-4 sm:flex-row sm:items-center sm:justify-between"><div><p class="text-xs font-bold uppercase tracking-widest text-primary">Card 1</p><h3 class="text-lg font-bold">Documents</h3><p class="text-xs text-base-content/60">Download the procuring entity’s files and attach every document requested from your organisation.</p></div><button type="button" class="btn btn-outline btn-secondary btn-sm" @click="openMediaPicker(null)"><Icon name="lucide:library" class="h-4 w-4" />Open Media Center</button></div>
-
-                  <div v-if="providedDocuments.length" class="p-4">
-                    <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"><div class="min-w-0"><h4 class="font-bold">Section (A) · Downloads</h4><p class="text-xs text-base-content/55">Files provided by the procuring entity for bidder download.</p></div><span class="badge badge-primary shrink-0 self-start">{{ providedDocuments.length }}</span></div>
-                    <div class="grid gap-3 md:hidden">
-                      <article v-for="document in providedDocuments" :key="`provided-mobile-${document.uuid}`" class="rounded-xl border border-base-200 p-4">
-                        <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"><div class="min-w-0"><p class="break-words font-semibold">{{ document.name }}</p><p v-if="document.description" class="mt-1 text-xs text-base-content/55">{{ document.description }}</p></div><span class="badge badge-ghost badge-sm shrink-0 self-start">{{ providedDocumentType(document) }}</span></div>
-                        <p class="mt-2 text-xs text-base-content/50">{{ formatFileSize(document.file_size) }}</p>
-                        <label class="mt-3 flex cursor-pointer items-center gap-2 rounded-lg bg-base-200/50 p-3"><input v-model="response.documentAcknowledgements[document.uuid]" type="checkbox" class="checkbox checkbox-primary checkbox-sm"><span class="text-sm">{{ response.documentAcknowledgements[document.uuid] ? 'Reviewed' : 'Mark as reviewed' }}</span></label>
-                        <button type="button" class="btn btn-primary btn-sm mt-3 w-full" :disabled="!document.has_file || downloadingDocument === document.uuid" @click="downloadProvidedDocument(document)"><span v-if="downloadingDocument === document.uuid" class="loading loading-spinner loading-xs" /><Icon v-else name="lucide:download" class="h-3.5 w-3.5" />Download</button>
-                      </article>
-                    </div>
-                    <div class="hidden overflow-x-auto rounded-xl border border-base-200 md:block">
-                      <table class="table table-sm">
-                        <thead><tr><th>Document</th><th>File type</th><th>Size</th><th>Review status</th><th class="text-right">Action</th></tr></thead>
-                        <tbody>
-                          <tr v-for="document in providedDocuments" :key="document.uuid">
-                            <td><p class="font-semibold">{{ document.name }}</p><p v-if="document.description" class="max-w-md text-xs text-base-content/55">{{ document.description }}</p></td>
-                            <td>{{ providedDocumentType(document) }}</td><td>{{ formatFileSize(document.file_size) }}</td>
-                            <td><label class="flex cursor-pointer items-center gap-2 whitespace-nowrap"><input v-model="response.documentAcknowledgements[document.uuid]" type="checkbox" class="checkbox checkbox-primary checkbox-sm"><span class="text-xs">{{ response.documentAcknowledgements[document.uuid] ? 'Reviewed' : 'Mark reviewed' }}</span></label></td>
-                            <td class="text-right"><button type="button" class="btn btn-primary btn-xs" :disabled="!document.has_file || downloadingDocument === document.uuid" @click="downloadProvidedDocument(document)"><span v-if="downloadingDocument === document.uuid" class="loading loading-spinner loading-xs" /><Icon v-else name="lucide:download" class="h-3.5 w-3.5" />Download</button></td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  <div class="border-t border-base-200 p-4">
-                    <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"><div class="min-w-0"><h4 class="font-bold">Section (B) · Bidder uploads</h4><p class="text-xs text-base-content/55">Documents your organisation must submit with the tender response.</p></div><span class="badge badge-secondary shrink-0 self-start">{{ uploadedRequestedCount }} / {{ requestedDocuments.length }}</span></div>
-                    <div v-if="requestedDocuments.length" class="grid gap-3 md:hidden">
-                      <article v-for="document in requestedDocuments" :key="`requested-mobile-${document.uuid}`" class="rounded-xl border border-base-200 p-4">
-                        <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"><div class="min-w-0"><p class="break-words font-semibold">{{ document.name }}</p><p v-if="document.description" class="mt-1 text-xs text-base-content/55">{{ document.description }}</p></div><span :class="['badge badge-sm shrink-0 self-start', response.documents[document.uuid]?.media_uuid ? 'badge-success' : 'badge-warning']">{{ response.documents[document.uuid]?.media_uuid ? 'Attached' : 'Required' }}</span></div>
-                        <div v-if="response.documents[document.uuid]?.name" class="mt-3 flex min-w-0 items-center gap-2 rounded-lg bg-success/10 p-3 text-success"><Icon name="lucide:file-check-2" class="h-4 w-4 shrink-0" /><span class="min-w-0 flex-1 truncate text-sm">{{ response.documents[document.uuid].name }}</span><button type="button" class="btn btn-ghost btn-xs shrink-0 text-error" @click="delete response.documents[document.uuid]"><Icon name="lucide:x" class="h-3.5 w-3.5" /></button></div>
-                        <button type="button" class="btn btn-outline btn-secondary btn-sm mt-3 w-full" @click="openMediaPicker(document.uuid)"><Icon name="lucide:library" class="h-3.5 w-3.5" />Choose document</button>
-                      </article>
-                    </div>
-                    <p v-else class="rounded-xl border border-dashed border-base-300 p-6 text-center text-sm text-base-content/50 md:hidden">No bidder uploads are required.</p>
-                    <div class="hidden overflow-x-auto rounded-xl border border-base-200 md:block">
-                      <table class="table table-sm">
-                        <thead><tr><th>Requirement</th><th>Attached document</th><th>Status</th><th class="text-right">Actions</th></tr></thead>
-                        <tbody>
-                          <tr v-for="document in requestedDocuments" :key="document.uuid">
-                            <td><p class="font-semibold">{{ document.name }}</p><p v-if="document.description" class="max-w-md text-xs text-base-content/55">{{ document.description }}</p></td>
-                            <td><div v-if="response.documents[document.uuid]?.name" class="flex items-center gap-2"><Icon name="lucide:file-check-2" class="h-4 w-4 text-success" /><span class="max-w-xs truncate text-sm">{{ response.documents[document.uuid].name }}</span></div><span v-else class="text-xs text-base-content/45">No document attached</span></td>
-                            <td><span :class="['badge badge-sm', response.documents[document.uuid]?.media_uuid ? 'badge-success' : 'badge-warning']">{{ response.documents[document.uuid]?.media_uuid ? 'Attached' : 'Required' }}</span></td>
-                            <td><div class="flex justify-end gap-2"><button type="button" class="btn btn-outline btn-secondary btn-xs" @click="openMediaPicker(document.uuid)"><Icon name="lucide:library" class="h-3.5 w-3.5" />Choose</button><button v-if="response.documents[document.uuid]?.media_uuid" type="button" class="btn btn-ghost btn-xs text-error" @click="delete response.documents[document.uuid]"><Icon name="lucide:x" class="h-3.5 w-3.5" /></button></div></td>
-                          </tr>
-                          <tr v-if="!requestedDocuments.length"><td colspan="4" class="py-8 text-center text-base-content/50">No bidder uploads are required.</td></tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </section>
+                <div><h2 class="card-title">Eligibility</h2><p class="text-sm text-base-content/60">Complete the tender eligibility and technical response forms.</p></div>
 
                 <section class="overflow-hidden rounded-2xl border border-primary/20 bg-base-100 shadow-sm">
-                  <div class="border-b border-primary/15 bg-primary/5 p-4"><p class="text-xs font-bold uppercase tracking-widest text-primary">Card 2</p><h3 class="text-lg font-bold">Technical bid forms</h3><p class="text-xs text-base-content/60">Complete the grouped commercial and technical eligibility questions.</p></div>
+                  <div class="border-b border-primary/15 bg-primary/5 p-4"><h3 class="text-lg font-bold">Eligibility forms</h3><p class="text-xs text-base-content/60">Complete the grouped commercial and technical eligibility questions.</p></div>
                   <div class="space-y-4 p-4">
                     <section v-for="group in eligibilityQuestionGroups" :key="group.key" class="overflow-hidden rounded-xl border border-base-200"><div class="border-b border-base-200 bg-base-200/50 px-4 py-3"><h4 class="font-bold">{{ group.title }}</h4><p class="text-xs text-base-content/50">Form eligibility</p></div><div class="space-y-3 p-4"><div v-for="question in group.questions" :key="question.id" class="rounded-lg border border-base-200 p-4"><p class="font-medium">{{ question.question }}</p><ResponseField v-model="response.eligibility[question.id]" :type="question.response_type" class="mt-3" @file="captureAnswerFile('eligibility', question.id, $event)" /></div></div></section>
 
@@ -856,6 +799,7 @@ const masterKey = shallowRef(null);
 const vaultPassphrase = ref('');
 const vaultConfirmation = ref('');
 const recoveryCode = ref('');
+const recoveryNoticeDismissed = ref(false);
 const recoveryInput = ref('');
 const draft = ref(null);
 const currentStep = ref(0);
@@ -1066,11 +1010,15 @@ const closingCountdown = computed(() => {
     ? `${days}d ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
     : `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 });
-const draftWarningClass = computed(() => {
-  if (tenderClosed.value || (closingMilliseconds.value !== null && closingMilliseconds.value <= 24 * 60 * 60 * 1000)) {
-    return 'alert-error';
-  }
-  return 'alert-warning';
+const countdownIsUrgent = computed(() => {
+  return tenderClosed.value || (closingMilliseconds.value !== null && closingMilliseconds.value <= 24 * 60 * 60 * 1000);
+});
+const countdownToneClass = computed(() => {
+  if (countdownIsUrgent.value) return 'border-error/40 bg-error/5';
+  return 'border-warning/40 bg-warning/5';
+});
+const countdownIconClass = computed(() => {
+  return countdownIsUrgent.value ? 'text-error' : 'text-warning';
 });
 
 onMounted(() => {
@@ -2045,6 +1993,7 @@ function downloadRecoveryCode() {
   link.download = 'egp-bid-vault-recovery.txt';
   link.click();
   URL.revokeObjectURL(url);
+  recoveryNoticeDismissed.value = true;
 }
 
 function formatDateTime(value) {
