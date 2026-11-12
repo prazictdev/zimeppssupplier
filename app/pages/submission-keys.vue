@@ -1,33 +1,72 @@
 <template>
-  <div class="space-y-3">
-    <div class="card card-xs bg-base-100 outline outline-1 outline-base-200">
-      <div class="card-body">
-        <div class="breadcrumbs text-sm">
-          <ul>
-            <li><NuxtLink to="/">Home</NuxtLink></li>
-            <li>Bid Submission Keys</li>
-          </ul>
+  <div class="space-y-5">
+    <header class="card overflow-hidden border border-primary/25 bg-base-100 shadow-sm">
+      <div class="card-body gap-5 p-5 sm:p-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div class="flex min-w-0 items-start gap-4">
+            <span class="grid h-12 w-12 shrink-0 place-items-center rounded-box bg-primary/10 text-primary">
+              <Icon name="lucide:key-square" class="h-6 w-6" aria-hidden="true" />
+            </span>
+            <div class="min-w-0">
+              <div class="breadcrumbs p-0 text-xs text-base-content/50"><ul><li><NuxtLink to="/dashboard">Dashboard</NuxtLink></li><li>Submission keys</li></ul></div>
+              <h1 class="mt-1 text-xl font-bold sm:text-2xl">Submission keys</h1>
+              <p class="mt-1 max-w-3xl text-sm leading-6 text-base-content/60">Assign one licence to each authorised bidder, then activate it in their browser Bid Vault or EGP Desktop before they submit a sealed response.</p>
+            </div>
+          </div>
+          <div class="grid w-full gap-2 sm:flex sm:w-auto sm:shrink-0">
+            <NuxtLink v-if="returnPath" :to="returnPath" class="btn btn-outline btn-sm"><Icon name="lucide:arrow-left" class="h-4 w-4" /> Return to response</NuxtLink>
+            <button v-if="canManage" class="btn btn-primary btn-sm" @click="openApply"><Icon name="lucide:plus" class="h-4 w-4" /> Buy licences</button>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 border-t border-base-200 pt-4 text-xs text-base-content/55">
+          <span v-if="bidderType" class="badge badge-sm" :class="bidderType === 'DOMESTIC' ? 'badge-info badge-soft' : 'badge-warning badge-soft'">{{ bidderType }}</span>
+          <span><strong>One licence</strong> = one authorised user and signing key.</span>
+          <span class="hidden text-base-content/25 sm:inline">•</span>
+          <span>Licences expire at the end of the calendar year.</span>
         </div>
       </div>
-    </div>
+    </header>
+
+    <section v-if="!loading" class="card card-border bg-base-100">
+      <div class="card-body gap-4 p-4 sm:p-6">
+        <div>
+          <h2 class="text-lg font-bold">Get ready to submit</h2>
+          <p class="mt-1 text-sm text-base-content/55">Follow these three steps once for each bidder who signs responses.</p>
+        </div>
+
+        <div class="grid gap-3 md:grid-cols-3">
+          <div v-for="(item, index) in readinessSteps" :key="item.key" class="rounded-box border p-4" :class="item.complete ? 'border-success/30 bg-success/5' : item.current ? 'border-primary/35 bg-primary/5' : 'border-base-200 bg-base-100'">
+            <div class="flex items-start gap-3">
+              <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full border text-sm font-bold" :class="item.complete ? 'border-success bg-success text-success-content' : item.current ? 'border-primary bg-primary text-primary-content' : 'border-base-300 text-base-content/40'">
+                <Icon v-if="item.complete" name="lucide:check" class="h-4 w-4" aria-hidden="true" />
+                <span v-else>{{ index + 1 }}</span>
+              </span>
+              <div>
+                <h3 class="font-semibold">{{ item.title }}</h3>
+                <p class="mt-1 text-xs leading-5 text-base-content/55">{{ item.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="setupAction" class="alert alert-vertical items-stretch sm:alert-horizontal sm:items-center" :class="setupAction.tone">
+          <Icon :name="setupAction.icon" class="h-5 w-5 shrink-0" aria-hidden="true" />
+          <div class="min-w-0 flex-1"><p class="font-semibold">{{ setupAction.title }}</p><p class="mt-0.5 text-sm">{{ setupAction.description }}</p></div>
+          <button v-if="setupAction.action === 'buy'" class="btn btn-primary btn-sm w-full sm:w-auto" @click="openApply">Buy a licence</button>
+          <button v-else-if="setupAction.action === 'assign'" class="btn btn-warning btn-sm w-full sm:w-auto" @click="openAssign(firstUnassignedKey)"><Icon name="lucide:user-plus" class="h-4 w-4" /> Assign a licence</button>
+          <button v-else-if="setupAction.action === 'activate'" class="btn btn-info btn-sm w-full sm:w-auto" @click="openBrowserSetup(myPendingKey)"><Icon name="lucide:vault" class="h-4 w-4" /> Set up my key</button>
+          <NuxtLink v-else-if="setupAction.action === 'return' && returnPath" :to="returnPath" class="btn btn-success btn-sm w-full sm:w-auto"><Icon name="lucide:arrow-left" class="h-4 w-4" /> Return to response</NuxtLink>
+        </div>
+      </div>
+    </section>
 
     <!-- Buy / overview card -->
     <div class="card border border-base-200 bg-base-100">
       <div class="card-body">
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-base-200 pb-2">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-base-200 pb-3">
           <div>
-            <span class="text-lg font-bold">Bid submission licences</span>
-            <p class="text-xs text-base-content/60 mt-1">
-              Each licence binds one bidder user to a protected signing key in the browser Bid Vault or EGP Desktop.
-              Buy as many as you need and assign each to a user when ready.
-              All licences expire at the end of the calendar year.
-            </p>
-          </div>
-          <div class="flex items-center gap-2">
-            <span v-if="bidderType" class="badge badge-sm" :class="bidderType === 'DOMESTIC' ? 'badge-info' : 'badge-warning'">{{ bidderType }}</span>
-            <button v-if="canManage" class="btn btn-primary btn-sm" @click="openApply">
-              <Icon name="lucide:plus" /> Buy licences
-            </button>
+            <h2 class="text-base font-bold">Organisation licence overview</h2>
+            <p class="mt-1 text-xs text-base-content/55">See what needs payment, assignment or activation.</p>
           </div>
         </div>
 
@@ -37,20 +76,20 @@
         </div>
 
         <!-- Counters -->
-        <div v-if="!loading" class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <div class="rounded-lg border border-base-200 bg-base-100 p-3">
+        <div v-if="!loading" class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div class="rounded-lg border border-base-200 bg-base-200/35 p-3">
             <p class="text-xs text-base-content/50">Awaiting payment</p>
             <p class="text-2xl font-bold">{{ countByStatus.PENDING_PAYMENT }}</p>
           </div>
-          <div class="rounded-lg border border-warning/40 bg-base-100 p-3">
+          <div class="rounded-lg border border-warning/40 bg-warning/5 p-3">
             <p class="text-xs text-base-content/50">Unassigned</p>
             <p class="text-2xl font-bold text-warning">{{ countByStatus.UNASSIGNED }}</p>
           </div>
-          <div class="rounded-lg border border-info/40 bg-base-100 p-3">
+          <div class="rounded-lg border border-info/40 bg-info/5 p-3">
             <p class="text-xs text-base-content/50">Ready to generate</p>
             <p class="text-2xl font-bold text-info">{{ countByStatus.PENDING_GENERATION }}</p>
           </div>
-          <div class="rounded-lg border border-success/40 bg-base-100 p-3">
+          <div class="rounded-lg border border-success/40 bg-success/5 p-3">
             <p class="text-xs text-base-content/50">Active</p>
             <p class="text-2xl font-bold text-success">{{ countByStatus.ACTIVE }}</p>
           </div>
@@ -437,28 +476,42 @@
     <dialog id="assign_submission_key_modal" class="modal">
       <div class="modal-box max-w-lg">
         <div class="flex items-center justify-between border-b border-base-200 pb-2">
-          <h3 class="text-lg font-bold">Assign licence to a user</h3>
+          <div>
+            <h3 class="text-lg font-bold">Who will use this key?</h3>
+            <p class="mt-0.5 text-xs text-base-content/50">Licence <span class="font-mono">{{ activeKey?.key_serial }}</span></p>
+          </div>
           <button class="btn btn-ghost btn-circle" @click="closeAssign">
             <Icon name="lucide:x" />
           </button>
         </div>
-        <p class="mt-3 text-sm text-base-content/70">
-          Licence <span class="font-mono">{{ activeKey?.key_serial }}</span> will be bound to the selected user.
-          They set it up from the <strong>EGP Desktop app</strong>, which generates the keypair and locks the licence to that device.
-        </p>
-        <fieldset class="fieldset mt-3">
-          <legend class="fieldset-legend">Target user</legend>
+
+        <p class="mt-3 text-sm leading-6 text-base-content/65">Assignment identifies the person authorised to sign sealed responses. That person completes the secure key setup in their own browser Bid Vault or EGP Desktop.</p>
+
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          <label class="flex cursor-pointer items-start gap-3 rounded-box border p-4" :class="assignMode === 'self' ? 'border-primary bg-primary/5' : 'border-base-200'">
+            <input v-model="assignMode" type="radio" value="self" class="radio radio-primary radio-sm mt-0.5" @change="assignForm.user_id = currentUserId">
+            <span class="min-w-0"><span class="block font-semibold">Assign to myself</span><span class="mt-1 block break-words text-xs leading-5 text-base-content/55">{{ currentUserName }}<template v-if="currentUserContact"> · {{ currentUserContact }}</template></span></span>
+          </label>
+          <label class="flex cursor-pointer items-start gap-3 rounded-box border p-4" :class="assignMode === 'other' ? 'border-primary bg-primary/5' : 'border-base-200'">
+            <input v-model="assignMode" type="radio" value="other" class="radio radio-primary radio-sm mt-0.5" @change="assignForm.user_id = null">
+            <span><span class="block font-semibold">Assign to another user</span><span class="mt-1 block text-xs leading-5 text-base-content/55">Choose an authorised person in your organisation.</span></span>
+          </label>
+        </div>
+
+        <fieldset v-if="assignMode === 'other'" class="fieldset mt-3">
+          <legend class="fieldset-legend">Organisation user</legend>
           <select v-model.number="assignForm.user_id" class="select select-bordered w-full">
             <option :value="null">Select a user...</option>
-            <option v-for="u in eligibleUsers" :key="u.id" :value="u.id">
+            <option v-for="u in otherEligibleUsers" :key="u.id" :value="u.id">
               {{ u.name }} — {{ u.email || u.phone || '—' }}
               <template v-if="u.active_key_count > 0">({{ u.active_key_count }} active)</template>
             </option>
           </select>
+          <p v-if="!otherEligibleUsers.length" class="mt-1 text-xs text-warning">No other eligible organisation users are available.</p>
         </fieldset>
         <fieldset class="fieldset mt-2">
           <legend class="fieldset-legend">Notes (optional)</legend>
-          <textarea v-model="assignForm.notes" rows="2" class="textarea textarea-bordered w-full" />
+          <textarea v-model="assignForm.notes" rows="2" class="textarea textarea-bordered w-full" placeholder="Why this person is authorised to submit bids" />
         </fieldset>
         <div v-if="assignError" class="alert alert-error mt-3 text-sm">
           <Icon name="lucide:alert-circle" />
@@ -468,7 +521,8 @@
           <button class="btn" @click="closeAssign">Cancel</button>
           <button class="btn btn-primary" :disabled="busy || !assignForm.user_id" @click="confirmAssign">
             <span v-if="busy" class="loading loading-spinner loading-sm" />
-            <span>Assign</span>
+            <Icon v-else name="lucide:user-check" class="h-4 w-4" />
+            <span>{{ assignMode === 'self' ? 'Assign to me' : 'Assign to selected user' }}</span>
           </button>
         </div>
       </div>
@@ -520,7 +574,7 @@
 
 <script setup>
 definePageMeta({ layout: 'default' });
-useHead({ title: 'Bid Submission Licences' });
+useHead({ title: 'Submission keys' });
 
 const helper = useBidderSubmissionKeyHelper();
 const bidApi = useBidResponse();
@@ -530,8 +584,16 @@ const { setSubmissionKeyOnBrowser } = useBrowserSubmissionKey();
 const toast = useToast();
 const { user } = useSanctumAuth();
 const { can } = useCheckPermission();
+const route = useRoute();
 const canManage = computed(() => can('can.manage.biddersubmissionkeys'));
 const currentUserId = computed(() => user.value?.data?.user?.id ?? user.value?.data?.id ?? user.value?.id ?? null);
+const currentUser = computed(() => user.value?.data?.user ?? user.value?.data ?? user.value ?? {});
+const currentUserName = computed(() => [currentUser.value?.name, currentUser.value?.lastname].filter(Boolean).join(' ') || 'My account');
+const currentUserContact = computed(() => currentUser.value?.email || currentUser.value?.phone || '');
+const returnPath = computed(() => {
+  const value = typeof route.query.return === 'string' ? route.query.return : '';
+  return value.startsWith('/bids/') || value.startsWith('/expressions-of-interest/') ? value : '';
+});
 
 const keys = ref([]);
 const revokedForMe = ref([]);
@@ -543,6 +605,7 @@ const eligibleUsers = ref([]);
 const activeKey = ref(null);
 const applyForm = reactive({ quantity: 1, notes: '' });
 const assignForm = reactive({ user_id: null, notes: '' });
+const assignMode = ref('self');
 const revokeForm = reactive({ reason: '' });
 const applyError = ref('');
 const assignError = ref('');
@@ -594,6 +657,41 @@ const countByStatus = computed(() => {
   return acc;
 });
 const pendingPaymentInvoice = computed(() => keys.value.find((k) => k.status === 'PENDING_PAYMENT')?.invoice ?? null);
+const firstUnassignedKey = computed(() => keys.value.find((key) => key.status === 'UNASSIGNED') ?? null);
+const myLiveKeys = computed(() => keys.value.filter((key) => Number(key.user?.id) === Number(currentUserId.value) && ['PENDING_GENERATION', 'ACTIVE'].includes(key.status)));
+const myReadyKey = computed(() => myLiveKeys.value.find((key) => key.status === 'ACTIVE' && key.storage_mode === 'PORTAL_VAULT') ?? null);
+const myPendingKey = computed(() => myLiveKeys.value.find((key) => key.status === 'PENDING_GENERATION') ?? myLiveKeys.value.find((key) => key.status === 'ACTIVE' && key.storage_mode !== 'PORTAL_VAULT') ?? null);
+const otherEligibleUsers = computed(() => eligibleUsers.value.filter((eligibleUser) => Number(eligibleUser.id) !== Number(currentUserId.value)));
+const readinessSteps = computed(() => {
+  const purchasedComplete = purchased.value.length > 0;
+  const assignedComplete = myLiveKeys.value.length > 0;
+  const activatedComplete = Boolean(myReadyKey.value);
+  return [
+    { key: 'purchase', title: 'Purchase a licence', description: 'Pay for at least one annual bid-submission licence.', complete: purchasedComplete, current: !purchasedComplete },
+    { key: 'assign', title: 'Choose the key owner', description: 'Assign a licence to yourself or another authorised bidder.', complete: assignedComplete, current: purchasedComplete && !assignedComplete },
+    { key: 'activate', title: 'Activate the signing key', description: 'Generate and protect the key in the owner’s browser Bid Vault or Desktop app.', complete: activatedComplete, current: assignedComplete && !activatedComplete },
+  ];
+});
+const setupAction = computed(() => {
+  if (myReadyKey.value) {
+    return {
+      tone: 'alert-success alert-soft', icon: 'lucide:shield-check', title: 'Your browser submission key is ready',
+      description: returnPath.value ? 'Return to your response to sign, seal and submit it.' : `Licence ${myReadyKey.value.key_serial} is ready for sealed responses.`,
+      action: returnPath.value ? 'return' : null,
+    };
+  }
+  if (!purchased.value.length) {
+    return canManage.value
+      ? { tone: 'alert-info alert-soft', icon: 'lucide:shopping-cart', title: 'Start with a submission licence', description: 'Buy one annual licence before assigning a signing key.', action: 'buy' }
+      : { tone: 'alert-warning alert-soft', icon: 'lucide:user-cog', title: 'Ask your organisation administrator for a licence', description: 'A user with submission-key management permission must buy and assign one to you.', action: null };
+  }
+  if (!myLiveKeys.value.length) {
+    if (firstUnassignedKey.value && canManage.value) return { tone: 'alert-warning alert-soft', icon: 'lucide:user-plus', title: 'Assign an available licence', description: 'Choose yourself to continue immediately, or assign it to another authorised bidder.', action: 'assign' };
+    if (canManage.value) return { tone: 'alert-info alert-soft', icon: 'lucide:plus', title: 'No licence is available for you', description: 'Existing licences are already assigned. Buy another licence for your account.', action: 'buy' };
+    return { tone: 'alert-warning alert-soft', icon: 'lucide:user-cog', title: 'No submission key is assigned to you', description: 'Ask your organisation administrator to assign a licence to your account.', action: null };
+  }
+  return { tone: 'alert-info alert-soft', icon: 'lucide:vault', title: 'Activate your assigned key', description: 'Set it up in this browser Bid Vault to sign and seal responses here.', action: 'activate' };
+});
 
 const isCurrentUser = (k) => k.user?.id === (user.value?.data?.user?.id ?? user.value?.id);
 
@@ -765,8 +863,10 @@ const confirmApply = async () => {
 };
 
 const openAssign = async (k) => {
+  if (!k) return;
   activeKey.value = k;
-  assignForm.user_id = null;
+  assignMode.value = 'self';
+  assignForm.user_id = currentUserId.value;
   assignForm.notes = '';
   assignError.value = '';
   const { ok, data } = await helper.eligibleUsers();
@@ -779,7 +879,9 @@ const confirmAssign = async () => {
   assignError.value = '';
   if (!activeKey.value || !assignForm.user_id) return;
   busy.value = true;
-  const { ok, error } = await helper.assign(activeKey.value.uuid, { user_id: assignForm.user_id, notes: assignForm.notes || null });
+  const keyUuid = activeKey.value.uuid;
+  const assignedToSelf = assignMode.value === 'self';
+  const { ok, error } = await helper.assign(keyUuid, { user_id: assignForm.user_id, notes: assignForm.notes || null });
   busy.value = false;
   if (!ok) {
     assignError.value = error;
@@ -787,6 +889,16 @@ const confirmAssign = async () => {
   }
   closeAssign();
   await fetchAll();
+  toast.success({
+    title: assignedToSelf ? 'Licence assigned to you' : 'Licence assigned',
+    message: assignedToSelf ? 'Complete browser setup now to activate your submission key.' : 'The assigned user can now activate their submission key.',
+    position: 'topRight',
+    layout: 2,
+  });
+  if (assignedToSelf) {
+    const assignedKey = keys.value.find((key) => key.uuid === keyUuid);
+    if (assignedKey) await openBrowserSetup(assignedKey);
+  }
 };
 
 const openRevoke = (k) => {

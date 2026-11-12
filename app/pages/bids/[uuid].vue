@@ -149,31 +149,60 @@
           <button class="btn btn-sm btn-warning w-full sm:w-auto" @click="downloadRecoveryCode">Download</button>
         </div>
 
-        <div class="rounded-xl border border-base-200 bg-base-100 p-3 sm:hidden">
-          <label class="fieldset">
-            <span class="fieldset-legend">Response step {{ currentStep + 1 }} of {{ steps.length }}</span>
-            <select :value="currentStep" class="select select-bordered w-full" @change="goToStep(Number($event.target.value))">
+        <div class="card card-border bg-base-100 lg:hidden">
+          <div class="card-body gap-3 p-4">
+            <div class="flex items-start gap-3">
+              <span class="grid h-10 w-10 shrink-0 place-items-center rounded-box bg-primary/10 text-primary">
+                <Icon :name="activeStep.icon" class="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-xs font-semibold text-base-content/50">Step {{ currentStep + 1 }} of {{ steps.length }}</p>
+                  <span class="badge badge-primary badge-outline badge-sm">{{ Math.round(((currentStep + 1) / steps.length) * 100) }}%</span>
+                </div>
+                <h2 class="mt-1 font-bold">{{ activeStep.label }}</h2>
+                <p class="mt-0.5 text-xs leading-5 text-base-content/55">{{ activeStep.description }}</p>
+              </div>
+            </div>
+            <progress class="progress progress-primary w-full" :value="currentStep + 1" :max="steps.length" />
+            <select :value="currentStep" class="select select-bordered select-sm w-full" aria-label="Go to response step" @change="goToStep(Number($event.target.value))">
               <option v-for="(step, index) in steps" :key="step.key" :value="index">{{ index + 1 }}. {{ step.label }}</option>
             </select>
-          </label>
-          <progress class="progress progress-primary mt-3 w-full" :value="currentStep + 1" :max="steps.length" />
-        </div>
-
-        <div class="hidden overflow-x-auto rounded-xl border border-base-200 bg-base-100 p-2 sm:block">
-          <div class="flex min-w-max gap-1">
-            <button
-              v-for="(step, index) in steps"
-              :key="step.key"
-              class="btn btn-sm"
-              :class="currentStep === index ? 'btn-primary' : 'btn-ghost'"
-              @click="goToStep(index)"
-            >
-              <span class="badge badge-sm">{{ index + 1 }}</span>{{ step.label }}
-            </button>
           </div>
         </div>
 
-        <section class="card min-w-0 border border-base-200 bg-base-100 shadow-sm">
+        <div class="grid min-w-0 items-start gap-4 lg:grid-cols-[17rem_minmax(0,1fr)]">
+          <aside class="card card-border sticky top-24 hidden bg-base-100 lg:block" aria-label="Response progress">
+            <div class="card-body gap-2 p-3">
+              <div class="border-b border-base-200 px-2 pb-3 pt-1">
+                <p class="font-bold">Build your response</p>
+                <p class="mt-1 text-xs leading-5 text-base-content/55">Complete each section, then review and securely submit.</p>
+              </div>
+              <button
+                v-for="(step, index) in steps"
+                :key="step.key"
+                type="button"
+                class="flex w-full items-start gap-3 rounded-box border p-3 text-left transition-colors"
+                :class="currentStep === index ? 'border-primary bg-primary/5' : index < currentStep ? 'border-success/25 bg-success/5' : 'border-transparent hover:bg-base-200'"
+                :aria-current="currentStep === index ? 'step' : undefined"
+                @click="goToStep(index)"
+              >
+                <span
+                  class="grid h-8 w-8 shrink-0 place-items-center rounded-full border text-xs font-bold"
+                  :class="index < currentStep ? 'border-success bg-success text-success-content' : currentStep === index ? 'border-primary bg-primary text-primary-content' : 'border-base-300 text-base-content/40'"
+                >
+                  <Icon v-if="index < currentStep" name="lucide:check" class="h-4 w-4" aria-hidden="true" />
+                  <span v-else>{{ index + 1 }}</span>
+                </span>
+                <span class="min-w-0">
+                  <span class="block text-sm font-semibold">{{ step.label }}</span>
+                  <span class="mt-0.5 block text-xs leading-4 text-base-content/50">{{ step.description }}</span>
+                </span>
+              </button>
+            </div>
+          </aside>
+
+          <section class="card min-w-0 border border-base-200 bg-base-100 shadow-sm">
           <div class="card-body min-w-0 p-4 sm:p-6">
             <template v-if="activeStep.key === 'lots'">
               <h2 class="card-title">Select lots</h2>
@@ -659,20 +688,35 @@
                 <div class="rounded-box border border-base-200 bg-base-100 p-3 sm:p-4"><p class="text-xs text-base-content/55">Closing</p><p class="mt-1 break-words text-sm font-bold sm:text-base">{{ formatDateTime(tender.closing_at) }}</p></div>
               </div>
 
-              <div v-if="!portalSigningKey" role="alert" class="alert alert-warning alert-vertical mt-4 items-stretch sm:alert-horizontal sm:items-start">
+              <div v-if="!portalSigningKey && !availableSigningKey" role="alert" class="alert alert-warning alert-vertical mt-4 items-stretch sm:alert-horizontal sm:items-start">
                 <Icon name="lucide:key-round" class="h-5 w-5 shrink-0 self-start sm:mt-0.5" />
                 <div class="min-w-0 flex-1">
-                  <p class="font-semibold">Portal signing key required</p>
-                  <p class="mt-1 text-sm">Set up your assigned licence in this encrypted Bid Vault before submitting.</p>
+                  <p class="font-bold">No active submission key found</p>
+                  <p class="mt-1 text-sm leading-6">A submission key proves who authorised this sealed response. Before you can submit:</p>
+                  <ol class="mt-2 list-inside list-decimal space-y-1 text-sm">
+                    <li>Open Submission keys.</li>
+                    <li>Assign an available licence to yourself, or ask your organisation administrator to assign one.</li>
+                    <li>Set up the assigned key in your browser Bid Vault, then return here.</li>
+                  </ol>
                 </div>
                 <div class="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap">
-                  <button class="btn btn-sm btn-outline w-full sm:w-auto" :disabled="busy" @click="refreshSubmissionKeys">
-                    <Icon name="lucide:refresh-cw" /> Refresh keys
-                  </button>
-                  <button class="btn btn-sm btn-warning w-full sm:w-auto" :disabled="busy || !availableSigningKey" @click="setupPortalSigningKey">
-                    Set up portal key
-                  </button>
+                  <NuxtLink :to="submissionKeySetupUrl" class="btn btn-warning btn-sm w-full sm:w-auto">
+                    <Icon name="lucide:key-round" class="h-4 w-4" /> Set up submission key
+                  </NuxtLink>
+                  <button class="btn btn-outline btn-sm w-full sm:w-auto" :disabled="busy" @click="refreshSubmissionKeys"><Icon name="lucide:refresh-cw" /> Check again</button>
                 </div>
+              </div>
+
+              <div v-else-if="!portalSigningKey" role="alert" class="alert alert-info alert-vertical mt-4 items-stretch sm:alert-horizontal sm:items-start">
+                <Icon name="lucide:vault" class="h-5 w-5 shrink-0 self-start sm:mt-0.5" />
+                <div class="min-w-0 flex-1">
+                  <p class="font-bold">Your assigned key needs browser setup</p>
+                  <p class="mt-1 text-sm leading-6">Licence <span class="font-mono font-semibold">{{ availableSigningKey.key_serial }}</span> is assigned to you. Secure it in this Bid Vault to enable signing.</p>
+                </div>
+                <button class="btn btn-info btn-sm w-full sm:w-auto" :disabled="busy" @click="setupPortalSigningKey">
+                  <span v-if="busy" class="loading loading-spinner loading-xs" />
+                  <Icon v-else name="lucide:shield-keyhole" class="h-4 w-4" /> Set up in this browser
+                </button>
               </div>
 
               <div v-else role="alert" class="alert alert-success mt-4 items-start">
@@ -702,7 +746,8 @@
               </div>
             </div>
           </div>
-        </section>
+          </section>
+        </div>
       </template>
 
       <dialog ref="mediaPickerDialog" class="modal">
@@ -862,13 +907,14 @@ const response = reactive({
 
 const envelopeMode = computed(() => tender.value?.envelope_mode ?? 'SINGLE');
 const steps = computed(() => [
-  ...(tender.value?.items?.length ? [{ key: 'lots', label: 'Select lots' }] : []),
-  ...((tender.value?.eligibility_questions?.length || tender.value?.technical_eligibility_questions?.length || tender.value?.document_requirements?.length || tender.value?.items?.some(item => item.products?.some(product => product.specifications?.length))) ? [{ key: 'eligibility', label: 'Eligibility' }] : []),
-  ...(tender.value?.items?.length && envelopeMode.value !== 'TECHNICAL_ONLY' ? [{ key: 'pricing', label: 'Pricing' }] : []),
-  ...(hasTenderFees.value ? [{ key: 'fees', label: 'Tender fees' }] : []),
-  { key: 'review', label: 'Review & submit' },
+  ...(tender.value?.items?.length ? [{ key: 'lots', label: 'Select lots', description: 'Choose the lots and product lines you will quote.', icon: 'lucide:list-checks' }] : []),
+  ...((tender.value?.eligibility_questions?.length || tender.value?.technical_eligibility_questions?.length || tender.value?.document_requirements?.length || tender.value?.items?.some(item => item.products?.some(product => product.specifications?.length))) ? [{ key: 'eligibility', label: 'Eligibility', description: 'Answer requirements and attach supporting documents.', icon: 'lucide:clipboard-check' }] : []),
+  ...(tender.value?.items?.length && envelopeMode.value !== 'TECHNICAL_ONLY' ? [{ key: 'pricing', label: 'Pricing', description: 'Enter compliant prices for your selected lines.', icon: 'lucide:calculator' }] : []),
+  ...(hasTenderFees.value ? [{ key: 'fees', label: 'Tender fees', description: 'Generate and settle every required tender fee.', icon: 'lucide:receipt-text' }] : []),
+  { key: 'review', label: 'Review & submit', description: 'Confirm readiness, sign, seal and deliver your response.', icon: 'lucide:shield-check' },
 ]);
 const activeStep = computed(() => steps.value[currentStep.value] ?? steps.value[0]);
+const submissionKeySetupUrl = computed(() => ({ path: '/submission-keys', query: { return: `/bids/${route.params.uuid}` } }));
 const providedDocuments = computed(() => (tender.value?.document_requirements ?? []).filter(document => document.type === 'PROVIDE'));
 const requestedDocuments = computed(() => (tender.value?.document_requirements ?? []).filter(document => document.type === 'REQUEST'));
 const reviewedProvidedCount = computed(() => providedDocuments.value.filter(document => response.documentAcknowledgements[document.uuid]).length);
