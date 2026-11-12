@@ -46,6 +46,24 @@
       </div>
     </div>
 
+    <div
+      v-if="incompleteRegistrations.length"
+      role="alert"
+      class="alert alert-warning alert-soft alert-vertical items-stretch sm:alert-horizontal sm:items-center"
+    >
+      <Icon name="lucide:circle-alert" class="h-5 w-5 shrink-0" aria-hidden="true" />
+      <div class="min-w-0 flex-1">
+        <p class="font-semibold">Registration process not completed</p>
+        <p class="mt-0.5 text-sm leading-5 opacity-80">
+          {{ incompleteRegistrationMessage }} Continue to complete payment for your supplier registration.
+        </p>
+      </div>
+      <NuxtLink to="/suppliernewapplication" class="btn btn-warning btn-sm w-full gap-2 sm:w-auto">
+        Continue registration
+        <Icon name="lucide:arrow-right" class="h-4 w-4" aria-hidden="true" />
+      </NuxtLink>
+    </div>
+
     <!-- Counter summary -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
       <button
@@ -258,6 +276,21 @@ const allRegistrations = computed(() =>
     (store.registrations[key] ?? []).map(r => ({ ...r, _group: key }))
   )
 )
+
+const incompleteRegistrations = computed(() => allRegistrations.value.filter(reg =>
+  reg?.payment_status === 'PENDING' && reg?.approval_status === 'PENDING'
+))
+
+const incompleteRegistrationMessage = computed(() => {
+  const count = incompleteRegistrations.value.length
+  if (count === 1) {
+    const category = incompleteRegistrations.value[0]?.suppliercategory?.name
+    return category
+      ? `Your ${category} registration is still awaiting payment.`
+      : 'Your supplier registration is still awaiting payment.'
+  }
+  return `${count} supplier category registrations are still awaiting payment.`
+})
 
 const tabs = [
   { key: 'all', label: 'All' },

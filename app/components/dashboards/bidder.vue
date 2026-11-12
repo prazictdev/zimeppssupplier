@@ -153,6 +153,24 @@
           </div>
         </div>
 
+        <div
+          v-if="incompleteRegistrations.length"
+          role="alert"
+          class="alert alert-warning alert-soft alert-vertical mb-3 items-stretch"
+        >
+          <div class="flex items-start gap-3">
+            <Icon name="lucide:circle-alert" class="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold">Registration not completed</p>
+              <p class="mt-0.5 text-sm leading-5 opacity-80">Payment is still pending. Continue your registration to finish the process.</p>
+            </div>
+          </div>
+          <NuxtLink to="/suppliernewapplication" class="btn btn-warning btn-sm w-full gap-2">
+            Continue registration
+            <Icon name="lucide:arrow-right" class="h-4 w-4" aria-hidden="true" />
+          </NuxtLink>
+        </div>
+
         <div class="grid grid-cols-2 gap-3">
           <div
             v-for="tab in workspaceTabs"
@@ -377,6 +395,9 @@ const activeMobileTabDefinition = computed(() => workspaceTabs.value.find(tab =>
 const activeMobileState = computed(() => tabStates[activeMobileTab.value] ?? { items: [], loading: false, loaded: true, error: '' })
 const registrationCount = computed(() => ['pending', 'awaiting', 'approved', 'rejected', 'expired']
   .reduce((total, key) => total + (registrationStore.registrations[key]?.length ?? 0), 0))
+const incompleteRegistrations = computed(() => ['pending', 'awaiting', 'approved', 'rejected', 'expired']
+  .flatMap(key => registrationStore.registrations[key] ?? [])
+  .filter(reg => reg?.payment_status === 'PENDING' && reg?.approval_status === 'PENDING'))
 
 function tabCount(key) {
   if (key === 'registrations') return registrationCount.value
