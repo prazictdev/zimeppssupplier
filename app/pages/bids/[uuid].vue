@@ -242,7 +242,50 @@
 
             <template v-else-if="activeStep.key === 'eligibility'">
               <div class="space-y-6">
-                <div><h2 class="card-title">Eligibility</h2><p class="text-sm text-base-content/60">Complete the tender eligibility and technical response forms.</p></div>
+                <div><h2 class="card-title">Eligibility</h2><p class="text-sm text-base-content/60">Complete the tender eligibility forms and attach each required supporting document.</p></div>
+
+                <section v-if="requestedDocuments.length" class="card card-border bg-base-100 shadow-sm">
+                  <div class="flex items-center gap-3 border-b border-base-200 px-4 py-4 sm:px-5">
+                    <span class="grid h-10 w-10 shrink-0 place-items-center rounded-box bg-secondary/10 text-secondary">
+                      <Icon name="lucide:paperclip" class="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <div class="min-w-0 flex-1">
+                      <h3 class="font-bold">Required supporting documents</h3>
+                      <p class="text-xs text-base-content/55">Attach a document to every requirement listed below.</p>
+                    </div>
+                    <span class="badge badge-secondary badge-soft shrink-0">{{ uploadedRequestedCount }} / {{ requestedDocuments.length }}</span>
+                  </div>
+
+                  <div class="grid gap-3 p-4 lg:grid-cols-2">
+                    <article v-for="(document, index) in requestedDocuments" :key="document.uuid" class="rounded-xl border border-base-200 p-4">
+                      <div class="flex items-start gap-3">
+                        <span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-secondary/10 text-sm font-bold text-secondary">{{ index + 1 }}</span>
+                        <div class="min-w-0 flex-1">
+                          <div class="flex flex-wrap items-center gap-2">
+                            <h4 class="font-semibold">{{ document.name }}</h4>
+                            <span :class="['badge badge-sm', response.documents[document.uuid]?.name ? 'badge-success' : 'badge-warning']">
+                              {{ response.documents[document.uuid]?.name ? 'Attached' : 'Required' }}
+                            </span>
+                          </div>
+                          <p v-if="document.description" class="mt-1 text-xs leading-5 text-base-content/55">{{ document.description }}</p>
+                        </div>
+                      </div>
+
+                      <div v-if="response.documents[document.uuid]?.name" class="mt-3 flex min-w-0 items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
+                        <Icon name="lucide:file-check-2" class="h-4 w-4 shrink-0" aria-hidden="true" />
+                        <span class="min-w-0 flex-1 truncate font-medium">{{ response.documents[document.uuid].name }}</span>
+                        <button type="button" class="btn btn-ghost btn-xs shrink-0 text-error" :aria-label="`Remove ${document.name}`" @click="delete response.documents[document.uuid]">
+                          <Icon name="lucide:x" class="h-3.5 w-3.5" aria-hidden="true" />
+                        </button>
+                      </div>
+
+                      <button type="button" class="btn btn-outline btn-secondary btn-sm mt-3 w-full" @click="openMediaPicker(document.uuid)">
+                        <Icon name="lucide:paperclip" class="h-4 w-4" aria-hidden="true" />
+                        {{ response.documents[document.uuid]?.name ? 'Replace document' : 'Attach document' }}
+                      </button>
+                    </article>
+                  </div>
+                </section>
 
                 <section class="overflow-hidden rounded-2xl border border-primary/20 bg-base-100 shadow-sm">
                   <div class="border-b border-primary/15 bg-primary/5 p-4"><h3 class="text-lg font-bold">Eligibility forms</h3><p class="text-xs text-base-content/60">Complete the grouped commercial and technical eligibility questions.</p></div>
@@ -696,7 +739,7 @@
       <dialog ref="mediaPickerDialog" class="modal">
         <div class="modal-box flex h-screen w-screen max-w-none flex-col rounded-none p-0">
           <header class="flex flex-col gap-4 border-b border-base-200 bg-base-100 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div><p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Organisation library</p><h3 class="text-2xl font-bold">{{ hasActiveMediaTarget ? 'Select from Media Center' : 'Media Center' }}</h3><p class="text-sm text-base-content/55">{{ hasActiveMediaTarget ? 'Select a reusable supporting document.' : 'Browse documents stored once for reuse across tender responses.' }}</p></div>
+            <div><p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Organisation library</p><h3 class="text-2xl font-bold">{{ hasActiveMediaTarget ? 'Attach document' : 'Media Center' }}</h3><p class="text-sm text-base-content/55">{{ hasActiveMediaTarget ? 'Choose an existing document or upload a new one for this requirement.' : 'Browse documents stored once for reuse across tender responses.' }}</p></div>
             <div class="flex items-center gap-2">
               <label class="btn btn-secondary btn-sm" :class="mediaUploading ? 'pointer-events-none btn-disabled' : ''">
                 <Icon name="lucide:upload" class="h-4 w-4" />
