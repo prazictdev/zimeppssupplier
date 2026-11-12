@@ -164,8 +164,8 @@
                 </NuxtLink>
                 <template v-else-if="bid.status !== 'DRAFT'">
                   <NuxtLink :to="submittedResponseLink(bid)" class="btn btn-neutral btn-sm flex-1">
-                    <Icon :name="bid.response_type === 'EOI' ? 'lucide:file-search' : 'lucide:milestone'" />
-                    {{ bid.response_type === 'EOI' ? 'Review response' : 'Track stages' }}
+                    <Icon name="lucide:milestone" />
+                    Track stages
                   </NuxtLink>
                   <button
                     v-if="bid.can_recall"
@@ -371,9 +371,7 @@ async function confirmRecall() {
 }
 
 const responseLink = bid => bid.response_type === 'EOI' ? `/expressions-of-interest/${bid.eoi_uuid}` : `/bids/${bid.tender_uuid}`;
-const submittedResponseLink = bid => bid.response_type === 'EOI'
-  ? `/expressions-of-interest/${bid.eoi_uuid}`
-  : `/supplierbidopening/${bid.tender_uuid}`;
+const submittedResponseLink = bid => `/supplierbidopening/${bid.tender_uuid}`;
 
 const label = value => value
   ?.replaceAll('_', ' ')

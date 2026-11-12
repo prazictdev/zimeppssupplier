@@ -10,7 +10,7 @@
     <template v-else-if="session">
       <header class="card overflow-hidden border border-base-200 bg-base-100 shadow-sm">
         <div class="p-5">
-          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><p class="font-mono text-xs text-base-content/50">{{ session.reference || 'Tender' }}</p><span v-if="session.evaluation_method?.name" class="badge badge-outline badge-sm">{{ session.evaluation_method.name }}</span></div><h1 class="mt-1.5 text-lg font-semibold text-base-content">{{ session.title }}</h1><p class="mt-0.5 text-xs text-base-content/50">{{ session.procuring_entity }}</p></div><div class="flex flex-wrap items-center gap-2"><span class="badge badge-sm font-medium" :class="stateClass(session.opening_state)">{{ stateLabel(session.opening_state) }}</span><NuxtLink :to="`/supplieropportunities/${session.tender_uuid}`" class="btn btn-ghost btn-xs"><Icon name="lucide:external-link" class="h-3.5 w-3.5" />Tender details</NuxtLink></div></div>
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><p class="font-mono text-xs text-base-content/50">{{ session.reference || 'Tender' }}</p><span v-if="session.workflow_label" class="badge badge-info badge-soft badge-sm">{{ session.workflow_label }}</span><span v-if="session.evaluation_method?.name" class="badge badge-outline badge-sm">{{ session.evaluation_method.name }}</span></div><h1 class="mt-1.5 text-lg font-semibold text-base-content">{{ session.title }}</h1><p class="mt-0.5 text-xs text-base-content/50">{{ session.procuring_entity }}</p></div><div class="flex flex-wrap items-center gap-2"><span class="badge badge-sm font-medium" :class="stateClass(session.opening_state)">{{ stateLabel(session.opening_state) }}</span><NuxtLink :to="detailLink" class="btn btn-ghost btn-xs"><Icon name="lucide:external-link" class="h-3.5 w-3.5" />{{ isEoiWorkflow ? 'EOI details' : 'Tender details' }}</NuxtLink></div></div>
           <div class="mt-6 grid gap-3 sm:grid-cols-3">
             <div class="rounded-xl border border-base-200 bg-base-50 p-4"><p class="text-xs text-base-content/45">Your response</p><p class="mt-1 text-sm font-semibold">{{ bidStatusLabel(session.bid_status) }}</p><p class="mt-1 text-xs text-base-content/50">{{ formatDateTime(session.submitted_at) }}</p></div>
             <div class="rounded-xl border border-base-200 bg-base-50 p-4"><p class="text-xs text-base-content/45">Scheduled opening</p><p class="mt-1 text-sm font-semibold">{{ formatDateTime(session.opening_at) }}</p><p v-if="session.opening_state === 'SCHEDULED'" class="mt-1 text-xs text-primary">{{ countdown(session.opening_at) }}</p></div>
@@ -24,19 +24,19 @@
           <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p class="text-xs font-bold uppercase tracking-[0.18em] text-primary">Response progress</p>
-              <h2 class="card-title mt-1 text-lg">Tender stages</h2>
-              <p class="mt-1 text-sm text-base-content/60">Follow your sealed response from submission through the published procurement outcome.</p>
+              <h2 class="card-title mt-1 text-lg">{{ session.workflow_label || 'Tender' }} stages</h2>
+              <p class="mt-1 text-sm text-base-content/60">{{ isEoiWorkflow ? 'Follow the EOI, shortlist and proposal stages through to the final consultancy contract.' : 'Follow your sealed response from submission through the published procurement outcome.' }}</p>
             </div>
             <span class="badge badge-outline badge-sm whitespace-nowrap">{{ prettyStatus(session.tender_status) }}</span>
           </div>
 
-          <ul class="steps steps-vertical w-full sm:steps-horizontal">
+          <ul class="steps steps-vertical w-full" :class="tenderStages.length <= 6 ? 'lg:steps-horizontal' : ''">
             <li
               v-for="(stage, index) in tenderStages"
               :key="stage.key"
               class="step min-h-20 sm:min-h-0"
-              :class="stage.state === 'complete' ? 'step-success' : stage.state === 'current' ? 'step-primary' : ''"
-              :data-content="stage.state === 'complete' ? '✓' : String(index + 1)"
+              :class="stage.state === 'complete' ? 'step-success' : stage.state === 'current' ? 'step-primary' : stage.state === 'unsuccessful' ? 'step-error' : ''"
+              :data-content="stage.state === 'complete' ? '✓' : stage.state === 'unsuccessful' ? '×' : String(index + 1)"
             >
               <span class="flex flex-col px-2 text-left sm:items-center sm:text-center">
                 <span class="text-sm font-semibold">{{ stage.label }}</span>
@@ -45,7 +45,7 @@
             </li>
           </ul>
 
-          <div role="status" class="alert alert-info alert-soft items-start">
+          <div role="status" class="alert alert-soft items-start" :class="currentStage.tone === 'error' ? 'alert-error' : 'alert-info'">
             <Icon :name="currentStage.icon" class="mt-0.5 h-5 w-5 shrink-0" />
             <div>
               <p class="font-semibold">{{ currentStage.title }}</p>
@@ -55,11 +55,12 @@
         </div>
       </section>
 
-      <section v-if="session.opening_state !== 'OPENED'" class="rounded-xl border bg-base-100 p-8 text-center shadow-sm" :class="session.is_live ? 'border-success/40' : 'border-base-200'"><span class="mx-auto flex h-14 w-14 items-center justify-center rounded-full" :class="session.is_live ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary'"><Icon :name="session.is_live ? 'lucide:radio-tower' : 'lucide:clock-3'" class="h-7 w-7" /></span><h2 class="mt-4 text-sm font-semibold">{{ session.is_live ? 'Waiting for the opening team' : 'Opening has not started' }}</h2><p class="mx-auto mt-1 max-w-xl text-xs text-base-content/50">{{ session.is_live ? 'The scheduled time has arrived. Keep this page open—the official register will appear automatically after controlled decryption.' : `This session is scheduled for ${formatDateTime(session.opening_at)}.` }}</p><span v-if="session.is_live" class="loading loading-dots loading-lg mt-4 text-success" /></section>
+      <section v-if="session.opening_state !== 'OPENED'" class="rounded-xl border bg-base-100 p-8 text-center shadow-sm" :class="session.is_live ? 'border-success/40' : 'border-base-200'"><span class="mx-auto flex h-14 w-14 items-center justify-center rounded-full" :class="session.is_live ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary'"><Icon :name="session.is_live ? 'lucide:radio-tower' : 'lucide:clock-3'" class="h-7 w-7" /></span><h2 class="mt-4 text-sm font-semibold">{{ session.is_live ? 'Waiting for the opening team' : `${isEoiWorkflow ? 'EOI' : 'Bid'} opening has not started` }}</h2><p class="mx-auto mt-1 max-w-xl text-xs text-base-content/50">{{ session.is_live ? 'The scheduled time has arrived. Keep this page open—the official register will appear automatically after controlled decryption.' : `This session is scheduled for ${formatDateTime(session.opening_at)}.` }}</p><span v-if="session.is_live" class="loading loading-dots loading-lg mt-4 text-success" /></section>
 
       <section v-else class="overflow-hidden rounded-xl border border-base-200 bg-base-100 shadow-sm">
-        <div class="flex flex-col gap-3 border-b border-base-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div class="flex items-start gap-3"><div class="rounded-lg bg-green-100 p-2"><Icon name="lucide:file-check-2" class="h-5 w-5 text-green-700" /></div><div><h2 class="text-sm font-semibold text-base-content">{{ isConsultancySelection ? 'Official proposal-opening register' : 'Official opening register' }}</h2><p class="text-xs text-base-content/50">Opened {{ formatDateTime(session.opened_at) }} · This register does not rank bidders.</p></div></div><button type="button" class="btn btn-outline btn-success btn-sm" @click="downloadReport"><Icon name="lucide:download" class="h-4 w-4" />Download register</button></div>
-        <div v-if="isConsultancySelection" class="overflow-x-auto"><table class="table table-sm min-w-[720px]"><thead><tr class="text-xs uppercase text-base-content/50"><th>Consultant</th><th>Technical proposal</th><th>Financial proposal</th></tr></thead><tbody><tr v-for="(row, index) in session.report?.rows ?? []" :key="`${row.bidder_name}-${index}`" :class="row.is_my_bid ? 'bg-primary/5' : ''"><td><div class="flex flex-wrap items-center gap-2"><span class="text-sm font-medium">{{ row.bidder_name }}</span><span v-if="row.is_my_bid" class="badge h-auto min-h-6 whitespace-nowrap border-blue-300 bg-blue-100 px-3 py-1 text-xs font-medium leading-tight text-blue-700">Your proposal</span></div></td><td><span class="badge h-auto min-h-6 whitespace-nowrap border-green-300 bg-green-100 px-3 py-1 text-xs font-medium leading-tight text-green-700">Opened securely</span></td><td><span class="badge h-auto min-h-6 whitespace-nowrap px-3 py-1 text-xs font-medium leading-tight" :class="financialEnvelopeClass">{{ financialEnvelopeLabel }}</span></td></tr><tr v-if="!session.report?.rows?.length"><td colspan="3" class="py-10 text-center text-base-content/45">No consultancy proposals were recorded.</td></tr></tbody></table></div>
+        <div class="flex flex-col gap-3 border-b border-base-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div class="flex items-start gap-3"><div class="rounded-lg bg-success/10 p-2"><Icon name="lucide:file-check-2" class="h-5 w-5 text-success" /></div><div><h2 class="text-sm font-semibold text-base-content">{{ isEoiWorkflow ? 'Official EOI opening register' : isConsultancySelection ? 'Official proposal-opening register' : 'Official opening register' }}</h2><p class="text-xs text-base-content/50">Opened {{ formatDateTime(session.opened_at) }} · This register does not rank bidders.</p></div></div><button type="button" class="btn btn-outline btn-success btn-sm" @click="downloadReport"><Icon name="lucide:download" class="h-4 w-4" />Download register</button></div>
+        <div v-if="isEoiWorkflow" class="overflow-x-auto"><table class="table table-sm min-w-[600px]"><thead><tr class="text-xs uppercase text-base-content/50"><th>Consulting firm</th><th>Response</th><th>Opening status</th></tr></thead><tbody><tr v-for="(row, index) in session.report?.rows ?? []" :key="`${row.bidder_name}-${index}`" :class="row.is_my_bid ? 'bg-primary/5' : ''"><td><div class="flex flex-wrap items-center gap-2"><span class="text-sm font-medium">{{ row.bidder_name }}</span><span v-if="row.is_my_bid" class="badge badge-primary badge-xs">Your EOI</span></div></td><td>{{ row.responded_to }}</td><td><span class="badge badge-success badge-soft badge-sm">Opened securely</span></td></tr><tr v-if="!session.report?.rows?.length"><td colspan="3" class="py-10 text-center text-base-content/45">No EOI responses were recorded.</td></tr></tbody></table></div>
+        <div v-else-if="isConsultancySelection" class="overflow-x-auto"><table class="table table-sm min-w-[720px]"><thead><tr class="text-xs uppercase text-base-content/50"><th>Consultant</th><th>Technical proposal</th><th>Financial proposal</th></tr></thead><tbody><tr v-for="(row, index) in session.report?.rows ?? []" :key="`${row.bidder_name}-${index}`" :class="row.is_my_bid ? 'bg-primary/5' : ''"><td><div class="flex flex-wrap items-center gap-2"><span class="text-sm font-medium">{{ row.bidder_name }}</span><span v-if="row.is_my_bid" class="badge badge-primary badge-xs">Your proposal</span></div></td><td><span class="badge badge-success badge-soft badge-sm">Opened securely</span></td><td><span class="badge h-auto min-h-6 whitespace-nowrap px-3 py-1 text-xs font-medium leading-tight" :class="financialEnvelopeClass">{{ financialEnvelopeLabel }}</span></td></tr><tr v-if="!session.report?.rows?.length"><td colspan="3" class="py-10 text-center text-base-content/45">No consultancy proposals were recorded.</td></tr></tbody></table></div>
         <div v-else class="overflow-x-auto"><table class="table table-sm min-w-[760px]"><thead><tr class="text-xs uppercase text-base-content/50"><th>Bidder</th><th>Item responded to</th><th class="text-right">Quantity</th><th class="text-right">Unit price</th><th class="text-right">Amount quoted</th></tr></thead><tbody><tr v-for="(row, index) in session.report?.rows ?? []" :key="`${row.bidder_name}-${row.responded_to}-${index}`" :class="row.is_my_bid ? 'bg-primary/5' : ''"><td><div class="flex items-center gap-2"><span class="text-sm font-medium">{{ row.bidder_name }}</span><span v-if="row.is_my_bid" class="badge badge-primary badge-xs">Your bid</span></div></td><td class="min-w-64">{{ row.responded_to }}</td><td class="text-right font-mono">{{ formatQuantity(row.quantity) }}</td><td class="text-right font-mono">{{ formatMoney(row.unit_price) }}</td><td class="text-right font-mono font-bold">{{ formatMoney(row.amount_quoted) }}</td></tr><tr v-if="!session.report?.rows?.length"><td colspan="5" class="py-10 text-center text-base-content/45">No opening rows were recorded.</td></tr></tbody></table></div>
         <div class="border-t border-base-200 p-4 text-xs text-base-content/50"><p>{{ isConsultancySelection ? consultancyOpeningNotice : session.report?.notice }}</p><p v-if="session.report_hash" class="mt-2 break-all font-mono">Report integrity hash: {{ session.report_hash }}</p></div>
       </section>
@@ -79,22 +80,29 @@ const outcomeStatuses = ['INTENTION_TO_AWARD', 'STANDSTILL', 'AWARDED', 'CONTRAC
 const evaluationStatuses = ['OPENED', 'UNDER_EVALUATION', 'EVALUATED'];
 const polling = computed(() => Boolean(
   session.value
-  && !['AWARDED', 'FAILED'].includes(session.value.bid_status)
+  && !session.value.terminal
+  && !['AWARDED', 'FAILED', 'NOT_SHORTLISTED'].includes(session.value.bid_status)
   && !outcomeStatuses.includes(session.value.tender_status),
 ));
 const isConsultancySelection = computed(() => Boolean(session.value?.is_consultancy_selection));
+const isEoiWorkflow = computed(() => session.value?.workflow_type === 'CONSULTANCY_EOI');
+const detailLink = computed(() => isEoiWorkflow.value && session.value?.eoi_uuid
+  ? `/expressions-of-interest/${session.value.eoi_uuid}`
+  : `/supplieropportunities/${session.value?.tender_uuid}`);
 const currentStageIndex = computed(() => {
   if (['AWARDED', 'FAILED'].includes(session.value?.bid_status) || outcomeStatuses.includes(session.value?.tender_status)) return 3;
   if (evaluationStatuses.includes(session.value?.tender_status) || session.value?.opening_state === 'OPENED') return 2;
   return 1;
 });
-const tenderStages = computed(() => [
+const fallbackTenderStages = computed(() => [
   { key: 'submitted', label: 'Response submitted', description: formatDateTime(session.value?.submitted_at) },
   { key: 'opening', label: 'Bid opening', description: session.value?.opening_state === 'OPENED' ? `Opened ${formatDateTime(session.value?.opened_at)}` : formatDateTime(session.value?.opening_at) },
   { key: 'evaluation', label: 'Evaluation', description: currentStageIndex.value >= 2 ? prettyStatus(session.value?.tender_status) : 'Starts after bid opening' },
   { key: 'outcome', label: 'Outcome', description: currentStageIndex.value >= 3 ? prettyStatus(session.value?.bid_status === 'FAILED' ? 'NOT_AWARDED' : session.value?.tender_status) : 'Published after evaluation' },
 ].map((stage, index) => ({ ...stage, state: index < currentStageIndex.value ? 'complete' : index === currentStageIndex.value ? 'current' : 'upcoming' })));
+const tenderStages = computed(() => session.value?.stages?.length ? session.value.stages : fallbackTenderStages.value);
 const currentStage = computed(() => {
+  if (session.value?.current_stage) return session.value.current_stage;
   if (currentStageIndex.value === 3) {
     const awarded = session.value?.bid_status === 'AWARDED';
     return {
@@ -119,7 +127,7 @@ function formatDateTime(value) { return value ? new Intl.DateTimeFormat('en-ZW',
 function formatMoney(value) { return value === null || value === undefined || value === '' ? '—' : new Intl.NumberFormat('en-ZW', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value)); }
 function formatQuantity(value) { return value === null || value === undefined || value === '' ? '—' : new Intl.NumberFormat('en-ZW', { maximumFractionDigits: 2 }).format(Number(value)); }
 function countdown(value) { const difference = new Date(value).getTime() - now.value; if (!Number.isFinite(difference) || difference <= 0) return 'Opening time reached'; const minutes = Math.floor(difference / 60000); const days = Math.floor(minutes / 1440); const hours = Math.floor((minutes % 1440) / 60); const remaining = minutes % 60; return days ? `Starts in ${days}d ${hours}h ${remaining}m` : `Starts in ${hours}h ${remaining}m`; }
-function downloadReport() { if (!session.value?.report) return; const blob = new Blob([JSON.stringify({ tender: { reference: session.value.reference, title: session.value.title }, report_hash: session.value.report_hash, ...session.value.report }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = `bid-opening-${session.value.reference || session.value.tender_uuid}.json`; link.click(); URL.revokeObjectURL(url); }
+function downloadReport() { if (!session.value?.report) return; const blob = new Blob([JSON.stringify({ tender: { reference: session.value.reference, title: session.value.title }, report_hash: session.value.report_hash, ...session.value.report }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = `${isEoiWorkflow.value ? 'eoi' : 'bid'}-opening-${session.value.reference || session.value.tender_uuid}.json`; link.click(); URL.revokeObjectURL(url); }
 onMounted(async () => { await loadSession(); pollTimer = window.setInterval(() => { if (!document.hidden && polling.value) loadSession(true); }, 5000); clockTimer = window.setInterval(() => { now.value = Date.now(); }, 30000); });
 onBeforeUnmount(() => { window.clearInterval(pollTimer); window.clearInterval(clockTimer); });
 </script>
