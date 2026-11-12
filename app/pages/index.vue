@@ -1,5 +1,17 @@
 <template>
   <div class="min-h-screen overflow-hidden bg-[#f7f9f7] text-slate-900">
+    <div v-if="initialLoading" class="flex min-h-screen items-center justify-center bg-[#f7f9f7] px-6" role="status" aria-live="polite">
+      <div class="flex max-w-sm flex-col items-center text-center">
+        <span class="grid h-20 w-20 place-items-center rounded-2xl border border-emerald-700/15 bg-white shadow-lg shadow-emerald-950/5">
+          <span class="loading loading-ring loading-lg text-emerald-700" aria-hidden="true" />
+        </span>
+        <h1 class="mt-5 text-lg font-bold text-[#101d3f]">Loading supplier opportunities</h1>
+        <p class="mt-1 text-sm leading-6 text-slate-500">Getting the latest tenders and procurement statistics from ZimEpps.</p>
+        <span class="sr-only">Please wait while the landing page data loads.</span>
+      </div>
+    </div>
+
+    <template v-else>
     <main>
       <section class="relative overflow-hidden border-b border-sky-900/10 bg-[#eaf7fb]">
         <div class="pointer-events-none absolute -right-24 top-10 h-80 w-80 rounded-full border-[64px] border-white/55" />
@@ -263,6 +275,7 @@
       </div>
       <div class="border-t border-slate-100"><div class="app-shell flex flex-col gap-2 px-5 py-5 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-8"><p>&copy; {{ new Date().getFullYear() }} Procurement Regulatory Authority of Zimbabwe.</p><p>ZimEpps is developed and maintained by PRAZ.</p></div></div>
     </footer>
+    </template>
   </div>
 </template>
 
@@ -278,6 +291,7 @@ const searchQuery = ref('')
 const activeTenderFilter = ref('all')
 const tenders = ref([])
 const eoiCount = ref(0)
+const initialLoading = ref(true)
 const loadingTenders = ref(true)
 const tendersError = ref(null)
 const loadingStats = ref(true)
@@ -400,5 +414,11 @@ function categoryIcon(name) {
 const isEoi = opportunity => opportunity.opportunity_type === 'EXPRESSION_OF_INTEREST'
 const opportunityLink = opportunity => opportunity.detail_path || `/tenders/${opportunity.uuid}`
 
-onMounted(() => Promise.all([loadStats(), loadTenders()]))
+onMounted(async () => {
+  try {
+    await Promise.all([loadStats(), loadTenders()])
+  } finally {
+    initialLoading.value = false
+  }
+})
 </script>
