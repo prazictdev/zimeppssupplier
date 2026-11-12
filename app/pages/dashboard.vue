@@ -4,21 +4,23 @@
       v-for="session in pendingFeedbackSessions"
       :key="session.uuid"
       role="alert"
-      class="alert border-l-4 border-primary bg-base-100 text-base-content shadow-sm sm:alert-horizontal"
+      class="alert alert-vertical items-stretch gap-4 border-l-4 border-primary bg-base-100 p-4 text-base-content shadow-sm sm:alert-horizontal sm:items-center sm:p-5"
     >
-      <span class="grid h-11 w-11 shrink-0 place-items-center rounded-box bg-primary/10 text-primary">
-        <Icon name="lucide:message-square-more" class="h-5 w-5" />
-      </span>
-      <div class="min-w-0 flex-1">
-        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <h3 class="font-bold">{{ session.title }}</h3>
-          <span v-if="session.closes_at" class="text-xs text-base-content/55">Complete by {{ formatFeedbackDate(session.closes_at) }}</span>
+      <div class="flex min-w-0 items-start gap-3 sm:contents">
+        <span class="grid h-11 w-11 shrink-0 place-items-center rounded-box bg-primary/10 text-primary">
+          <Icon name="lucide:message-square-more" class="h-5 w-5" />
+        </span>
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3">
+            <h3 class="text-base font-bold leading-6">{{ session.title }}</h3>
+            <span v-if="session.closes_at" class="text-xs text-base-content/55">Complete by {{ formatFeedbackDate(session.closes_at) }}</span>
+          </div>
+          <p class="mt-1 max-w-4xl text-sm leading-6 text-base-content/65">
+            {{ session.description || 'Tell us about your experience so we can improve the supplier portal.' }}
+          </p>
         </div>
-        <p class="mt-1 max-w-4xl text-sm leading-5 text-base-content/65">
-          {{ session.description || 'Tell us about your experience so we can improve the supplier portal.' }}
-        </p>
       </div>
-      <button type="button" class="btn btn-primary btn-sm shrink-0" @click="openFeedback(session.uuid)">
+      <button type="button" class="btn btn-primary btn-sm w-full shrink-0 sm:w-auto" @click="openFeedback(session.uuid)">
         {{ feedbackSubmission(session) ? 'Continue feedback' : 'Give feedback' }}
         <Icon name="lucide:arrow-right" class="h-4 w-4" />
       </button>

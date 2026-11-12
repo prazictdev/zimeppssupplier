@@ -145,118 +145,151 @@
         </div>
       </div>
 
-      <div class="space-y-3 md:hidden">
-        <RegistrationSummary
-          v-if="hasRegistrationTab"
-          :allow-autorenewal="showAutorenewals"
-        />
-
-        <article
-          v-for="tab in mobileActivityTabs"
-          :key="`mobile-${tab.key}`"
-          class="card card-sm overflow-hidden border border-base-200 bg-base-100 shadow-sm"
-        >
-          <div class="flex items-start justify-between gap-3 px-4 pb-3 pt-4">
-            <div class="flex min-w-0 items-center gap-3">
-              <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl" :class="tab.iconClasses">
-                <Icon :name="tab.icon" class="h-5 w-5" aria-hidden="true" />
-              </div>
-              <div class="min-w-0">
-                <div class="flex flex-wrap items-center gap-2">
-                  <h3 class="text-sm font-bold leading-5">{{ tab.panelTitle }}</h3>
-                  <span v-if="tabCount(tab.key) !== null" class="badge badge-ghost badge-sm">{{ tabCount(tab.key) }}</span>
-                </div>
-                <p class="mt-0.5 line-clamp-2 text-[11px] leading-4 text-base-content/55">{{ tab.description }}</p>
-              </div>
-            </div>
-            <NuxtLink :to="tab.to" class="btn btn-ghost btn-circle btn-sm shrink-0" :aria-label="`Open ${tab.label}`">
-              <Icon name="lucide:arrow-up-right" class="h-4 w-4" aria-hidden="true" />
-            </NuxtLink>
+      <div class="md:hidden">
+        <div class="mb-3 flex items-end justify-between gap-3">
+          <div>
+            <h2 class="font-bold">Your procurement activity</h2>
+            <p class="text-xs text-base-content/55">Tap a card to see the latest details.</p>
           </div>
+        </div>
 
-          <div class="card-body gap-0 border-t border-base-200 p-0">
-            <div v-if="tabStates[tab.key].loading" class="space-y-2 p-3" :aria-label="`Loading ${tab.label}`">
-              <div v-for="item in 2" :key="item" class="skeleton h-20 w-full rounded-xl" />
+        <div class="grid grid-cols-2 gap-3">
+          <button
+            v-for="tab in workspaceTabs"
+            :key="`mobile-action-${tab.key}`"
+            type="button"
+            class="card card-sm min-h-36 border-2 text-left shadow-sm transition active:scale-[0.98]"
+            :class="tab.cardClasses"
+            :aria-label="`Show ${tab.label} details`"
+            @click="openMobileTab(tab.key)"
+          >
+            <span class="card-body w-full justify-between gap-4 p-4">
+              <span class="flex items-start justify-between gap-2">
+                <span class="grid h-11 w-11 place-items-center rounded-box" :class="tab.iconClasses">
+                  <Icon :name="tab.icon" class="h-5 w-5" aria-hidden="true" />
+                </span>
+                <Icon name="lucide:arrow-up-right" class="h-4 w-4 text-base-content/35" aria-hidden="true" />
+              </span>
+              <span>
+                <span v-if="tabLoading(tab.key)" class="skeleton mb-1 block h-8 w-12" />
+                <span v-else class="block text-3xl font-black tabular-nums leading-none">{{ tabCount(tab.key) ?? 0 }}</span>
+                <span class="mt-2 block text-sm font-semibold leading-5">{{ tab.label }}</span>
+              </span>
+            </span>
+          </button>
+        </div>
+
+        <dialog ref="mobileActivityDialog" class="modal modal-bottom sm:modal-middle" @close="activeMobileTab = ''">
+          <div v-if="activeMobileTabDefinition" class="modal-box max-h-[92dvh] w-full max-w-3xl overflow-hidden p-0">
+            <div class="flex items-center gap-3 border-b border-base-200 px-4 py-4">
+              <div class="grid h-11 w-11 shrink-0 place-items-center rounded-box" :class="activeMobileTabDefinition.iconClasses">
+                <Icon :name="activeMobileTabDefinition.icon" class="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div class="min-w-0 flex-1">
+                <h3 class="font-bold">{{ activeMobileTabDefinition.panelTitle }}</h3>
+                <p class="line-clamp-2 text-xs leading-4 text-base-content/55">{{ activeMobileTabDefinition.description || 'Review your current supplier activity.' }}</p>
+              </div>
+              <form method="dialog">
+                <button class="btn btn-ghost btn-circle btn-sm" aria-label="Close dialog">
+                  <Icon name="lucide:x" class="h-5 w-5" aria-hidden="true" />
+                </button>
+              </form>
             </div>
 
-            <div v-else-if="tabStates[tab.key].error" role="alert" class="alert alert-error alert-soft m-4 w-auto">
-              <Icon name="lucide:circle-alert" class="h-5 w-5" />
-              <span class="min-w-0 flex-1 text-sm">{{ tabStates[tab.key].error }}</span>
-              <button type="button" class="btn btn-error btn-xs" @click="loadTab(tab.key, true)">Retry</button>
-            </div>
+            <div class="max-h-[calc(92dvh-8rem)] overflow-y-auto p-4">
+              <RegistrationSummary
+                v-if="activeMobileTab === 'registrations'"
+                :allow-autorenewal="showAutorenewals"
+              />
 
-            <div v-else-if="tab.key === 'contracts'" class="flex items-start gap-3 p-4">
-              <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-success/10 text-success">
-                <Icon name="lucide:file-signature" class="h-5 w-5" aria-hidden="true" />
+              <div v-else-if="activeMobileState.loading" class="space-y-3" :aria-label="`Loading ${activeMobileTabDefinition.label}`">
+                <div v-for="item in 3" :key="item" class="skeleton h-24 w-full rounded-box" />
               </div>
-              <div class="min-w-0">
-                <h4 class="text-sm font-semibold">Contract management is being prepared</h4>
-                <p class="mt-1 text-xs leading-5 text-base-content/55">Awarded contracts and delivery milestones will appear here when the service is enabled.</p>
-              </div>
-            </div>
 
-            <div v-else-if="!tabStates[tab.key].items.length" class="flex items-start gap-3 p-4">
-              <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-base-200 text-base-content/35">
-                <Icon :name="tab.emptyIcon" class="h-5 w-5" aria-hidden="true" />
-              </div>
-              <div class="min-w-0">
-                <h4 class="text-sm font-semibold">{{ tab.emptyTitle }}</h4>
-                <p class="mt-1 text-xs leading-5 text-base-content/55">{{ tab.emptyDescription }}</p>
-              </div>
-            </div>
-
-            <div v-else-if="tab.key === 'tenders'" class="space-y-2 p-3">
-              <NuxtLink
-                v-for="bid in tabStates.tenders.items.slice(0, 3)"
-                :key="bid.uuid"
-                :to="bidLink(bid)"
-                class="block rounded-xl border border-base-200 bg-base-200/35 p-3 transition-colors active:bg-base-200"
-              >
-                <div class="flex items-start justify-between gap-2">
-                  <p class="min-w-0 flex-1 text-sm font-semibold leading-5">{{ bid.title }}</p>
-                  <span class="badge badge-sm shrink-0" :class="bid.status === 'DRAFT' ? 'badge-warning badge-soft' : 'badge-success badge-soft'">{{ pretty(bid.status) }}</span>
+              <div v-else-if="activeMobileState.error" role="alert" class="alert alert-error alert-soft alert-vertical items-stretch">
+                <div class="flex items-center gap-2">
+                  <Icon name="lucide:circle-alert" class="h-5 w-5 shrink-0" />
+                  <span class="min-w-0 flex-1 text-sm">{{ activeMobileState.error }}</span>
                 </div>
-                <div class="mt-2 flex items-end justify-between gap-3">
-                  <div class="min-w-0 space-y-0.5 text-xs text-base-content/55">
-                    <p class="truncate font-mono">{{ bid.reference || '—' }}</p>
-                    <p>Closes {{ formatDate(bid.closing_at) }}</p>
+                <button type="button" class="btn btn-error btn-sm" @click="loadTab(activeMobileTab, true)">Retry</button>
+              </div>
+
+              <div v-else-if="activeMobileTab === 'contracts'" class="flex flex-col items-center py-10 text-center">
+                <div class="rounded-full bg-success/10 p-4 text-success">
+                  <Icon name="lucide:file-signature" class="h-8 w-8" aria-hidden="true" />
+                </div>
+                <h4 class="mt-4 font-semibold">Contract management is being prepared</h4>
+                <p class="mt-1 max-w-md text-sm leading-6 text-base-content/55">Awarded contracts and delivery milestones will appear here when the service is enabled.</p>
+              </div>
+
+              <div v-else-if="!activeMobileState.items.length" class="flex flex-col items-center py-10 text-center">
+                <div class="rounded-full bg-base-200 p-4 text-base-content/35">
+                  <Icon :name="activeMobileTabDefinition.emptyIcon" class="h-8 w-8" aria-hidden="true" />
+                </div>
+                <h4 class="mt-4 font-semibold">{{ activeMobileTabDefinition.emptyTitle }}</h4>
+                <p class="mt-1 max-w-md text-sm leading-6 text-base-content/55">{{ activeMobileTabDefinition.emptyDescription }}</p>
+              </div>
+
+              <div v-else-if="activeMobileTab === 'tenders'" class="space-y-3">
+                <NuxtLink
+                  v-for="bid in activeMobileState.items.slice(0, 5)"
+                  :key="bid.uuid"
+                  :to="bidLink(bid)"
+                  class="card card-sm card-border bg-base-100"
+                >
+                  <span class="card-body gap-2 p-4">
+                    <span class="flex items-start justify-between gap-2">
+                      <span class="min-w-0 flex-1 text-sm font-semibold leading-5">{{ bid.title }}</span>
+                      <span class="badge badge-sm shrink-0" :class="bid.status === 'DRAFT' ? 'badge-warning badge-soft' : 'badge-success badge-soft'">{{ pretty(bid.status) }}</span>
+                    </span>
+                    <span class="flex items-end justify-between gap-3 text-xs text-base-content/55">
+                      <span><span class="block font-mono">{{ bid.reference || '—' }}</span><span>Closes {{ formatDate(bid.closing_at) }}</span></span>
+                      <Icon name="lucide:chevron-right" class="h-4 w-4 shrink-0" aria-hidden="true" />
+                    </span>
+                  </span>
+                </NuxtLink>
+              </div>
+
+              <div v-else-if="activeMobileTab === 'awards'" class="space-y-3">
+                <div v-for="award in activeMobileState.items.slice(0, 5)" :key="award.uuid" class="card card-sm card-border bg-base-100">
+                  <div class="card-body gap-2 p-4">
+                    <div class="flex items-start justify-between gap-2">
+                      <p class="min-w-0 flex-1 text-sm font-semibold leading-5">{{ award.tender?.title || 'Award notice' }}</p>
+                      <span class="badge badge-sm shrink-0" :class="award.status === 'FINALIZED' ? 'badge-success badge-soft' : 'badge-warning badge-soft'">{{ pretty(award.status) }}</span>
+                    </div>
+                    <div class="flex items-end justify-between gap-3 text-xs">
+                      <p class="min-w-0 truncate text-base-content/55">{{ award.supplier?.name || 'Supplier not specified' }}</p>
+                      <p class="shrink-0 font-semibold">{{ formatMoney(award.amount, award.currency_code) }}</p>
+                    </div>
                   </div>
-                  <Icon name="lucide:chevron-right" class="h-4 w-4 shrink-0 text-base-content/35" aria-hidden="true" />
                 </div>
-              </NuxtLink>
-            </div>
+              </div>
 
-            <div v-else-if="tab.key === 'awards'" class="space-y-2 p-3">
-              <NuxtLink v-for="award in tabStates.awards.items.slice(0, 3)" :key="award.uuid" to="/mysupplierawards" class="block rounded-xl border border-base-200 bg-base-200/35 p-3 active:bg-base-200">
-                <div class="flex items-start justify-between gap-2">
-                  <p class="min-w-0 flex-1 text-sm font-semibold leading-5">{{ award.tender?.title || 'Award notice' }}</p>
-                  <span class="badge badge-xs shrink-0" :class="award.status === 'FINALIZED' ? 'badge-success badge-soft' : 'badge-warning badge-soft'">{{ pretty(award.status) }}</span>
+              <div v-else-if="activeMobileTab === 'bonds'" class="space-y-3">
+                <div v-for="bond in activeMobileState.items.slice(0, 5)" :key="bond.uuid" class="card card-sm card-border bg-base-100">
+                  <div class="card-body gap-2 p-4">
+                    <div class="flex items-start justify-between gap-2">
+                      <p class="min-w-0 flex-1 text-sm font-semibold leading-5">{{ bond.tender?.reference || bond.tender?.title || 'Bid bond' }}</p>
+                      <span class="badge badge-sm shrink-0" :class="maturityClass(bond.maturity_status)">{{ pretty(bond.maturity_status) }}</span>
+                    </div>
+                    <div class="flex items-end justify-between gap-3 text-xs">
+                      <p class="text-base-content/55">Paid {{ formatDate(bond.paid_at) }}</p>
+                      <p class="shrink-0 font-semibold">{{ bond.currency || '' }} {{ formatAmount(bond.amount) }}</p>
+                    </div>
+                  </div>
                 </div>
-                <div class="mt-2 flex items-end justify-between gap-3 text-xs">
-                  <p class="min-w-0 truncate text-base-content/55">{{ award.supplier?.name || 'Supplier not specified' }}</p>
-                  <p class="shrink-0 font-semibold">{{ formatMoney(award.amount, award.currency_code) }}</p>
-                </div>
-              </NuxtLink>
-            </div>
+              </div>
 
-            <div v-else-if="tab.key === 'bonds'" class="space-y-2 p-3">
-              <NuxtLink v-for="bond in tabStates.bonds.items.slice(0, 3)" :key="bond.uuid" to="/bid-bonds" class="block rounded-xl border border-base-200 bg-base-200/35 p-3 active:bg-base-200">
-                <div class="flex items-start justify-between gap-2">
-                  <p class="min-w-0 flex-1 text-sm font-semibold leading-5">{{ bond.tender?.reference || bond.tender?.title || 'Bid bond' }}</p>
-                  <span class="badge badge-xs shrink-0" :class="maturityClass(bond.maturity_status)">{{ pretty(bond.maturity_status) }}</span>
-                </div>
-                <div class="mt-2 flex items-end justify-between gap-3 text-xs">
-                  <p class="text-base-content/55">Paid {{ formatDate(bond.paid_at) }}</p>
-                  <p class="shrink-0 font-semibold">{{ bond.currency || '' }} {{ formatAmount(bond.amount) }}</p>
-                </div>
-              </NuxtLink>
-            </div>
-
-            <div v-if="tabStates[tab.key].items.length > 3" class="border-t border-base-200 px-4 py-3 text-center">
-              <NuxtLink :to="tab.to" class="btn btn-ghost btn-sm">View all {{ tab.label.toLowerCase() }}</NuxtLink>
+              <div class="modal-action mt-4">
+                <NuxtLink :to="activeMobileTabDefinition.to" class="btn btn-primary btn-block">
+                  Open full {{ activeMobileTabDefinition.label.toLowerCase() }} page
+                  <Icon name="lucide:arrow-up-right" class="h-4 w-4" aria-hidden="true" />
+                </NuxtLink>
+              </div>
             </div>
           </div>
-        </article>
+          <form method="dialog" class="modal-backdrop"><button>Close</button></form>
+        </dialog>
       </div>
     </section>
 
@@ -290,34 +323,49 @@ const { can } = useAbility()
 const { listBids } = useBidResponse()
 const { listAwards } = useSupplierAwards()
 const bidBondApi = useBidBondManagement()
+const mobileActivityDialog = ref(null)
+const activeMobileTab = ref('')
 
 const workspaceTabs = computed(() => [
-  { key: 'registrations', label: 'Registrations', to: '/supplierregistrations', icon: 'lucide:clipboard-list', permission: 'can.access.myregistrations', activeClasses: 'tab-active border-primary bg-primary text-primary-content shadow-sm', iconClasses: 'bg-primary/10 text-primary', panelTitle: 'Supplier registrations' },
-  { key: 'tenders', label: 'My Tenders', to: '/mysupplierbids', icon: 'lucide:file-lock-2', permission: 'can.access.mysupplierbids', activeClasses: 'tab-active border-info bg-info text-info-content shadow-sm', iconClasses: 'bg-info/15 text-info', panelTitle: 'My tenders and EOIs', description: 'Continue drafts and track sealed submissions.', emptyIcon: 'lucide:file-search', emptyTitle: 'No tenders added yet', emptyDescription: 'Browse opportunities and add a tender or EOI when you are ready to respond.' },
-  { key: 'awards', label: 'Awards', to: '/mysupplierawards', icon: 'lucide:award', permission: 'can.access.mysupplierwards', activeClasses: 'tab-active border-warning bg-warning text-warning-content shadow-sm', iconClasses: 'bg-warning/15 text-warning', panelTitle: 'Award notices', description: 'Review outcomes and applicable standstill periods.', emptyIcon: 'lucide:trophy', emptyTitle: 'No award notices yet', emptyDescription: 'Published outcomes for opportunities in which you participated will appear here.' },
-  { key: 'contracts', label: 'Contracts', to: '/suppliercontracts', icon: 'lucide:file-signature', permission: 'can.access.suppliercontracts', activeClasses: 'tab-active border-success bg-success text-success-content shadow-sm', iconClasses: 'bg-success/15 text-success', panelTitle: 'Supplier contracts', description: 'Manage awarded contracts and delivery obligations.', emptyIcon: 'lucide:file-signature', emptyTitle: 'No contracts yet', emptyDescription: 'Awarded contracts will appear here.' },
-  { key: 'bonds', label: 'Bid bonds', to: '/bid-bonds', icon: 'lucide:shield-check', permission: 'can.access.mytendering', activeClasses: 'tab-active border-accent bg-accent text-accent-content shadow-sm', iconClasses: 'bg-accent/15 text-accent', panelTitle: 'Bid bonds', description: 'Track paid securities, maturity and refund progress.', emptyIcon: 'lucide:shield', emptyTitle: 'No paid bid bonds found', emptyDescription: 'Paid tender securities will appear here with their maturity and refund status.' },
+  { key: 'registrations', label: 'Registrations', to: '/supplierregistrations', icon: 'lucide:clipboard-list', permission: 'can.access.myregistrations', activeClasses: 'tab-active border-primary bg-primary text-primary-content shadow-sm', cardClasses: 'border-primary/35 bg-primary/5 hover:border-primary/60', iconClasses: 'bg-primary/15 text-primary', panelTitle: 'Supplier registrations', description: 'Review registration and certificate status.' },
+  { key: 'tenders', label: 'My tenders', to: '/mysupplierbids', icon: 'lucide:file-lock-2', permission: 'can.access.mysupplierbids', activeClasses: 'tab-active border-info bg-info text-info-content shadow-sm', cardClasses: 'border-info/35 bg-info/5 hover:border-info/60', iconClasses: 'bg-info/15 text-info', panelTitle: 'My tenders and EOIs', description: 'Continue drafts and track sealed submissions.', emptyIcon: 'lucide:file-search', emptyTitle: 'No tenders added yet', emptyDescription: 'Browse opportunities and add a tender or EOI when you are ready to respond.' },
+  { key: 'awards', label: 'Awards', to: '/mysupplierawards', icon: 'lucide:award', permission: 'can.access.mysupplierwards', activeClasses: 'tab-active border-warning bg-warning text-warning-content shadow-sm', cardClasses: 'border-warning/40 bg-warning/10 hover:border-warning/70', iconClasses: 'bg-warning/20 text-warning-content', panelTitle: 'Award notices', description: 'Review outcomes and applicable standstill periods.', emptyIcon: 'lucide:trophy', emptyTitle: 'No award notices yet', emptyDescription: 'Published outcomes for opportunities in which you participated will appear here.' },
+  { key: 'contracts', label: 'Contracts', to: '/suppliercontracts', icon: 'lucide:file-signature', permission: 'can.access.suppliercontracts', activeClasses: 'tab-active border-success bg-success text-success-content shadow-sm', cardClasses: 'border-success/35 bg-success/5 hover:border-success/60', iconClasses: 'bg-success/15 text-success', panelTitle: 'Supplier contracts', description: 'Manage awarded contracts and delivery obligations.', emptyIcon: 'lucide:file-signature', emptyTitle: 'No contracts yet', emptyDescription: 'Awarded contracts will appear here.' },
+  { key: 'bonds', label: 'Bid bonds', to: '/bid-bonds', icon: 'lucide:shield-check', permission: 'can.access.mytendering', activeClasses: 'tab-active border-accent bg-accent text-accent-content shadow-sm', cardClasses: 'border-accent/35 bg-accent/5 hover:border-accent/60', iconClasses: 'bg-accent/15 text-accent', panelTitle: 'Bid bonds', description: 'Track paid securities, maturity and refund progress.', emptyIcon: 'lucide:shield', emptyTitle: 'No paid bid bonds found', emptyDescription: 'Paid tender securities will appear here with their maturity and refund status.' },
 ].filter(tab => can(tab.permission)))
 
 const activeTab = ref('')
 const tabStates = reactive({
-  tenders: { items: [], loading: false, loaded: false, error: '' },
-  awards: { items: [], loading: false, loaded: false, error: '' },
-  contracts: { items: [], loading: false, loaded: true, error: '' },
-  bonds: { items: [], loading: false, loaded: false, error: '' },
+  tenders: { items: [], count: null, loading: false, loaded: false, error: '' },
+  awards: { items: [], count: null, loading: false, loaded: false, error: '' },
+  contracts: { items: [], count: 0, loading: false, loaded: true, error: '' },
+  bonds: { items: [], count: null, loading: false, loaded: false, error: '' },
 })
 
 const activeTabDefinition = computed(() => workspaceTabs.value.find(tab => tab.key === activeTab.value))
 const activeState = computed(() => tabStates[activeTab.value] ?? { items: [], loading: false, loaded: true, error: '' })
-const hasRegistrationTab = computed(() => workspaceTabs.value.some(tab => tab.key === 'registrations'))
 const mobileActivityTabs = computed(() => workspaceTabs.value.filter(tab => tab.key !== 'registrations'))
+const activeMobileTabDefinition = computed(() => workspaceTabs.value.find(tab => tab.key === activeMobileTab.value))
+const activeMobileState = computed(() => tabStates[activeMobileTab.value] ?? { items: [], loading: false, loaded: true, error: '' })
 const registrationCount = computed(() => ['pending', 'awaiting', 'approved', 'rejected', 'expired']
   .reduce((total, key) => total + (registrationStore.registrations[key]?.length ?? 0), 0))
 
 function tabCount(key) {
   if (key === 'registrations') return registrationCount.value
-  if (key === 'contracts') return null
-  return tabStates[key]?.loaded ? tabStates[key].items.length : null
+  if (key === 'contracts') return 0
+  return tabStates[key]?.loaded ? (tabStates[key].count ?? tabStates[key].items.length) : null
+}
+
+function tabLoading(key) {
+  if (key === 'registrations') return registrationStore.pending
+  return tabStates[key]?.loading ?? false
+}
+
+async function openMobileTab(key) {
+  activeMobileTab.value = key
+  await nextTick()
+  mobileActivityDialog.value?.showModal()
+  loadTab(key)
 }
 
 async function selectTab(key) {
@@ -336,13 +384,16 @@ async function loadTab(key, force = false) {
       const result = await listBids()
       if (!result.ok) throw new Error(result.error)
       state.items = result.data ?? []
+      state.count = state.items.length
     } else if (key === 'awards') {
       const response = await listAwards(1)
       state.items = response?.data?.data ?? []
+      state.count = response?.data?.total ?? state.items.length
     } else if (key === 'bonds') {
       const result = await bidBondApi.list(1)
       if (!result.ok) throw new Error(result.error)
       state.items = result.data?.data?.data ?? []
+      state.count = result.data?.data?.total ?? state.items.length
     }
     state.loaded = true
   } catch (error) {

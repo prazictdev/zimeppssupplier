@@ -40,8 +40,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="reg in allRegistrations" :key="reg.id" class="hover">
-              <td>
+            <tr v-for="reg in allRegistrations" :key="reg.id" class="block border-b border-base-200 py-2 last:border-0 sm:table-row sm:border-0 sm:py-0">
+              <td class="block sm:table-cell">
                 <p class="font-medium text-sm">{{ reg.suppliercategory?.name ?? '—' }}</p>
                 <div class="flex flex-wrap gap-2 mt-1.5 sm:hidden">
                   <span class="flex items-center gap-1">
@@ -67,54 +67,35 @@
                   {{ approvalLabel(reg.approval_status) }}
                 </span>
               </td>
-              <td class="text-right">
-                <button
-                  v-if="hasActions(reg)"
-                  :popovertarget="`summary-actions-${reg.id}`"
-                  :style="{ anchorName: `--summary-actions-${reg.id}` }"
-                  type="button"
-                  class="btn btn-ghost btn-sm whitespace-nowrap"
-                  :aria-label="`Actions for ${reg.suppliercategory?.name ?? 'registration'}`"
-                >
-                  Actions
-                  <Icon name="lucide:chevron-down" class="h-4 w-4" />
-                </button>
+              <td class="block pt-2 text-left sm:table-cell sm:pt-2 sm:text-right">
+                <div v-if="hasActions(reg)" class="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-end">
+                  <button
+                    v-if="canDownload(reg)"
+                    type="button"
+                    class="btn btn-outline btn-sm w-full gap-2 whitespace-nowrap sm:w-auto"
+                    :disabled="downloadingId === reg.id"
+                    :title="downloadTitle(reg)"
+                    @click="onDownload(reg)"
+                  >
+                    <span v-if="downloadingId === reg.id" class="loading loading-spinner loading-xs" />
+                    <Icon v-else name="lucide:download" class="h-4 w-4" />
+                    {{ downloadingId === reg.id ? 'Downloading' : 'Download certificate' }}
+                  </button>
 
-                <ul
-                  v-if="hasActions(reg)"
-                  :id="`summary-actions-${reg.id}`"
-                  popover
-                  :style="{ positionAnchor: `--summary-actions-${reg.id}` }"
-                  class="dropdown dropdown-end menu menu-sm z-50 w-60 rounded-box border border-base-300 bg-base-100 p-2 shadow-lg"
-                >
-                  <li v-if="canDownload(reg)">
-                    <button
-                      :popovertarget="`summary-actions-${reg.id}`"
-                      popovertargetaction="hide"
-                      :disabled="downloadingId === reg.id"
-                      :title="downloadTitle(reg)"
-                      @click="onDownload(reg)"
-                    >
-                      <span v-if="downloadingId === reg.id" class="loading loading-spinner loading-xs" />
-                      <Icon v-else name="lucide:download" class="h-4 w-4" />
-                      Download certificate
-                    </button>
-                  </li>
-                  <li v-if="allowAutorenewal && canEnrolAutorenewal(reg)">
-                    <button
-                      :popovertarget="`summary-actions-${reg.id}`"
-                      popovertargetaction="hide"
-                      :disabled="isEnrolled(reg) || enrollingId === reg.id"
-                      :title="autorenewalTitle(reg)"
-                      @click="onEnrolAutorenewal(reg)"
-                    >
-                      <span v-if="enrollingId === reg.id" class="loading loading-spinner loading-xs" />
-                      <Icon v-else :name="isEnrolled(reg) ? 'lucide:check-circle-2' : 'lucide:refresh-cw'" class="h-4 w-4" />
-                      {{ isEnrolled(reg) ? 'On autorenewal' : 'Add to autorenewal' }}
-                    </button>
-                  </li>
-                </ul>
-                <span v-else class="text-base-content/30">—</span>
+                  <button
+                    v-if="allowAutorenewal && canEnrolAutorenewal(reg)"
+                    type="button"
+                    class="btn btn-soft btn-sm w-full gap-2 whitespace-nowrap sm:w-auto"
+                    :disabled="isEnrolled(reg) || enrollingId === reg.id"
+                    :title="autorenewalTitle(reg)"
+                    @click="onEnrolAutorenewal(reg)"
+                  >
+                    <span v-if="enrollingId === reg.id" class="loading loading-spinner loading-xs" />
+                    <Icon v-else :name="isEnrolled(reg) ? 'lucide:check-circle-2' : 'lucide:refresh-cw'" class="h-4 w-4" />
+                    {{ enrollingId === reg.id ? 'Adding' : isEnrolled(reg) ? 'On autorenewal' : 'Add to autorenewal' }}
+                  </button>
+                </div>
+                <span v-else class="hidden text-base-content/30 sm:inline">—</span>
               </td>
             </tr>
           </tbody>
