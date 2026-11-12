@@ -16,9 +16,8 @@
             {{ wallet.currency_symbol ?? wallet.currency_code?.charAt(0) }}
           </span>
         </div>
-        <div class="flex items-center justify-between border-t border-base-300 pt-3 text-xs">
+        <div class="border-t border-base-300 pt-3 text-xs">
           <span class="min-w-0 truncate text-base-content/55">{{ wallet.bankaccounttype_name }}</span>
-          <span class="badge badge-ghost badge-sm shrink-0">{{ wallet.refundable ? 'Refundable' : 'Operating' }}</span>
         </div>
       </div>
     </NuxtLink>
