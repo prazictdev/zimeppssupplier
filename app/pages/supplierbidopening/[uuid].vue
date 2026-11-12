@@ -30,20 +30,49 @@
             <span class="badge badge-outline badge-sm whitespace-nowrap">{{ prettyStatus(session.tender_status) }}</span>
           </div>
 
-          <ul class="steps steps-vertical w-full" :class="tenderStages.length <= 6 ? 'lg:steps-horizontal' : ''">
-            <li
-              v-for="(stage, index) in tenderStages"
-              :key="stage.key"
-              class="step min-h-20 sm:min-h-0"
-              :class="stage.state === 'complete' ? 'step-success' : stage.state === 'current' ? 'step-primary' : stage.state === 'unsuccessful' ? 'step-error' : ''"
-              :data-content="stage.state === 'complete' ? '✓' : stage.state === 'unsuccessful' ? '×' : String(index + 1)"
-            >
-              <span class="flex flex-col px-2 text-left sm:items-center sm:text-center">
-                <span class="text-sm font-semibold">{{ stage.label }}</span>
-                <span class="mt-1 max-w-48 text-xs font-normal text-base-content/50">{{ stage.description }}</span>
-              </span>
-            </li>
-          </ul>
+          <div class="overflow-x-auto rounded-box border border-base-200 bg-base-50" role="region" aria-label="Response stage timeline" tabindex="0">
+            <ul class="timeline timeline-horizontal min-h-[390px] min-w-max px-6 py-5">
+              <li v-for="(stage, index) in tenderStages" :key="stage.key" class="min-w-48">
+                <hr v-if="index > 0" :class="timelineRailClass(index, 'before')">
+
+                <div
+                  v-if="index % 2 === 0"
+                  class="timeline-start timeline-box mb-4 w-44 border px-3 py-3 text-center shadow-none"
+                  :class="timelineCardClass(stage.state)"
+                >
+                  <span v-if="stage.state === 'current'" class="badge badge-primary badge-soft badge-xs mb-1.5">Current stage</span>
+                  <p class="text-sm font-semibold leading-tight text-base-content">{{ stage.label }}</p>
+                  <p class="mt-1.5 text-xs leading-relaxed text-base-content/55">{{ stage.description }}</p>
+                </div>
+
+                <div
+                  class="timeline-middle flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold"
+                  :class="timelineMarkerClass(stage.state)"
+                  :aria-label="`${stage.label}: ${stage.state}`"
+                >
+                  <Icon v-if="stage.state === 'complete'" name="lucide:check" class="h-4 w-4" />
+                  <Icon v-else-if="stage.state === 'unsuccessful'" name="lucide:x" class="h-4 w-4" />
+                  <span v-else>{{ index + 1 }}</span>
+                </div>
+
+                <div
+                  v-if="index % 2 !== 0"
+                  class="timeline-end timeline-box mt-4 w-44 border px-3 py-3 text-center shadow-none"
+                  :class="timelineCardClass(stage.state)"
+                >
+                  <span v-if="stage.state === 'current'" class="badge badge-primary badge-soft badge-xs mb-1.5">Current stage</span>
+                  <p class="text-sm font-semibold leading-tight text-base-content">{{ stage.label }}</p>
+                  <p class="mt-1.5 text-xs leading-relaxed text-base-content/55">{{ stage.description }}</p>
+                </div>
+
+                <hr v-if="index < tenderStages.length - 1" :class="timelineRailClass(index, 'after')">
+              </li>
+            </ul>
+          </div>
+          <p v-if="tenderStages.length > 5" class="flex items-center gap-1.5 text-xs text-base-content/45">
+            <Icon name="lucide:move-horizontal" class="h-3.5 w-3.5" />
+            Scroll horizontally to view every stage.
+          </p>
 
           <div role="status" class="alert alert-soft items-start" :class="currentStage.tone === 'error' ? 'alert-error' : 'alert-info'">
             <Icon :name="currentStage.icon" class="mt-0.5 h-5 w-5 shrink-0" />
@@ -126,6 +155,9 @@ function prettyStatus(status) { return bidStatusLabel(status) || 'Pending'; }
 function formatDateTime(value) { return value ? new Intl.DateTimeFormat('en-ZW', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) : 'Not scheduled'; }
 function formatMoney(value) { return value === null || value === undefined || value === '' ? '—' : new Intl.NumberFormat('en-ZW', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value)); }
 function formatQuantity(value) { return value === null || value === undefined || value === '' ? '—' : new Intl.NumberFormat('en-ZW', { maximumFractionDigits: 2 }).format(Number(value)); }
+function timelineMarkerClass(state) { return ({ complete: 'border-success bg-success text-success-content', current: 'border-primary bg-primary text-primary-content ring-4 ring-primary/15', unsuccessful: 'border-error bg-error text-error-content', upcoming: 'border-base-300 bg-base-100 text-base-content/55' })[state] ?? 'border-base-300 bg-base-100 text-base-content/55'; }
+function timelineCardClass(state) { return ({ complete: 'border-success/30 bg-base-100', current: 'border-primary/45 bg-primary/5', unsuccessful: 'border-error/40 bg-error/5', upcoming: 'border-base-200 bg-base-100' })[state] ?? 'border-base-200 bg-base-100'; }
+function timelineRailClass(index, position) { const stageIndex = position === 'before' ? index - 1 : index; const state = tenderStages.value[stageIndex]?.state; if (state === 'complete') return 'bg-success'; if (state === 'unsuccessful') return 'bg-error'; if (state === 'current') return 'bg-primary'; return 'bg-base-300'; }
 function countdown(value) { const difference = new Date(value).getTime() - now.value; if (!Number.isFinite(difference) || difference <= 0) return 'Opening time reached'; const minutes = Math.floor(difference / 60000); const days = Math.floor(minutes / 1440); const hours = Math.floor((minutes % 1440) / 60); const remaining = minutes % 60; return days ? `Starts in ${days}d ${hours}h ${remaining}m` : `Starts in ${hours}h ${remaining}m`; }
 function downloadReport() { if (!session.value?.report) return; const blob = new Blob([JSON.stringify({ tender: { reference: session.value.reference, title: session.value.title }, report_hash: session.value.report_hash, ...session.value.report }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = `${isEoiWorkflow.value ? 'eoi' : 'bid'}-opening-${session.value.reference || session.value.tender_uuid}.json`; link.click(); URL.revokeObjectURL(url); }
 onMounted(async () => { await loadSession(); pollTimer = window.setInterval(() => { if (!document.hidden && polling.value) loadSession(true); }, 5000); clockTimer = window.setInterval(() => { now.value = Date.now(); }, 30000); });
