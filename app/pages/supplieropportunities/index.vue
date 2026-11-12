@@ -175,6 +175,33 @@
           class="relative border-b border-base-300 p-4 last:border-b-0 sm:p-5"
         >
           <div class="absolute inset-y-0 left-0 w-1" :class="isEoi(tender) ? 'bg-info' : 'bg-success'" />
+          <div
+            v-if="rowErrors[tender.uuid]"
+            role="alert"
+            class="alert mb-4 items-start sm:alert-horizontal"
+            :class="rowErrorMeta(rowErrors[tender.uuid]).alertClass"
+          >
+            <Icon :name="rowErrorMeta(rowErrors[tender.uuid]).icon" class="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold">{{ rowErrorMeta(rowErrors[tender.uuid]).title }}</p>
+              <p class="mt-1 text-sm leading-5">{{ rowErrorMeta(rowErrors[tender.uuid]).message }}</p>
+            </div>
+            <NuxtLink
+              v-if="rowErrorMeta(rowErrors[tender.uuid]).actionTo"
+              :to="rowErrorMeta(rowErrors[tender.uuid]).actionTo"
+              class="btn btn-sm bg-base-100 text-base-content"
+            >
+              {{ rowErrorMeta(rowErrors[tender.uuid]).actionLabel }}
+            </NuxtLink>
+            <button
+              v-else-if="rowErrorMeta(rowErrors[tender.uuid]).retryable"
+              type="button"
+              class="btn btn-sm bg-base-100 text-base-content"
+              @click="addOpportunity(tender)"
+            >
+              Try again
+            </button>
+          </div>
           <div class="grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(11rem,.55fr)_minmax(11rem,.55fr)_auto] xl:items-center">
             <div class="min-w-0">
               <div class="flex flex-wrap items-center gap-2">
@@ -231,33 +258,6 @@
             </div>
           </div>
 
-          <div
-            v-if="rowErrors[tender.uuid]"
-            role="alert"
-            class="alert alert-soft mt-4 items-start sm:alert-horizontal"
-            :class="rowErrorMeta(rowErrors[tender.uuid]).alertClass"
-          >
-            <Icon :name="rowErrorMeta(rowErrors[tender.uuid]).icon" class="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
-            <div class="min-w-0 flex-1">
-              <p class="font-semibold">{{ rowErrorMeta(rowErrors[tender.uuid]).title }}</p>
-              <p class="mt-1 text-sm leading-5">{{ rowErrorMeta(rowErrors[tender.uuid]).message }}</p>
-            </div>
-            <NuxtLink
-              v-if="rowErrorMeta(rowErrors[tender.uuid]).actionTo"
-              :to="rowErrorMeta(rowErrors[tender.uuid]).actionTo"
-              class="btn btn-sm bg-base-100"
-            >
-              {{ rowErrorMeta(rowErrors[tender.uuid]).actionLabel }}
-            </NuxtLink>
-            <button
-              v-else-if="rowErrorMeta(rowErrors[tender.uuid]).retryable"
-              type="button"
-              class="btn btn-sm bg-base-100"
-              @click="addOpportunity(tender)"
-            >
-              Try again
-            </button>
-          </div>
         </article>
       </div>
 
@@ -409,7 +409,7 @@ function rowErrorMeta(rawMessage) {
       title: 'Category registration required',
       message: 'Your company does not currently hold an approved registration in any category required for this opportunity.',
       icon: 'lucide:shield-alert',
-      alertClass: 'alert-warning',
+      alertClass: 'alert-error',
       actionTo: '/supplierregistrations',
       actionLabel: 'Review registrations',
       retryable: false,
@@ -420,7 +420,7 @@ function rowErrorMeta(rawMessage) {
       title: 'Submission licence required',
       message: 'Activate a supplier submission licence before adding this opportunity to your response workspace.',
       icon: 'lucide:key-round',
-      alertClass: 'alert-warning',
+      alertClass: 'alert-warning alert-soft',
       actionTo: '/submission-keys',
       actionLabel: 'Manage licence',
       retryable: false,
@@ -431,7 +431,7 @@ function rowErrorMeta(rawMessage) {
       title: 'Participation is by invitation',
       message: 'This is a restricted opportunity and your company is not on the procuring entity’s invitation list.',
       icon: 'lucide:mail-warning',
-      alertClass: 'alert-info',
+      alertClass: 'alert-info alert-soft',
       actionTo: '',
       actionLabel: '',
       retryable: false,
@@ -442,7 +442,7 @@ function rowErrorMeta(rawMessage) {
       title: 'Supplier group restriction',
       message: 'This opportunity falls outside the permitted financial threshold for your company’s supplier group.',
       icon: 'lucide:scale',
-      alertClass: 'alert-warning',
+      alertClass: 'alert-warning alert-soft',
       actionTo: '/organisationprofile',
       actionLabel: 'Review company profile',
       retryable: false,
@@ -453,7 +453,7 @@ function rowErrorMeta(rawMessage) {
       title: 'Company profile required',
       message: 'Link or complete your supplier company profile before adding an opportunity to My Bids.',
       icon: 'lucide:building-2',
-      alertClass: 'alert-warning',
+      alertClass: 'alert-warning alert-soft',
       actionTo: '/organisationprofile',
       actionLabel: 'Open company profile',
       retryable: false,
