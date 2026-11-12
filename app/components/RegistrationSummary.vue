@@ -108,12 +108,12 @@
           <Icon name="lucide:file-plus" class="h-8 w-8 text-base-content/30" />
         </div>
         <div>
-          <p class="font-semibold text-base-content/60">No registrations for {{ currentYear }}</p>
-          <p class="text-sm text-base-content/40 mt-0.5">Register your company to start participating in procurement.</p>
+          <p class="font-semibold text-base-content/70">No active supplier category found</p>
+          <p class="mt-1 text-sm leading-5 text-base-content/50">Choose a category and register your company to start participating in procurement.</p>
         </div>
-        <button class="btn btn-sm btn-primary gap-1.5 mt-1" @click="navigateTo('/suppliernewapplication')">
+        <button class="btn btn-sm btn-primary mt-1 gap-1.5" @click="navigateTo('/suppliernewapplication')">
           <Icon name="lucide:rocket" class="h-4 w-4" />
-          Start registration
+          Get started
         </button>
       </div>
     </div>

@@ -158,12 +158,26 @@
             v-for="tab in workspaceTabs"
             :key="`mobile-action-${tab.key}`"
             type="button"
-            class="card card-sm min-h-36 border-2 text-left shadow-sm transition active:scale-[0.98]"
-            :class="tab.cardClasses"
-            :aria-label="`Show ${tab.label} details`"
+            class="card card-sm border-2 text-left shadow-sm transition active:scale-[0.98]"
+            :class="[tab.cardClasses, isEmptyCategoriesCard(tab.key) ? 'col-span-2 min-h-0' : 'min-h-36']"
+            :aria-label="isEmptyCategoriesCard(tab.key) ? 'No active supplier category found. Get started' : `Show ${tab.mobileLabel || tab.label} details`"
             @click="openMobileTab(tab.key)"
           >
-            <span class="card-body w-full justify-between gap-4 p-4">
+            <span v-if="isEmptyCategoriesCard(tab.key)" class="flex w-full items-center gap-4 p-4">
+              <span class="grid h-12 w-12 shrink-0 place-items-center rounded-box bg-primary/15 text-primary">
+                <Icon name="lucide:folder-plus" class="h-6 w-6" aria-hidden="true" />
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="block text-sm font-bold">My categories</span>
+                <span class="mt-0.5 block text-sm leading-5 text-base-content/65">No active supplier category found</span>
+                <span class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                  Tap to get started
+                  <Icon name="lucide:arrow-right" class="h-4 w-4" aria-hidden="true" />
+                </span>
+              </span>
+            </span>
+
+            <span v-else class="card-body w-full justify-between gap-4 p-4">
               <span class="flex items-start justify-between gap-2">
                 <span class="grid h-11 w-11 place-items-center rounded-box" :class="tab.iconClasses">
                   <Icon :name="tab.icon" class="h-5 w-5" aria-hidden="true" />
@@ -173,7 +187,7 @@
               <span>
                 <span v-if="tabLoading(tab.key)" class="skeleton mb-1 block h-8 w-12" />
                 <span v-else class="block text-3xl font-black tabular-nums leading-none">{{ tabCount(tab.key) ?? 0 }}</span>
-                <span class="mt-2 block text-sm font-semibold leading-5">{{ tab.label }}</span>
+                <span class="mt-2 block text-sm font-semibold leading-5">{{ tab.mobileLabel || tab.label }}</span>
               </span>
             </span>
           </button>
@@ -186,7 +200,7 @@
                 <Icon :name="activeMobileTabDefinition.icon" class="h-5 w-5" aria-hidden="true" />
               </div>
               <div class="min-w-0 flex-1">
-                <h3 class="font-bold">{{ activeMobileTabDefinition.panelTitle }}</h3>
+                <h3 class="font-bold">{{ activeMobileTabDefinition.mobilePanelTitle || activeMobileTabDefinition.panelTitle }}</h3>
                 <p class="line-clamp-2 text-xs leading-4 text-base-content/55">{{ activeMobileTabDefinition.description || 'Review your current supplier activity.' }}</p>
               </div>
               <form method="dialog">
@@ -282,7 +296,7 @@
 
               <div class="modal-action mt-4">
                 <NuxtLink :to="activeMobileTabDefinition.to" class="btn btn-primary btn-block">
-                  Open full {{ activeMobileTabDefinition.label.toLowerCase() }} page
+                  Open full {{ (activeMobileTabDefinition.mobileLabel || activeMobileTabDefinition.label).toLowerCase() }} page
                   <Icon name="lucide:arrow-up-right" class="h-4 w-4" aria-hidden="true" />
                 </NuxtLink>
               </div>
@@ -327,7 +341,7 @@ const mobileActivityDialog = ref(null)
 const activeMobileTab = ref('')
 
 const workspaceTabs = computed(() => [
-  { key: 'registrations', label: 'Registrations', to: '/supplierregistrations', icon: 'lucide:clipboard-list', permission: 'can.access.myregistrations', activeClasses: 'tab-active border-primary bg-primary text-primary-content shadow-sm', cardClasses: 'border-primary/35 bg-primary/5 hover:border-primary/60', iconClasses: 'bg-primary/15 text-primary', panelTitle: 'Supplier registrations', description: 'Review registration and certificate status.' },
+  { key: 'registrations', label: 'Registrations', mobileLabel: 'My categories', to: '/supplierregistrations', icon: 'lucide:clipboard-list', permission: 'can.access.myregistrations', activeClasses: 'tab-active border-primary bg-primary text-primary-content shadow-sm', cardClasses: 'border-primary/35 bg-primary/5 hover:border-primary/60', iconClasses: 'bg-primary/15 text-primary', panelTitle: 'Supplier registrations', mobilePanelTitle: 'My supplier categories', description: 'Review registration and certificate status.' },
   { key: 'tenders', label: 'My tenders', to: '/mysupplierbids', icon: 'lucide:file-lock-2', permission: 'can.access.mysupplierbids', activeClasses: 'tab-active border-info bg-info text-info-content shadow-sm', cardClasses: 'border-info/35 bg-info/5 hover:border-info/60', iconClasses: 'bg-info/15 text-info', panelTitle: 'My tenders and EOIs', description: 'Continue drafts and track sealed submissions.', emptyIcon: 'lucide:file-search', emptyTitle: 'No tenders added yet', emptyDescription: 'Browse opportunities and add a tender or EOI when you are ready to respond.' },
   { key: 'awards', label: 'Awards', to: '/mysupplierawards', icon: 'lucide:award', permission: 'can.access.mysupplierwards', activeClasses: 'tab-active border-warning bg-warning text-warning-content shadow-sm', cardClasses: 'border-warning/40 bg-warning/10 hover:border-warning/70', iconClasses: 'bg-warning/20 text-warning-content', panelTitle: 'Award notices', description: 'Review outcomes and applicable standstill periods.', emptyIcon: 'lucide:trophy', emptyTitle: 'No award notices yet', emptyDescription: 'Published outcomes for opportunities in which you participated will appear here.' },
   { key: 'contracts', label: 'Contracts', to: '/suppliercontracts', icon: 'lucide:file-signature', permission: 'can.access.suppliercontracts', activeClasses: 'tab-active border-success bg-success text-success-content shadow-sm', cardClasses: 'border-success/35 bg-success/5 hover:border-success/60', iconClasses: 'bg-success/15 text-success', panelTitle: 'Supplier contracts', description: 'Manage awarded contracts and delivery obligations.', emptyIcon: 'lucide:file-signature', emptyTitle: 'No contracts yet', emptyDescription: 'Awarded contracts will appear here.' },
@@ -359,6 +373,10 @@ function tabCount(key) {
 function tabLoading(key) {
   if (key === 'registrations') return registrationStore.pending
   return tabStates[key]?.loading ?? false
+}
+
+function isEmptyCategoriesCard(key) {
+  return key === 'registrations' && !registrationStore.pending && registrationCount.value === 0
 }
 
 async function openMobileTab(key) {
