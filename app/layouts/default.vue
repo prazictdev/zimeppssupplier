@@ -28,7 +28,7 @@
         @toggle-sidebar="toggleSidebar"
         @toggle-collapse="toggleCollapse"
       />
-      <main class="app-shell flex-1 overflow-auto px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
+      <main class="app-shell flex-1 overflow-auto px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:py-7">
         <PermissionDenied
           v-if="denial"
           :message="denial.message"
@@ -39,10 +39,13 @@
           <slot />
         </div>
       </main>
-      <WorkspaceFooter />
+      <div class="pb-20 lg:pb-0">
+        <WorkspaceFooter />
+      </div>
     </div>
 
     <PendingAddendumDialog />
+    <MobileFooterNav @open-menu="toggleSidebar" />
   </div>
 </template>
 
@@ -53,6 +56,10 @@ const isSidebarOpen = ref(false);
 const isSidebarCollapsed = ref(false);
 const route = useRoute();
 const { denial, clearPermissionDenied } = usePermissionDenied();
+
+useHead({
+  meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' }],
+});
 
 watch(() => route.fullPath, () => clearPermissionDenied());
 
