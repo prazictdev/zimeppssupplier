@@ -78,7 +78,7 @@ export default defineNuxtConfig({
     endpoints: {
       login: '/api/supplier/auth/login',
       logout: '/api/supplier/auth/logout',
-      user: '/api/supplier/auth/me',
+      user: '/api/auth/me',
     },
     redirect: {
       onLogin: '/dashboard',

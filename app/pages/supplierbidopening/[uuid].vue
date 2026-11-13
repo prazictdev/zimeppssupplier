@@ -11,10 +11,59 @@
       <header class="card overflow-hidden border border-base-200 bg-base-100 shadow-sm">
         <div class="p-5">
           <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><p class="font-mono text-xs text-base-content/50">{{ session.reference || 'Tender' }}</p><span v-if="session.workflow_label" class="badge badge-info badge-soft badge-sm">{{ session.workflow_label }}</span><span v-if="session.evaluation_method?.name" class="badge badge-outline badge-sm">{{ session.evaluation_method.name }}</span></div><h1 class="mt-1.5 text-lg font-semibold text-base-content">{{ session.title }}</h1><p class="mt-0.5 text-xs text-base-content/50">{{ session.procuring_entity }}</p></div><div class="flex flex-wrap items-center gap-2"><span class="badge badge-sm font-medium" :class="stateClass(session.opening_state)">{{ stateLabel(session.opening_state) }}</span><NuxtLink :to="detailLink" class="btn btn-ghost btn-xs"><Icon name="lucide:external-link" class="h-3.5 w-3.5" />{{ isEoiWorkflow ? 'EOI details' : 'Tender details' }}</NuxtLink></div></div>
-          <div class="mt-6 grid gap-3 sm:grid-cols-3">
-            <div class="rounded-xl border border-base-200 bg-base-50 p-4"><p class="text-xs text-base-content/45">Your response</p><p class="mt-1 text-sm font-semibold">{{ bidStatusLabel(session.bid_status) }}</p><p class="mt-1 text-xs text-base-content/50">{{ formatDateTime(session.submitted_at) }}</p></div>
-            <div class="rounded-xl border border-base-200 bg-base-50 p-4"><p class="text-xs text-base-content/45">Scheduled opening</p><p class="mt-1 text-sm font-semibold">{{ formatDateTime(session.opening_at) }}</p><p v-if="session.opening_state === 'SCHEDULED'" class="mt-1 text-xs text-primary">{{ countdown(session.opening_at) }}</p></div>
-            <div class="rounded-xl border border-base-200 bg-base-50 p-4"><p class="text-xs text-base-content/45">Responses opened</p><p class="mt-1 text-base font-bold">{{ session.submission_count ?? '—' }}</p><p class="mt-1 text-xs text-base-content/50">Published after controlled opening</p></div>
+          <div class="mt-6">
+            <div role="tablist" class="tabs tabs-border" aria-label="Response and opening details">
+              <button role="tab" type="button" class="tab gap-2" :class="activeSummaryTab === 'response' ? 'tab-active' : ''" :aria-selected="activeSummaryTab === 'response'" @click="activeSummaryTab = 'response'">
+                <Icon name="lucide:file-check-2" class="h-4 w-4" />
+                Response
+              </button>
+              <button role="tab" type="button" class="tab gap-2" :class="activeSummaryTab === 'opening' ? 'tab-active' : ''" :aria-selected="activeSummaryTab === 'opening'" @click="activeSummaryTab = 'opening'">
+                <Icon name="lucide:lock-open" class="h-4 w-4" />
+                Opening
+                <span class="badge badge-sm" :class="openingStatusClass">{{ openingStatusLabel }}</span>
+              </button>
+            </div>
+
+            <div v-if="activeSummaryTab === 'response'" role="tabpanel" class="rounded-b-box border border-t-0 border-base-200 bg-base-50 p-4 sm:p-5">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex items-start gap-3">
+                  <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success/10 text-success"><Icon name="lucide:shield-check" class="h-5 w-5" /></span>
+                  <div>
+                    <p class="text-xs text-base-content/50">Your response status</p>
+                    <p class="mt-0.5 font-semibold text-base-content">{{ bidStatusLabel(session.bid_status) }}</p>
+                    <p class="mt-1 text-sm text-base-content/60">Your signed response is recorded and remains sealed until controlled opening.</p>
+                  </div>
+                </div>
+                <div class="border-base-200 sm:border-l sm:pl-6 sm:text-right">
+                  <p class="text-xs text-base-content/50">Submitted</p>
+                  <p class="mt-0.5 text-sm font-semibold">{{ formatDateTime(session.submitted_at) }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div v-else role="tabpanel" class="rounded-b-box border border-t-0 border-base-200 bg-base-50 p-4 sm:p-5">
+              <div class="grid gap-5 sm:grid-cols-[1.2fr_1fr_auto] sm:items-center">
+                <div class="flex items-start gap-3">
+                  <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full" :class="openingIconClass"><Icon :name="session.opening_state === 'OPENED' ? 'lucide:lock-open' : 'lucide:clock-3'" class="h-5 w-5" /></span>
+                  <div>
+                    <p class="text-xs text-base-content/50">Opening status</p>
+                    <div class="mt-1 flex flex-wrap items-center gap-2">
+                      <span class="badge font-semibold" :class="openingStatusClass">{{ openingStatusLabel }}</span>
+                      <span v-if="session.opening_state !== 'OPENED'" class="text-sm font-semibold text-base-content">{{ openingCountdown }}</span>
+                    </div>
+                    <p class="mt-1.5 text-xs text-base-content/55">{{ openingStatusDescription }}</p>
+                  </div>
+                </div>
+                <div class="border-base-200 sm:border-l sm:pl-5">
+                  <p class="text-xs text-base-content/50">Scheduled opening</p>
+                  <p class="mt-1 text-sm font-semibold">{{ formatDateTime(session.opening_at) }}</p>
+                </div>
+                <div class="border-base-200 sm:border-l sm:pl-5 sm:text-right">
+                  <p class="text-xs text-base-content/50">Responses opened</p>
+                  <p class="mt-0.5 text-xl font-bold">{{ session.submission_count ?? '—' }}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -104,6 +153,7 @@ definePageMeta({ layout: 'default', sanctum: { authOnly: true } });
 useHead({ title: 'Tender Response Progress' });
 const route = useRoute(); const openingApi = useSupplierBidOpening(); const tenderUuid = String(route.params.uuid);
 const session = ref(null); const loading = ref(true); const refreshing = ref(false); const errorMessage = ref(''); const now = ref(Date.now());
+const activeSummaryTab = ref('opening');
 let pollTimer; let clockTimer;
 const outcomeStatuses = ['INTENTION_TO_AWARD', 'STANDSTILL', 'AWARDED', 'CONTRACTED', 'CANCELLED'];
 const evaluationStatuses = ['OPENED', 'UNDER_EVALUATION', 'EVALUATED'];
@@ -115,6 +165,11 @@ const polling = computed(() => Boolean(
 ));
 const isConsultancySelection = computed(() => Boolean(session.value?.is_consultancy_selection));
 const isEoiWorkflow = computed(() => session.value?.workflow_type === 'CONSULTANCY_EOI');
+const openingStatusLabel = computed(() => ({ SCHEDULED: 'Scheduled', AWAITING_OPENING: 'Pending opening', OPENED: 'Opened' })[session.value?.opening_state] ?? prettyStatus(session.value?.opening_state));
+const openingStatusClass = computed(() => ({ SCHEDULED: 'badge-info badge-soft', AWAITING_OPENING: 'badge-warning badge-soft', OPENED: 'badge-success badge-soft' })[session.value?.opening_state] ?? 'badge-ghost');
+const openingIconClass = computed(() => ({ SCHEDULED: 'bg-info/10 text-info', AWAITING_OPENING: 'bg-warning/15 text-warning', OPENED: 'bg-success/10 text-success' })[session.value?.opening_state] ?? 'bg-base-200 text-base-content/60');
+const openingStatusDescription = computed(() => ({ SCHEDULED: 'The response remains sealed until the scheduled controlled opening.', AWAITING_OPENING: 'The scheduled time has arrived and the opening team has not yet published the register.', OPENED: 'Controlled opening is complete and the official register is available below.' })[session.value?.opening_state] ?? 'Opening information will update automatically.');
+const openingCountdown = computed(() => { const value = session.value?.opening_at; const difference = new Date(value).getTime() - now.value; if (!value || !Number.isFinite(difference)) return 'Opening date not scheduled'; if (difference <= 0) return 'Opening time reached'; const minutes = Math.max(1, Math.ceil(difference / 60000)); const days = Math.floor(minutes / 1440); const hours = Math.floor((minutes % 1440) / 60); if (days > 0) return `Opening in ${days} ${days === 1 ? 'day' : 'days'}${hours ? `, ${hours} hr` : ''}`; if (hours > 0) return `Opening in ${hours} ${hours === 1 ? 'hour' : 'hours'}`; return `Opening in ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`; });
 const detailLink = computed(() => isEoiWorkflow.value && session.value?.eoi_uuid
   ? `/expressions-of-interest/${session.value.eoi_uuid}`
   : `/supplieropportunities/${session.value?.tender_uuid}`);
@@ -158,7 +213,6 @@ function formatQuantity(value) { return value === null || value === undefined ||
 function timelineMarkerClass(state) { return ({ complete: 'border-success bg-success text-success-content', current: 'border-primary bg-primary text-primary-content ring-4 ring-primary/15', unsuccessful: 'border-error bg-error text-error-content', upcoming: 'border-base-300 bg-base-100 text-base-content/55' })[state] ?? 'border-base-300 bg-base-100 text-base-content/55'; }
 function timelineCardClass(state) { return ({ complete: 'border-success/30 bg-base-100', current: 'border-primary/45 bg-primary/5', unsuccessful: 'border-error/40 bg-error/5', upcoming: 'border-base-200 bg-base-100' })[state] ?? 'border-base-200 bg-base-100'; }
 function timelineRailClass(index, position) { const stageIndex = position === 'before' ? index - 1 : index; const state = tenderStages.value[stageIndex]?.state; if (state === 'complete') return 'bg-success'; if (state === 'unsuccessful') return 'bg-error'; if (state === 'current') return 'bg-primary'; return 'bg-base-300'; }
-function countdown(value) { const difference = new Date(value).getTime() - now.value; if (!Number.isFinite(difference) || difference <= 0) return 'Opening time reached'; const minutes = Math.floor(difference / 60000); const days = Math.floor(minutes / 1440); const hours = Math.floor((minutes % 1440) / 60); const remaining = minutes % 60; return days ? `Starts in ${days}d ${hours}h ${remaining}m` : `Starts in ${hours}h ${remaining}m`; }
 function downloadReport() { if (!session.value?.report) return; const blob = new Blob([JSON.stringify({ tender: { reference: session.value.reference, title: session.value.title }, report_hash: session.value.report_hash, ...session.value.report }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = `${isEoiWorkflow.value ? 'eoi' : 'bid'}-opening-${session.value.reference || session.value.tender_uuid}.json`; link.click(); URL.revokeObjectURL(url); }
 onMounted(async () => { await loadSession(); pollTimer = window.setInterval(() => { if (!document.hidden && polling.value) loadSession(true); }, 5000); clockTimer = window.setInterval(() => { now.value = Date.now(); }, 30000); });
 onBeforeUnmount(() => { window.clearInterval(pollTimer); window.clearInterval(clockTimer); });
