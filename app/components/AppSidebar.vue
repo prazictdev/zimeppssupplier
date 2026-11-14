@@ -11,7 +11,7 @@
           @error="onLogoError"
         />
         <div :class="['min-w-0 leading-tight', collapsed ? 'lg:hidden' : '']">
-          <span class="block truncate text-sm font-bold text-[#263b70]">ZimEpps</span>
+          <span class="block truncate text-sm font-bold text-[#263b70]">ZePPs</span>
           <span class="mt-0.5 block text-[11px] font-medium text-[#008f55]">Supplier portal</span>
         </div>
       </NuxtLink>

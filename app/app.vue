@@ -10,6 +10,6 @@
 
 <script setup>
 useHead({
-  titleTemplate: title => title ? `${title} | ZimEpps` : 'ZimEpps — Zimbabwe Electronic Public Procurement System',
+  titleTemplate: title => title ? `${title} | ZePPs` : 'ZePPs — Zimbabwe Electronic Public Procurement System',
 })
 </script>

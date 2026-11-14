@@ -6,7 +6,7 @@
           <Icon name="lucide:lock-keyhole" class="h-5 w-5" />
         </div>
         <h1 class="mt-5 text-2xl font-bold tracking-tight text-base-content">Sign in</h1>
-        <p class="mt-1 text-sm leading-6 text-base-content/55">Access your ZimEpps supplier workspace.</p>
+        <p class="mt-1 text-sm leading-6 text-base-content/55">Access your ZePPs supplier workspace.</p>
 
         <form class="mt-6 space-y-4" novalidate @submit.prevent="handleLogin">
           <fieldset class="fieldset">

@@ -22,8 +22,8 @@ export default defineNuxtConfig({
       periodicSyncForUpdates: 3600,
     },
     manifest: {
-      name: 'ZimEpps — Zimbabwe Electronic Public Procurement System',
-      short_name: 'ZimEpps',
+      name: 'ZePPs — Zimbabwe Electronic Public Procurement System',
+      short_name: 'ZePPs',
       description: 'Find public procurement opportunities and manage supplier registrations, bids, awards and contracts.',
       theme_color: '#146c43',
       background_color: '#f7faf8',

@@ -5,7 +5,7 @@
         <Icon name="lucide:timer-reset" class="h-7 w-7" />
       </div>
 
-      <h2 class="mt-5 text-xl font-bold text-base-content">Are you still using ZimEpps?</h2>
+      <h2 class="mt-5 text-xl font-bold text-base-content">Are you still using ZePPs?</h2>
       <p class="mt-2 text-sm leading-6 text-base-content/65">
         This session has been inactive. For your security, you will be signed out unless you choose to continue.
       </p>

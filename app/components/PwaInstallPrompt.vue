@@ -8,7 +8,7 @@
           </div>
           <div class="min-w-0 flex-1">
             <p class="text-xs font-semibold uppercase tracking-[0.16em] text-primary-content/75">
-              ZimEpps on your device
+              ZePPs on your device
             </p>
             <h2 class="mt-1 text-xl font-bold">Install the supplier portal</h2>
             <p class="mt-1 text-sm text-primary-content/80">
@@ -33,7 +33,7 @@
           </li>
           <li class="flex gap-3">
             <span class="rounded-box bg-base-200 p-2 text-primary"><Icon name="lucide:smartphone" class="h-4 w-4" /></span>
-            <span><strong class="block text-base-content">Launch faster</strong>Open ZimEpps directly from your home screen or app menu.</span>
+            <span><strong class="block text-base-content">Launch faster</strong>Open ZePPs directly from your home screen or app menu.</span>
           </li>
         </ul>
 
@@ -46,7 +46,7 @@
           <Icon name="lucide:shield-alert" class="h-5 w-5" />
           <span>
             Samsung Internet may create an outdated Android app package that Play Protect blocks.
-            Open this page in Chrome, then install ZimEpps there.
+            Open this page in Chrome, then install ZePPs there.
           </span>
         </div>
 
@@ -64,7 +64,7 @@
           <button v-else-if="canInstall" type="button" class="btn btn-primary min-w-36" :disabled="isInstalling" @click="installApp">
             <span v-if="isInstalling" class="loading loading-spinner loading-sm" />
             <Icon v-else name="lucide:download" class="h-4 w-4" />
-            {{ isInstalling ? 'Opening installer' : 'Install ZimEpps' }}
+            {{ isInstalling ? 'Opening installer' : 'Install ZePPs' }}
           </button>
           <button v-else-if="isIos" type="button" class="btn btn-primary" @click="dismiss">Got it</button>
         </div>

@@ -182,7 +182,7 @@
 <script setup>
 definePageMeta({ layout: 'auth', sanctum: { excluded: true } })
 useHead({
-  title: 'Live Opportunities — ZimEpps',
+  title: 'Live Opportunities — ZePPs',
   meta: [{ name: 'description', content: 'Search active public tenders and filter opportunities by the number of days remaining before closing.' }],
 })
 

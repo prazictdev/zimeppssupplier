@@ -5,7 +5,7 @@
         <div class="flex items-center gap-3">
           <img src="/img/prazlogo.jpg" alt="Procurement Regulatory Authority of Zimbabwe logo" class="h-14 w-14 rounded-box border border-base-300 object-contain">
           <div>
-            <p class="font-black text-base-content">ZimEpps</p>
+            <p class="font-black text-base-content">ZePPs</p>
             <p class="text-xs text-base-content/50">Zimbabwe Electronic Public Procurement System</p>
           </div>
         </div>

@@ -16,7 +16,7 @@
           />
           <div class="flex min-w-0 flex-col">
             <span class="text-sm font-bold leading-tight text-base-content">
-              ZimEpps
+              ZePPs
             </span>
             <span class="hidden text-xs text-base-content/60 sm:block">
               Zimbabwe Electronic Public Procurement System

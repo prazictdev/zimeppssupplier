@@ -38,14 +38,14 @@
 
 <script setup>
 definePageMeta({ layout: 'auth', sanctum: { excluded: true } })
-useHead({ title: 'Supplier Resources — ZimEpps', meta: [{ name: 'description', content: 'Find ZimEpps supplier registration, tender and participation resources.' }] })
+useHead({ title: 'Supplier Resources — ZePPs', meta: [{ name: 'description', content: 'Find ZePPs supplier registration, tender and participation resources.' }] })
 
 const resources = [
-  { title: 'How ZimEpps works', description: 'Follow the supplier journey from account creation and registration through submission and award.', icon: 'lucide:list-checks', to: '/how-it-works' },
+  { title: 'How ZePPs works', description: 'Follow the supplier journey from account creation and registration through submission and award.', icon: 'lucide:list-checks', to: '/how-it-works' },
   { title: 'Live opportunities', description: 'Search active tenders and filter them by closing days, entity, method and supplier category.', icon: 'lucide:radio', to: '/live-opportunities' },
   { title: 'Full tender catalogue', description: 'Browse active, closed, awarded and cancelled public procurement notices.', icon: 'lucide:library-big', to: '/tenders' },
   { title: 'Supplier registration', description: 'Create an account and begin registering your organisation for relevant supplier categories.', icon: 'lucide:user-plus', to: '/register' },
-  { title: 'Procuring entities', description: 'Find public organisations and view tenders they have published through ZimEpps.', icon: 'lucide:landmark', to: '/procuring-entities' },
+  { title: 'Procuring entities', description: 'Find public organisations and view tenders they have published through ZePPs.', icon: 'lucide:landmark', to: '/procuring-entities' },
   { title: 'Supplier sign in', description: 'Access your organisation dashboard, registrations, payments, bids and notifications.', icon: 'lucide:log-in', to: '/login' },
 ]
 </script>

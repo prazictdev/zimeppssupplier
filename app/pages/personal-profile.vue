@@ -2,7 +2,7 @@
   <div class="mx-auto max-w-4xl space-y-6">
     <header class="border-b border-base-300 pb-5">
       <h1 class="text-2xl font-bold">Personal profile</h1>
-      <p class="mt-1 text-sm text-base-content/60">Your personal details for this ZimEpps account.</p>
+      <p class="mt-1 text-sm text-base-content/60">Your personal details for this ZePPs account.</p>
     </header>
 
     <section class="card card-border bg-base-100">

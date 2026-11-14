@@ -51,8 +51,8 @@
 definePageMeta({ layout: 'auth', sanctum: { excluded: true } })
 
 useHead({
-  title: 'Supplier Modules — ZimEpps',
-  meta: [{ name: 'description', content: 'Explore the ZimEpps modules available to suppliers.' }],
+  title: 'Supplier Modules — ZePPs',
+  meta: [{ name: 'description', content: 'Explore the ZePPs modules available to suppliers.' }],
 })
 
 const supplierModules = [

@@ -6,7 +6,7 @@
           <span class="loading loading-ring loading-lg text-emerald-700" aria-hidden="true" />
         </span>
         <h1 class="mt-5 text-lg font-bold text-[#101d3f]">Loading supplier opportunities</h1>
-        <p class="mt-1 text-sm leading-6 text-slate-500">Getting the latest tenders and procurement statistics from ZimEpps.</p>
+        <p class="mt-1 text-sm leading-6 text-slate-500">Getting the latest tenders and procurement statistics from ZePPs.</p>
         <span class="sr-only">Please wait while the landing page data loads.</span>
       </div>
     </div>
@@ -25,7 +25,7 @@
                 {{ formatNumber(activeTenderCount) }} public opportunities open now
               </div>
 
-              <p class="mb-3 text-sm font-bold tracking-wide text-emerald-700">ZimEpps · Zimbabwe's public procurement platform</p>
+              <p class="mb-3 text-sm font-bold tracking-wide text-emerald-700">ZePPs · Zimbabwe's public procurement platform</p>
               <h1 class="max-w-xl text-3xl font-extrabold leading-[1.12] tracking-[-0.025em] text-[#101d3f] sm:text-4xl lg:text-[2.65rem]">
                 Find opportunities. Submit confidently. Win contracts.
               </h1>
@@ -44,7 +44,7 @@
 
               <button type="button" class="group mt-7 hidden items-center gap-3 text-sm font-bold text-[#182b67] md:inline-flex" @click="scrollToHowItWorks">
                 <span class="flex h-10 w-10 items-center justify-center rounded-full border border-[#182b67]/25 bg-white transition group-hover:border-[#182b67] group-hover:shadow-md"><Icon name="lucide:play" class="ml-0.5 h-4 w-4" /></span>
-                See how ZimEpps works
+                See how ZePPs works
               </button>
             </div>
 
@@ -54,7 +54,7 @@
                 <div>
                   <p class="text-sm font-semibold text-emerald-700">From opportunity to contract</p>
                   <h2 class="mt-1 text-2xl font-black tracking-tight text-[#101d3f] sm:text-3xl">Your tender response journey</h2>
-                  <p class="mt-2 max-w-xl text-sm leading-6 text-slate-500">A clear path for suppliers responding to a public tender on ZimEpps.</p>
+                  <p class="mt-2 max-w-xl text-sm leading-6 text-slate-500">A clear path for suppliers responding to a public tender on ZePPs.</p>
                 </div>
               </div>
 
@@ -236,7 +236,7 @@
 
     <footer class="border-t border-slate-200 bg-white">
       <div class="app-shell grid gap-10 px-5 py-12 sm:grid-cols-2 sm:px-8 lg:grid-cols-[1.4fr_0.8fr_0.8fr_1fr]">
-        <div><div class="flex items-center gap-3"><img src="/img/prazlogo.jpg" alt="Procurement Regulatory Authority of Zimbabwe logo" class="h-16 w-16 rounded-xl border border-slate-200 object-contain"><div><p class="text-sm font-black">ZimEpps</p><p class="text-xs text-slate-400">Zimbabwe Electronic Public Procurement System</p></div></div><p class="mt-4 max-w-sm text-sm leading-6 text-slate-500">Developed and maintained by the Procurement Regulatory Authority of Zimbabwe, which promotes transparent, fair, competitive and accountable public procurement.</p></div>
+        <div><div class="flex items-center gap-3"><img src="/img/prazlogo.jpg" alt="Procurement Regulatory Authority of Zimbabwe logo" class="h-16 w-16 rounded-xl border border-slate-200 object-contain"><div><p class="text-sm font-black">ZePPs</p><p class="text-xs text-slate-400">Zimbabwe Electronic Public Procurement System</p></div></div><p class="mt-4 max-w-sm text-sm leading-6 text-slate-500">Developed and maintained by the Procurement Regulatory Authority of Zimbabwe, which promotes transparent, fair, competitive and accountable public procurement.</p></div>
         <div><h3 class="text-sm font-bold">Suppliers</h3><ul class="mt-4 space-y-2 text-sm text-slate-500"><li><NuxtLink to="/register" class="hover:text-emerald-700">Register</NuxtLink></li><li><NuxtLink to="/login" class="hover:text-emerald-700">Sign in</NuxtLink></li><li><button class="hover:text-emerald-700" @click="scrollToTenders">Browse tenders</button></li></ul></div>
         <div><h3 class="text-sm font-bold">Platform</h3><ul class="mt-4 space-y-2 text-sm text-slate-500"><li><NuxtLink to="/modules" class="hover:text-emerald-700">Supplier modules</NuxtLink></li><li><button class="hover:text-emerald-700" @click="scrollToHowItWorks">How it works</button></li><li><a href="https://www.praz.org.zw" class="hover:text-emerald-700">About PRAZ</a></li></ul></div>
         <div>
@@ -248,7 +248,7 @@
           </ul>
         </div>
       </div>
-      <div class="border-t border-slate-100"><div class="app-shell flex flex-col gap-2 px-5 py-5 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-8"><p>&copy; {{ new Date().getFullYear() }} Procurement Regulatory Authority of Zimbabwe.</p><p>ZimEpps is developed and maintained by PRAZ.</p></div></div>
+      <div class="border-t border-slate-100"><div class="app-shell flex flex-col gap-2 px-5 py-5 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-8"><p>&copy; {{ new Date().getFullYear() }} Procurement Regulatory Authority of Zimbabwe.</p><p>ZePPs is developed and maintained by PRAZ.</p></div></div>
     </footer>
     </template>
   </div>

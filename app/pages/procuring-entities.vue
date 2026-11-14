@@ -4,7 +4,7 @@
       <div class="app-shell px-5 py-12 sm:px-8 sm:py-16">
         <p class="text-xs font-bold uppercase tracking-[0.2em] text-primary">Public buyers</p>
         <h1 class="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Procuring entities</h1>
-        <p class="mt-4 max-w-2xl text-base leading-7 text-base-content/60">Explore public organisations with tenders published through ZimEpps, then open their current and historical opportunities.</p>
+        <p class="mt-4 max-w-2xl text-base leading-7 text-base-content/60">Explore public organisations with tenders published through ZePPs, then open their current and historical opportunities.</p>
       </div>
     </section>
 
@@ -35,7 +35,7 @@
 
 <script setup>
 definePageMeta({ layout: 'auth', sanctum: { excluded: true } })
-useHead({ title: 'Procuring Entities — ZimEpps', meta: [{ name: 'description', content: 'Browse procuring entities publishing tenders through ZimEpps.' }] })
+useHead({ title: 'Procuring Entities — ZePPs', meta: [{ name: 'description', content: 'Browse procuring entities publishing tenders through ZePPs.' }] })
 
 const { getTenderCatalogueFilters } = usePublicTenderHelper()
 const entities = ref([])

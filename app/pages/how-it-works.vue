@@ -4,7 +4,7 @@
       <div class="app-shell px-5 py-12 sm:px-8 sm:py-16">
         <p class="text-xs font-bold uppercase tracking-[0.2em] text-primary">Supplier guide</p>
         <h1 class="mt-3 max-w-3xl text-3xl font-black tracking-tight sm:text-4xl">From registration to contract award</h1>
-        <p class="mt-4 max-w-2xl text-base leading-7 text-base-content/60">ZimEpps gives suppliers one secure workflow for finding opportunities, preparing compliant responses, submitting on time and following procurement outcomes.</p>
+        <p class="mt-4 max-w-2xl text-base leading-7 text-base-content/60">ZePPs gives suppliers one secure workflow for finding opportunities, preparing compliant responses, submitting on time and following procurement outcomes.</p>
         <div class="mt-7 flex flex-wrap gap-3">
           <NuxtLink to="/live-opportunities" class="btn btn-primary">Browse live opportunities <Icon name="lucide:arrow-right" class="h-4 w-4" /></NuxtLink>
           <NuxtLink to="/register" class="btn btn-outline">Create supplier account</NuxtLink>
@@ -46,7 +46,7 @@
 
 <script setup>
 definePageMeta({ layout: 'auth', sanctum: { excluded: true } })
-useHead({ title: 'How ZimEpps Works', meta: [{ name: 'description', content: 'Learn how suppliers register, find public tenders, prepare bids and follow awards on ZimEpps.' }] })
+useHead({ title: 'How ZePPs Works', meta: [{ name: 'description', content: 'Learn how suppliers register, find public tenders, prepare bids and follow awards on ZePPs.' }] })
 
 const stages = [
   { title: 'Register your organisation', icon: 'lucide:building-2', description: 'Create the supplier account that represents your business on the platform.', items: ['Capture organisation and contact details', 'Add authorised team members', 'Upload required company documents'] },

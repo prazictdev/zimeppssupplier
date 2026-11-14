@@ -118,7 +118,7 @@
 <script setup>
 definePageMeta({ layout: 'auth', sanctum: { excluded: true } })
 useHead({
-  title: 'Published Procurement Plans — ZimEpps',
+  title: 'Published Procurement Plans — ZePPs',
   meta: [{ name: 'description', content: 'Browse annual procurement plans published by Zimbabwean procuring entities.' }],
 })
 

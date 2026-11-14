@@ -191,7 +191,7 @@ const error = ref('')
 const notFound = ref(false)
 
 useHead(() => ({
-  title: plan.value ? `${plan.value.entity?.name} ${plan.value.year} APP — ZimEpps` : 'Published Procurement Plan — ZimEpps',
+  title: plan.value ? `${plan.value.entity?.name} ${plan.value.year} APP — ZePPs` : 'Published Procurement Plan — ZePPs',
   meta: [{ name: 'description', content: plan.value ? `View the ${plan.value.year} annual procurement plan for ${plan.value.entity?.name}.` : 'View a published annual procurement plan.' }],
 }))
 
