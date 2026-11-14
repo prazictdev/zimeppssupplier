@@ -232,38 +232,13 @@
         </div>
       </section>
 
-      <section id="system-modules" class="border-t border-slate-200 bg-[#f4f8f7] py-10 sm:py-14">
-        <div class="app-shell px-5 sm:px-8">
-          <div class="max-w-3xl">
-            <p class="text-sm font-semibold text-emerald-700">Everything suppliers need in one place</p>
-            <h2 class="mt-2 text-3xl font-black tracking-tight text-[#101d3f] sm:text-4xl">Your supplier portal</h2>
-            <p class="mt-3 text-sm leading-6 text-slate-500 sm:text-base">Manage your organisation, maintain registration, find opportunities and follow every bid from preparation through to contract.</p>
-          </div>
-
-          <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <article v-for="module in supplierModules" :key="module.title" class="card card-border bg-white shadow-sm transition-shadow hover:shadow-md">
-              <div class="card-body gap-0 p-6">
-                <div class="flex items-start justify-between gap-4">
-                  <span class="flex h-12 w-12 items-center justify-center rounded-xl" :class="module.surface"><Icon :name="module.icon" class="h-6 w-6" /></span>
-                  <span class="badge badge-ghost badge-sm whitespace-nowrap">{{ module.audience }}</span>
-                </div>
-                <h3 class="card-title mt-6 text-lg font-black text-[#101d3f]">{{ module.title }}</h3>
-                <p class="mt-2 text-sm leading-6 text-slate-500">{{ module.description }}</p>
-                <div class="mt-5 border-t border-slate-100 pt-4 text-xs font-semibold text-slate-600">
-                  <span class="inline-flex items-center gap-2"><Icon name="lucide:circle-check" class="h-4 w-4 text-emerald-700" />{{ module.capability }}</span>
-                </div>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
     </main>
 
     <footer class="border-t border-slate-200 bg-white">
       <div class="app-shell grid gap-10 px-5 py-12 sm:grid-cols-2 sm:px-8 lg:grid-cols-[1.4fr_0.8fr_0.8fr_1fr]">
         <div><div class="flex items-center gap-3"><img src="/img/prazlogo.jpg" alt="Procurement Regulatory Authority of Zimbabwe logo" class="h-16 w-16 rounded-xl border border-slate-200 object-contain"><div><p class="text-sm font-black">ZimEpps</p><p class="text-xs text-slate-400">Zimbabwe Electronic Public Procurement System</p></div></div><p class="mt-4 max-w-sm text-sm leading-6 text-slate-500">Developed and maintained by the Procurement Regulatory Authority of Zimbabwe, which promotes transparent, fair, competitive and accountable public procurement.</p></div>
         <div><h3 class="text-sm font-bold">Suppliers</h3><ul class="mt-4 space-y-2 text-sm text-slate-500"><li><NuxtLink to="/register" class="hover:text-emerald-700">Register</NuxtLink></li><li><NuxtLink to="/login" class="hover:text-emerald-700">Sign in</NuxtLink></li><li><button class="hover:text-emerald-700" @click="scrollToTenders">Browse tenders</button></li></ul></div>
-        <div><h3 class="text-sm font-bold">Platform</h3><ul class="mt-4 space-y-2 text-sm text-slate-500"><li><button class="hover:text-emerald-700" @click="scrollToSystemModules">Supplier modules</button></li><li><button class="hover:text-emerald-700" @click="scrollToHowItWorks">How it works</button></li><li><a href="https://www.praz.org.zw" class="hover:text-emerald-700">About PRAZ</a></li></ul></div>
+        <div><h3 class="text-sm font-bold">Platform</h3><ul class="mt-4 space-y-2 text-sm text-slate-500"><li><NuxtLink to="/modules" class="hover:text-emerald-700">Supplier modules</NuxtLink></li><li><button class="hover:text-emerald-700" @click="scrollToHowItWorks">How it works</button></li><li><a href="https://www.praz.org.zw" class="hover:text-emerald-700">About PRAZ</a></li></ul></div>
         <div>
           <h3 class="text-sm font-bold">Contact</h3>
           <ul class="mt-4 space-y-3 text-sm text-slate-500">
@@ -303,14 +278,6 @@ const procurementJourney = [
   { title: 'Prepare bid', description: 'Complete and check your response', icon: 'lucide:clipboard-pen-line' },
   { title: 'Encrypt & submit', description: 'Secure the bid, submit on time and track progress', icon: 'lucide:file-lock-2' },
   { title: 'Award & contract', description: 'Proceed to contracting when successful', icon: 'lucide:file-signature' },
-]
-const supplierModules = [
-  { title: 'Organisation and team', audience: 'My organisation', icon: 'lucide:building-2', surface: 'bg-emerald-50 text-emerald-700', description: 'Maintain business details, contact information, industry categories and authorised portal users.', capability: 'Profile, documents and user access' },
-  { title: 'Registrations and renewals', audience: 'My registrations', icon: 'lucide:badge-check', surface: 'bg-blue-50 text-blue-700', description: 'Apply for supplier categories, upload compliance documents and renew registrations before expiry.', capability: 'Applications, certificates and renewals' },
-  { title: 'Tender opportunities', audience: 'My opportunities', icon: 'lucide:search', surface: 'bg-amber-50 text-amber-700', description: 'Search published tenders, review requirements and follow clarifications, addenda and closing dates.', capability: 'Tender discovery and tracking' },
-  { title: 'Secure bid submissions', audience: 'My bids', icon: 'lucide:file-lock-2', surface: 'bg-violet-50 text-violet-700', description: 'Prepare bid responses, encrypt final submissions and submit securely before the deadline.', capability: 'Encrypted bid preparation and submission' },
-  { title: 'Payments and bid security', audience: 'My finance', icon: 'lucide:wallet-cards', surface: 'bg-rose-50 text-rose-700', description: 'Manage wallet balances, settle invoices, review statements and monitor bid bond requirements.', capability: 'Wallet, invoices, payments and bid bonds' },
-  { title: 'Awards and contracts', audience: 'My outcomes', icon: 'lucide:file-signature', surface: 'bg-cyan-50 text-cyan-700', description: 'View award notifications, follow successful bids and access resulting supplier contracts.', capability: 'Award results and contract visibility' },
 ]
 const activeTenderCount = computed(() => (stats.value.active_tenders ?? 0) + eoiCount.value)
 const closingSoonCount = computed(() => stats.value.closing_soon ?? 0)
@@ -375,7 +342,6 @@ function scrollTo(sectionId) {
   if (import.meta.client) document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' })
 }
 const scrollToTenders = () => scrollTo('current-tenders')
-const scrollToSystemModules = () => scrollTo('system-modules')
 const scrollToHowItWorks = () => scrollTo('how-it-works')
 
 function formatNumber(value) {

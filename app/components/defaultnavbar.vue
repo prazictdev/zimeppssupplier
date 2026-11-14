@@ -66,6 +66,7 @@
             <ul id="suppliers-menu" class="menu dropdown-content z-50 mt-2 w-52 rounded-box border border-base-200 bg-base-100 p-2 shadow-xl">
               <li><NuxtLink to="/register" @click="closeMenus"><Icon name="lucide:user-plus" class="h-4 w-4" /> Supplier Registration</NuxtLink></li>
               <li><NuxtLink to="/how-it-works" @click="closeMenus"><Icon name="lucide:list-checks" class="h-4 w-4" /> How It Works</NuxtLink></li>
+              <li><NuxtLink to="/modules" @click="closeMenus"><Icon name="lucide:layout-grid" class="h-4 w-4" /> Modules</NuxtLink></li>
             </ul>
           </li>
           <li class="dropdown dropdown-bottom" :class="{ 'dropdown-open': openMenu === 'entities' }">
@@ -119,6 +120,7 @@
             <li><NuxtLink to="/live-opportunities" @click="closeMenus">Live Opportunities</NuxtLink></li>
             <li><NuxtLink to="/register" @click="closeMenus">Supplier Registration</NuxtLink></li>
             <li><NuxtLink to="/how-it-works" @click="closeMenus">How It Works</NuxtLink></li>
+            <li><NuxtLink to="/modules" @click="closeMenus">Modules</NuxtLink></li>
             <li><NuxtLink to="/procuring-entities" @click="closeMenus">Procuring Entities</NuxtLink></li>
             <li><NuxtLink to="/published-plans" @click="closeMenus">Published Plans</NuxtLink></li>
             <li><NuxtLink to="/resources" @click="closeMenus">Resources</NuxtLink></li>
