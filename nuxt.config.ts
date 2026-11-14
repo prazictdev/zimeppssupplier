@@ -70,6 +70,8 @@ export default defineNuxtConfig({
    },
   runtimeConfig: {
     public: {
+      idleTimeoutSeconds: Number(process.env.NUXT_PUBLIC_IDLE_TIMEOUT_SECONDS || 900),
+      idleWarningSeconds: Number(process.env.NUXT_PUBLIC_IDLE_WARNING_SECONDS || 60),
     },
   },
   sanctum: {

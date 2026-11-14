@@ -45,6 +45,7 @@
     </div>
 
     <PendingAddendumDialog />
+    <SessionIdleDialog />
     <MobileFooterNav @open-menu="toggleSidebar" />
   </div>
 </template>
