@@ -185,6 +185,22 @@
         <button type="button" @click="closeModal">close</button>
       </form>
     </dialog>
+
+    <dialog ref="addMoreModalRef" class="modal" @cancel.prevent>
+      <div class="modal-box max-w-md">
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-success/10 text-success">
+          <Icon name="lucide:circle-check" class="h-6 w-6" />
+        </div>
+        <h3 class="mt-4 text-lg font-bold text-base-content">Category added successfully</h3>
+        <p class="mt-2 text-sm leading-6 text-base-content/60">
+          Would you like to add more categories to your cart?
+        </p>
+        <form method="dialog" class="modal-action">
+          <button type="button" class="btn" @click="finishSelecting">No, I’m done</button>
+          <button type="submit" class="btn btn-primary" @click="continueSelecting">Yes, add more</button>
+        </form>
+      </div>
+    </dialog>
   </div>
 </template>
 
@@ -202,6 +218,7 @@ const categories = ref([])
 const loading = ref(true)
 const error = ref(false)
 const modalRef = ref(null)
+const addMoreModalRef = ref(null)
 const search = ref('')
 const saving = ref(null)
 const deleting = ref(null)
@@ -246,7 +263,16 @@ function openModal() {
 }
 
 function closeModal() {
+  addMoreModalRef.value?.close()
   modalRef.value?.close()
+}
+
+function continueSelecting() {
+  search.value = ''
+}
+
+function finishSelecting() {
+  closeModal()
 }
 
 async function pick(cat) {
@@ -258,6 +284,8 @@ async function pick(cat) {
       body: { suppliercategory_id: cat.id },
     })
     emit('select', res.data)
+    await nextTick()
+    addMoreModalRef.value?.showModal()
   } catch (error) {
     toast.error({
       title: 'Category could not be added',
